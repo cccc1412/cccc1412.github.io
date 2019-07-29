@@ -141,6 +141,49 @@
         
         <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
             <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-07-29T05:46:25.000Z">2019-07-29</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    1 分钟 读完 (大约 169 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                <a class="has-link-black-ter" href="/2019/07/29/右键添加管理员取得所有权/">右键添加管理员取得所有权</a>
+            
+        </h1>
+        <div class="content">
+            <figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version 5.00&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\*\shell\runas] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\*\shell\runas\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\exefile\shell\runas2] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\exefile\shell\runas2\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\Directory\shell\runas] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\Directory\shell\runas\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; /r /d y &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F /t&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; /r /d y &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F /t&quot;</span><br></pre></td></tr></table></figure>
+
+<p>&#x5728;txt&#x6587;&#x4EF6;&#x4E2D;&#x5199;&#x5165;&#xFF0C;&#x4F7F;&#x7528;ANSI&#x7F16;&#x7801;&#xFF0C;&#x91CD;&#x547D;&#x540D;&#x4E3A;.reg&#x6587;&#x4EF6;&#xFF0C;&#x53CC;&#x51FB;</p>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    <div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
                 <time class="level-item has-text-grey" datetime="2019-07-27T12:04:11.000Z">2019-07-27</time>
                 
                 
@@ -405,7 +448,7 @@
                         文章
                     </p>
                     <p class="title has-text-weight-normal">
-                        4
+                        5
                     </p>
                 </div>
             </div>
@@ -425,7 +468,7 @@
                         标签
                     </p>
                     <p class="title has-text-weight-normal">
-                        3
+                        4
                     </p>
                 </div>
             </div>
@@ -507,7 +550,7 @@
         <h3 class="menu-label">
             标签云
         </h3>
-        <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/markdown/" style="font-size: 10px;">markdown</a> <a href="/tags/机器学习-矩阵分析/" style="font-size: 10px;">机器学习 矩阵分析</a>
+        <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/markdown/" style="font-size: 10px;">markdown</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/机器学习-矩阵分析/" style="font-size: 10px;">机器学习 矩阵分析</a>
     </div>
 </div>
 
@@ -521,6 +564,19 @@
         <h3 class="menu-label">
             最新文章
         </h3>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-07-29T05:46:25.000Z">2019-07-29</time></div>
+                    <a href="/2019/07/29/右键添加管理员取得所有权/" class="has-link-black-ter is-size-6">右键添加管理员取得所有权</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
         
         <article class="media">
             
@@ -592,7 +648,7 @@
                     <span class="level-item">七月 2019</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">4</span>
+                    <span class="level-item tag">5</span>
                 </span>
             </a>
         </li>
@@ -620,6 +676,13 @@
                 <div class="control">
                     <a class="tags has-addons" href="/tags/markdown/">
                         <span class="tag">markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/windows/">
+                        <span class="tag">windows</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
@@ -658,6 +721,19 @@
             
             <div class="media-content">
                 <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-07-29T05:46:25.000Z">2019-07-29</time></div>
+                    <a href="/2019/07/29/右键添加管理员取得所有权/" class="has-link-black-ter is-size-6">右键添加管理员取得所有权</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-07-27T12:04:11.000Z">2019-07-27</time></div>
                     <a href="/2019/07/27/markdown常用公式符号/" class="has-link-black-ter is-size-6">markdown常用公式符号</a>
                     <p class="is-size-7 is-uppercase">
@@ -724,7 +800,7 @@
                     <span class="level-item">七月 2019</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">4</span>
+                    <span class="level-item tag">5</span>
                 </span>
             </a>
         </li>
@@ -752,6 +828,13 @@
                 <div class="control">
                     <a class="tags has-addons" href="/tags/markdown/">
                         <span class="tag">markdown</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/windows/">
+                        <span class="tag">windows</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
