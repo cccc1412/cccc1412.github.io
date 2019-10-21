@@ -2,14 +2,14 @@
 <html lang="zh">
 <head><meta name="generator" content="Hexo 3.9.0">
     <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-<title>标签: windows - JUSTME</title>
+<title>分类: web开发 - JUSTME</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
 
     <meta property="og:type" content="website">
 <meta property="og:title" content="JUSTME">
-<meta property="og:url" content="http://yoursite.com/tags/windows/index.html">
+<meta property="og:url" content="http://yoursite.com/categories/web开发/index.html">
 <meta property="og:site_name" content="JUSTME">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
@@ -138,8 +138,9 @@
     <div class="card-content">
         <nav class="breadcrumb" aria-label="breadcrumbs">
         <ul>
-            <li><a href="/tags">标签</a></li>
-            <li class="is-active"><a href="#" aria-current="page">windows</a></li>
+            <li><a href="/categories">分类</a></li>
+            
+            <li class="is-active"><a href="#" aria-current="page">web开发</a></li>
         </ul>
         </nav>
     </div>
@@ -151,13 +152,17 @@
         
         <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
             <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2019-07-29T05:46:25.000Z">2019-07-29</time>
+                <time class="level-item has-text-grey" datetime="2019-10-21T13:17:20.000Z">2019-10-21</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/web开发/">web开发</a>
+                </div>
                 
                 
                 <span class="level-item has-text-grey">
                     
                     
-                    1 分钟 读完 (大约 170 个字)
+                    几秒 读完 (大约 47 个字)
                 </span>
                 
                 
@@ -166,17 +171,21 @@
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                <a class="has-link-black-ter" href="/2019/07/29/右键添加管理员取得所有权/">右键添加管理员取得所有权</a>
+                <a class="has-link-black-ter" href="/2019/10/21/前端传参到后台中文乱码问题解决/">前端传参到后台中文乱码问题解决</a>
             
         </h1>
         <div class="content">
-            <a id="more"></a>
-<figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version 5.00&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\*\shell\runas] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\*\shell\runas\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\exefile\shell\runas2] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\exefile\shell\runas2\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\Directory\shell\runas] </span><br><span class="line">@=&quot;&#x7BA1;&#x7406;&#x5458;&#x53D6;&#x5F97;&#x6240;&#x6709;&#x6743;&quot; </span><br><span class="line">&quot;NoWorkingDirectory&quot;=&quot;&quot;&#x3000;&#x3000; </span><br><span class="line">[HKEY_CLASSES_ROOT\Directory\shell\runas\command] </span><br><span class="line">@=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; /r /d y &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F /t&quot; </span><br><span class="line">&quot;IsolatedCommand&quot;=&quot;cmd.exe /c takeown /f \&quot;%1\&quot; /r /d y &amp;&amp; icacls \&quot;%1\&quot; /grant administrators:F /t&quot;</span><br></pre></td></tr></table></figure>
-
-<p>&#x5728;txt&#x6587;&#x4EF6;&#x4E2D;&#x5199;&#x5165;&#xFF0C;&#x4F7F;&#x7528;ANSI&#x7F16;&#x7801;&#xFF0C;&#x91CD;&#x547D;&#x540D;&#x4E3A;.reg&#x6587;&#x4EF6;&#xFF0C;&#x53CC;&#x51FB;</p>
-
+            <p>&#x524D;&#x7AEF;&#x4F20;&#x53C2;&#x5230;&#x540E;&#x53F0;&#x4E2D;&#x6587;&#x4E71;&#x7801;&#x95EE;&#x9898;&#x89E3;&#x51B3;</p>
         </div>
         
+        
+        <div class="level is-mobile">
+            <div class="level-start">
+                <div class="level-item">
+                <a class="button is-size-7 is-light" href="/2019/10/21/前端传参到后台中文乱码问题解决/#more">阅读更多</a>
+                </div>
+            </div>
+        </div>
         
         
     </div>

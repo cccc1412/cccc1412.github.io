@@ -16,7 +16,7 @@
 <meta property="og:description" content="&amp;#x200B;    &amp;#x8BB0;&amp;#x5F55;&amp;#x4E86;&amp;#x6A21;&amp;#x62DF;&amp;#x9000;&amp;#x706B;&amp;#x7684;&amp;#x539F;&amp;#x7406;&amp;#x548C;matlab&amp;#x7B2C;&amp;#x4E09;&amp;#x65B9;&amp;#x5DE5;&amp;#x5177;&amp;#x7BB1;satools&amp;#x7684;&amp;#x4F7F;&amp;#x7528;&amp;#x3002;">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
-<meta property="og:updated_time" content="2019-08-11T10:12:47.136Z">
+<meta property="og:updated_time" content="2019-09-29T13:19:16.157Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="matlab模拟退火工具箱satools">
 <meta name="twitter:description" content="&amp;#x200B;    &amp;#x8BB0;&amp;#x5F55;&amp;#x4E86;&amp;#x6A21;&amp;#x62DF;&amp;#x9000;&amp;#x706B;&amp;#x7684;&amp;#x539F;&amp;#x7406;&amp;#x548C;matlab&amp;#x7B2C;&amp;#x4E09;&amp;#x65B9;&amp;#x5DE5;&amp;#x5177;&amp;#x7BB1;satools&amp;#x7684;&amp;#x4F7F;&amp;#x7528;&amp;#x3002;">
@@ -159,7 +159,7 @@
                 <span class="level-item has-text-grey">
                     
                     
-                    4 分钟 读完 (大约 563 个字)
+                    5 分钟 读完 (大约 794 个字)
                 </span>
                 
                 
@@ -178,7 +178,7 @@
 <h2 id="&#x7B97;&#x6CD5;&#x539F;&#x7406;"><a href="#&#x7B97;&#x6CD5;&#x539F;&#x7406;" class="headerlink" title="&#x7B97;&#x6CD5;&#x539F;&#x7406;"></a>&#x7B97;&#x6CD5;&#x539F;&#x7406;</h2><p><img src="/2019/08/11/matlab&#x6A21;&#x62DF;&#x9000;&#x706B;&#x5DE5;&#x5177;&#x7BB1;satools/1565501784456.png" alt></p>
 <h2 id="SATOOLS&#x4F7F;&#x7528;"><a href="#SATOOLS&#x4F7F;&#x7528;" class="headerlink" title="SATOOLS&#x4F7F;&#x7528;"></a>SATOOLS&#x4F7F;&#x7528;</h2><h3 id="&#x6A21;&#x62DF;&#x9000;&#x706B;&#x4E3B;&#x51FD;&#x6570;anneal"><a href="#&#x6A21;&#x62DF;&#x9000;&#x706B;&#x4E3B;&#x51FD;&#x6570;anneal" class="headerlink" title="&#x6A21;&#x62DF;&#x9000;&#x706B;&#x4E3B;&#x51FD;&#x6570;anneal"></a>&#x6A21;&#x62DF;&#x9000;&#x706B;&#x4E3B;&#x51FD;&#x6570;<code>anneal</code></h3><h4 id="&#x8C03;&#x7528;&#x683C;&#x5F0F;&#xFF1A;"><a href="#&#x8C03;&#x7528;&#x683C;&#x5F0F;&#xFF1A;" class="headerlink" title="&#x8C03;&#x7528;&#x683C;&#x5F0F;&#xFF1A;"></a>&#x8C03;&#x7528;&#x683C;&#x5F0F;&#xFF1A;</h4><figure class="highlight matlab hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[W,Ew,Wbsf,Ebsf,Tt,Et,Etarget,ert,Kt,Ebsft,Eh,M,rho,Ebin]</span> = <span class="hljs-title">anneal</span><span class="hljs-params">( ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    verbose, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    newstate, X, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    cost, moveclass, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    walkers, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    acceptrule, q, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    schedule, P, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    equilibrate, C, maxsteps, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    Tinit, r, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    Tfinal, f, maxtemps, ...</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-params">    v, bins, e)</span></span></span><br></pre></td></tr></table></figure>
 
-<h4 id="&#x53C2;&#x6570;&#x8BF4;&#x660E;"><a href="#&#x53C2;&#x6570;&#x8BF4;&#x660E;" class="headerlink" title="&#x53C2;&#x6570;&#x8BF4;&#x660E;"></a>&#x53C2;&#x6570;&#x8BF4;&#x660E;</h4><ul>
+<h4 id="&#x53C2;&#x6570;&#x8BF4;&#x660E;"><a href="#&#x53C2;&#x6570;&#x8BF4;&#x660E;" class="headerlink" title="&#x53C2;&#x6570;&#x8BF4;&#x660E;"></a>&#x53C2;&#x6570;&#x8BF4;&#x660E;</h4><h5 id="&#x8F93;&#x5165;&#x53C2;&#x6570;"><a href="#&#x8F93;&#x5165;&#x53C2;&#x6570;" class="headerlink" title="&#x8F93;&#x5165;&#x53C2;&#x6570;"></a>&#x8F93;&#x5165;&#x53C2;&#x6570;</h5><ul>
 <li><code>verbose</code>&#xFF1A;flag&#x53D8;&#x91CF;&#xFF0C;&#x4E3A;1&#x65F6;&#x6253;&#x5370;&#x72B6;&#x6001;&#x53D8;&#x91CF;</li>
 <li><code>newstate</code>&#xFF1A;&#x7528;&#x6237;&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;,&#x4EA7;&#x751F;&#x521D;&#x59CB;&#x89E3;</li>
 <li><code>X</code>&#xFF1A;&#x95EE;&#x9898;&#x7684;domain(&#x89E3;&#x7A7A;&#x95F4;?)&#xFF0C;&#x5E38;&#x91CF;</li>
@@ -200,6 +200,45 @@
 <li><code>v</code>&#xFF1A;&#x6E29;&#x5EA6;&#x53D8;&#x5316;&#x7684;&#x5FEB;&#x6162;$[0,1]$</li>
 <li><code>bins&#xFF1A;</code></li>
 <li><code>e</code>&#xFF1A;</li>
+</ul>
+<h5 id="&#x8F93;&#x51FA;&#x53C2;&#x6570;"><a href="#&#x8F93;&#x51FA;&#x53C2;&#x6570;" class="headerlink" title="&#x8F93;&#x51FA;&#x53C2;&#x6570;"></a>&#x8F93;&#x51FA;&#x53C2;&#x6570;</h5><ul>
+<li><p><code>W</code>&#xFF1A;&#x6BCF;&#x4E2A;<code>walker</code>&#x7684;&#x6700;&#x7EC8;&#x72B6;&#x6001;</p>
+</li>
+<li><p><code>Ew</code>&#xFF1A;<code>W</code>&#x5BF9;&#x5E94;&#x7684;&#x6700;&#x7EC8;&#x80FD;&#x91CF;</p>
+</li>
+<li><p><code>Wbsf</code>&#xFF1A;&#x6BCF;&#x4E2A;<code>walker</code>&#x7684;<code>best so far</code>&#x72B6;&#x6001;</p>
+</li>
+<li><p><code>Ebsf</code>&#xFF1A;&#x6BCF;&#x4E2A;<code>walker</code>&#x7684;<code>best so far</code>&#x80FD;&#x91CF;</p>
+</li>
+<li><p><code>Tt(i)</code>&#xFF1A;&#x6BCF;&#x6B21;&#x6E29;&#x5EA6;&#x6B65;&#x7684;&#x6E29;&#x5EA6;&#x8BB0;&#x5F55;</p>
+</li>
+<li><p><code>Et(i)</code>&#xFF1A;<code>Tt(i)</code>&#x5BF9;&#x5E94;&#x7684;&#x5E73;&#x5747;&#x80FD;&#x91CF;</p>
+</li>
+<li><p><code>Etarget&#xFF08;i&#xFF09;</code>&#xFF1A;<code>Tt(i)</code>&#x5BF9;&#x5E94;&#x7684;&#x76EE;&#x6807;&#x5E73;&#x5747;&#x80FD;&#x91CF;&#xFF0C;&#x6839;&#x636E;<code>v</code>&#x8BA1;&#x7B97;</p>
+</li>
+<li><p><code>ert(i)</code>&#xFF1A;</p>
+</li>
+<li><p><code>kt(i)</code>&#xFF1A;<code>Tt(i)</code>&#x5BF9;&#x5E94;&#x7684;&#x70ED;&#x5E73;&#x8861;&#x6B65;&#x6570;</p>
+</li>
+<li><p><code>Ebsft(i)</code>&#xFF1A;<code>Tt(i)</code>&#x5BF9;&#x5E94;&#x7684;<code>best so far</code>&#x80FD;&#x91CF;</p>
+</li>
+<li><p><code>Eh</code>&#xFF1A;&#x80FD;&#x91CF;&#x548C;&#x6E29;&#x5EA6;&#x7684;&#x5386;&#x53F2;&#x8BB0;&#x5F55;</p>
+<ul>
+<li><code>i = 1,1 + (steps*walkers)</code></li>
+<li><code>Eh(i,1)</code>&#xFF1A;&#x6E29;&#x5EA6;&#x6B65;&#x7684;&#x4E0B;&#x6807;<code>t</code></li>
+<li><code>Eh(i,2)</code>&#xFF1A;<code>t</code>&#x5BF9;&#x5E94;&#x7684;&#x6E29;&#x5EA6;<code>T</code></li>
+<li><code>Eh(i,3)</code>&#xFF1A;&#x5728;&#x6E29;&#x5EA6;<code>T</code>&#x65F6;&#x7684;&#x8FBE;&#x5230;&#x70ED;&#x5E73;&#x8861;&#x6B65;&#x6570;&#x7684;&#x7F16;&#x53F7;<code>j</code></li>
+<li><code>Eh(i,4)</code>&#xFF1A;<code>walker</code>&#x7684;&#x7F16;&#x53F7;<code>k</code></li>
+<li><code>Eh(i,5)</code>&#xFF1A;&#x5728;<code>T</code>&#x6E29;&#x5EA6;&#x4E0B;,&#x7B2C;<code>j</code>&#x6B65;&#xFF0C;<code>walker k</code>&#x5BF9;&#x5E94;&#x7684;&#x80FD;&#x91CF;</li>
+<li><code>Eh(i,6)</code>&#xFF1A;&#x5728;<code>T</code>&#x6E29;&#x5EA6;&#x4E0B;,&#x7B2C;<code>j</code>&#x6B65;&#xFF0C;<code>energy E&apos; attempted from E</code></li>
+</ul>
+</li>
+<li><p><code>M</code>&#xFF1A;</p>
+</li>
+<li><p><code>rho</code>&#xFF1A;</p>
+</li>
+<li><p><code>Ebin</code>&#xFF1A;</p>
+</li>
 </ul>
 <h4 id="&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;&#x7F16;&#x5199;"><a href="#&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;&#x7F16;&#x5199;" class="headerlink" title="&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;&#x7F16;&#x5199;"></a>&#x81EA;&#x5B9A;&#x4E49;&#x51FD;&#x6570;&#x7F16;&#x5199;</h4><ol>
 <li><p><code>newstate</code>&#x4EA7;&#x751F;&#x521D;&#x59CB;&#x89E3;&#xFF0C;</p>
@@ -302,7 +341,7 @@
                         文章
                     </p>
                     <p class="title has-text-weight-normal">
-                        13
+                        14
                     </p>
                 </div>
             </div>
@@ -312,7 +351,7 @@
                         分类
                     </p>
                     <p class="title has-text-weight-normal">
-                        3
+                        4
                     </p>
                 </div>
             </div>
@@ -322,7 +361,7 @@
                         标签
                     </p>
                     <p class="title has-text-weight-normal">
-                        8
+                        9
                     </p>
                 </div>
             </div>
@@ -420,6 +459,14 @@
             </h3>
             <ul class="menu-list">
             <li>
+        <a class="level is-marginless" href="/categories/web开发/">
+            <span class="level-start">
+                <span class="level-item">web开发</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
         <a class="level is-marginless" href="/categories/机器学习/">
             <span class="level-start">
                 <span class="level-item">机器学习</span>
@@ -455,7 +502,7 @@
         <h3 class="menu-label">
             标签云
         </h3>
-        <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/markdown/" style="font-size: 10px;">markdown</a> <a href="/tags/matlab/" style="font-size: 10px;">matlab</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/数学建模/" style="font-size: 15px;">数学建模</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵分析/" style="font-size: 10px;">矩阵分析</a> <a href="/tags/运筹学/" style="font-size: 20px;">运筹学</a>
+        <a href="/tags/hexo/" style="font-size: 15px;">hexo</a> <a href="/tags/markdown/" style="font-size: 10px;">markdown</a> <a href="/tags/matlab/" style="font-size: 10px;">matlab</a> <a href="/tags/web/" style="font-size: 10px;">web</a> <a href="/tags/windows/" style="font-size: 10px;">windows</a> <a href="/tags/数学建模/" style="font-size: 15px;">数学建模</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵分析/" style="font-size: 10px;">矩阵分析</a> <a href="/tags/运筹学/" style="font-size: 20px;">运筹学</a>
     </div>
 </div>
 
@@ -469,6 +516,19 @@
         <h3 class="menu-label">
             最新文章
         </h3>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-10-21T13:17:20.000Z">2019-10-21</time></div>
+                    <a href="/2019/10/21/前端传参到后台中文乱码问题解决/" class="has-link-black-ter is-size-6">前端传参到后台中文乱码问题解决</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/web开发/">web开发</a>
+                    </p>
+                </div>
+            </div>
+        </article>
         
         <article class="media">
             
@@ -522,19 +582,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-08-09T08:05:07.000Z">2019-08-09</time></div>
-                    <a href="/2019/08/09/决策论/" class="has-link-black-ter is-size-6">决策论</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/运筹学/">运筹学</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
 
@@ -546,6 +593,17 @@
             归档
         </h3>
         <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/10/">
+                <span class="level-start">
+                    <span class="level-item">十月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
         
         <li>
             <a class="level is-marginless" href="/archives/2019/08/">
@@ -599,6 +657,13 @@
                 <div class="control">
                     <a class="tags has-addons" href="/tags/matlab/">
                         <span class="tag">matlab</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/web/">
+                        <span class="tag">web</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
@@ -665,6 +730,19 @@
             
             <div class="media-content">
                 <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-10-21T13:17:20.000Z">2019-10-21</time></div>
+                    <a href="/2019/10/21/前端传参到后台中文乱码问题解决/" class="has-link-black-ter is-size-6">前端传参到后台中文乱码问题解决</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/web开发/">web开发</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-08-16T04:35:01.000Z">2019-08-16</time></div>
                     <a href="/2019/08/16/熵值法用于特征剔除/" class="has-link-black-ter is-size-6">熵值法用于特征剔除</a>
                     <p class="is-size-7 is-uppercase">
@@ -713,19 +791,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-08-09T08:05:07.000Z">2019-08-09</time></div>
-                    <a href="/2019/08/09/决策论/" class="has-link-black-ter is-size-6">决策论</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/运筹学/">运筹学</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
 
@@ -737,6 +802,17 @@
             归档
         </h3>
         <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2019/10/">
+                <span class="level-start">
+                    <span class="level-item">十月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">1</span>
+                </span>
+            </a>
+        </li>
         
         <li>
             <a class="level is-marginless" href="/archives/2019/08/">
@@ -790,6 +866,13 @@
                 <div class="control">
                     <a class="tags has-addons" href="/tags/matlab/">
                         <span class="tag">matlab</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/web/">
+                        <span class="tag">web</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
