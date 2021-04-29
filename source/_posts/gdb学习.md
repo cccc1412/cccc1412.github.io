@@ -6,6 +6,8 @@ tags:
 categories:
 ---
 
+gdb笔记
+
 <!--more-->
 
 ### GDB功能

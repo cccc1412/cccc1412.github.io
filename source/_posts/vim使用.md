@@ -6,6 +6,8 @@ tags:
 categories:
 ---
 
+vim学习
+
 <!--more-->
 
 ## Vim基础

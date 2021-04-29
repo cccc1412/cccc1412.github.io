@@ -10,11 +10,47 @@ categories:
 
 <!--more-->
 
+## 网络编程流程
+
+<img src="D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429133738856.png" alt="image-20210429133738856" style="zoom:150%;" />
+
+## 阻塞IO和非阻塞IO
+
+每个连接都会对应一个读缓冲区和写缓冲区
+
+![image-20210429131500484](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429131500484.png)
+
+* 阻塞在哪？
+  * 阻塞在网络线程，比如调用了read/recv，下面的就不能运行，程序就卡在那里
+* 阻塞和非阻塞的差异？
+  * IO函数在数据到达时是否立刻返回，立刻返回的是非阻塞
+* 阻塞和非阻塞由什么决定？
+  * fd决定，默认fd是阻塞。
+  * fcntl可以设置fd为非阻塞
+
+### 阻塞IO
+
+![image-20210429130833394](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429130833394.png)
+
+数据准备阶段是看readbuffer是否有数据，数据到达后把数据拷贝到用户空间，也就是应用程序中，这个是数据拷贝阶段。
+
+### 非阻塞IO
+
+![image-20210429131711570](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429131711570.png)
+
+假设当前readbuffer没有数据，调用read/recv会立马返回，继续执行read后面的逻辑
+
 ## I/O多路复用
 
-早期，为了实现一个服务器支持多个客户端的连接，使用fork/thread一个进程/线程的方式去接受并处理请求。
+> 用一个线程检测多个IO事件，复用的是网络线程
 
-随着网络连接增多，fork/thread模型就不行了。所以有了IO多路复用模型。一个连接到来后，遍历所有的已注册的文件描述符，找到需要处理的文件描述符，也就是select和poll。
+早期，为了实现一个服务器支持多个客户端的连接，使用fork/thread一个进程/线程的方式去接受并处理请求。这是阻塞IO+多线程，优点处理及时，但是线程利用率低，线程数有限。
+
+一个连接到来后，遍历所有的已注册的文件描述符，找到需要处理的文件描述符，也就是select和poll。
+
+![image-20210429132812772](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429132812772.png)
+
+IO多路复用作用在数据准备阶段
 
 由于遍历引起的巨大开销O(n)，在原有的基础上进一步优化，有了epoll的方法。
 
@@ -33,7 +69,7 @@ int epoll_create(int size);
 在内核中创建epoll实例，并返回一个epoll文件描述符。size是要监听的文件描述符数量，大于size的话内核会自动扩容。
 
 ```c++
-int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);//ctl就是control
 ```
 
 向epfd对应的内核epoll实例添加、修改或删除对fd事件event的监听。
@@ -53,6 +89,10 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 当 timeout 为一正整数时，epoll 会阻塞直到计时 timeout 毫秒或已注册的事件变为就绪。（因为内核调度延迟，阻塞会略微超过 timeout 毫秒）。
 
 ### epoll的实现
+
+### 原理图
+
+![image-20210429133121513](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429133121513.png)
 
 #### mmap
 
@@ -74,3 +114,6 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 * ep_event_transfer函数将rdlist中的epitem拷贝到txlist,rdlist清空
 * ep_send_event，扫描txlist中的每个epitem，调用关联fd对应的poll方法，从而获得fd上较新的events，封装在epoll_event从epoll_wait返回。
+
+## epoll应用
+
