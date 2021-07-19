@@ -1,0 +1,13 @@
+先安装git node13 npm hexo
+
+配置git个人信息，生成性ssh密钥
+git config --global user.name "JUSTME"
+git config --global user.email "xxxxx@qq.com"
+ssh-keygen -t rsa -C "674987879@qq.com"
+一路回车
+
+
+在blog文件夹下npm install
+npm install -g hexo-cli
+
+然后hexo g

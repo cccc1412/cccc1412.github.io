@@ -12,13 +12,13 @@ categories:
 
 ## 网络编程流程
 
-<img src="D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429133738856.png" alt="image-20210429133738856" style="zoom:150%;" />
+<img src="\Linux下的epoll和I-O复用\image-20210429133738856.png" alt="image-20210429133738856" style="zoom:150%;" />
 
 ## 阻塞IO和非阻塞IO
 
 每个连接都会对应一个读缓冲区和写缓冲区
 
-![image-20210429131500484](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429131500484.png)
+![image-20210429131500484](\Linux下的epoll和I-O复用\image-20210429131500484.png)
 
 * 阻塞在哪？
   * 阻塞在网络线程，比如调用了read/recv，下面的就不能运行，程序就卡在那里
@@ -30,13 +30,13 @@ categories:
 
 ### 阻塞IO
 
-![image-20210429130833394](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429130833394.png)
+![image-20210429130833394](\Linux下的epoll和I-O复用\image-20210429130833394.png)
 
 数据准备阶段是看readbuffer是否有数据，数据到达后把数据拷贝到用户空间，也就是应用程序中，这个是数据拷贝阶段。
 
 ### 非阻塞IO
 
-![image-20210429131711570](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429131711570.png)
+![image-20210429131711570](\Linux下的epoll和I-O复用\image-20210429131711570.png)
 
 假设当前readbuffer没有数据，调用read/recv会立马返回，继续执行read后面的逻辑
 
@@ -48,17 +48,19 @@ categories:
 
 一个连接到来后，遍历所有的已注册的文件描述符，找到需要处理的文件描述符，也就是select和poll。
 
-![image-20210429132812772](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429132812772.png)
+![image-20210429132812772](\Linux下的epoll和I-O复用\image-20210429132812772.png)
 
-IO多路复用作用在数据准备阶段
+**IO多路复用作用在数据准备阶段**
 
 由于遍历引起的巨大开销O(n)，在原有的基础上进一步优化，有了epoll的方法。
 
-## epoll
+epoll
 
 > `epoll`是linux内核的可扩展I/O事件通知机制。
 
 使用一个文件描述符管理多个描述符。
+
+## epoll
 
 ### 程序接口
 
@@ -90,9 +92,21 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 ### epoll的实现
 
+#### 重要数据结构
+
+```c++
+struct eventpoll {
+    struct rb_root rbr; //红黑树,管理epoll监听的事件
+    struct list_head rdlist;//保存epoll_wait 返回满足条件的时间
+    ...
+};
+```
+
+
+
 ### 原理图
 
-![image-20210429133121513](D:\code\myBlog\Blog\source\_posts\Linux下的epoll和I-O复用\image-20210429133121513.png)
+![image-20210429133121513](\Linux下的epoll和I-O复用\image-20210429133121513.png)
 
 #### mmap
 
@@ -100,9 +114,13 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 
 #### 红黑树
 
-存储epoll监听的套接字。存储到mmap出来的内存。添加或者删除一个套接字（`epoll_ctl`）时，都在红黑树上去处理。
+> 二叉搜索树
 
-通过`epoll_ctl` 添加进来的事件都会放在红黑树的节点内。
+存储epoll监听的套接字fd。存储到mmap出来的内存。添加或者删除一个套接字（`epoll_ctl`）时，都在红黑树上去处理。
+
+通过`epoll_ctl` 添加进来的fd都会放在红黑树的节点内。
+
+同时与网卡驱动建立回调关系，如果网卡驱动检测到节点有事件，节点会被拷贝到就绪队列
 
 #### 双向链表
 
@@ -115,5 +133,38 @@ int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 * ep_event_transfer函数将rdlist中的epitem拷贝到txlist,rdlist清空
 * ep_send_event，扫描txlist中的每个epitem，调用关联fd对应的poll方法，从而获得fd上较新的events，封装在epoll_event从epoll_wait返回。
 
-## epoll应用
+### epoll使用
+
+```c++
+int listenfd = socket;
+bind(listenfd,addr);
+listen(listenfd);
+int efd = epoll_creat(0);
+epoll_ctl(efd,epoll_ctl_add,listenfd,&ev);//
+while (true) {
+    epoll_event ev[size];//需要在用户态分配内存
+    int nevent = epoll_wait(efd,ev,size,timeout);//作用在数据准备阶段
+    for(int i = 0; i < nevent; i++) {
+		epoll_event *e = ev[i];
+        if(e->fd == listenfd) {
+			int clientfd = accept(listenfd);
+            epoll_ctl(efd,epoll_ctl,clientfd.&env);
+        } else {
+            if (读事件) {
+                read();
+                logic;
+                send();
+            }
+            if (写时间) send();
+            if (错误时间) close();
+        }
+    }
+}
+```
+
+## reactor
+
+> 组成：非阻塞IO+IO多路复用
+>
+> 特征：基于事件循环，以事件驱动或者事件回调来实现业务逻辑
 
