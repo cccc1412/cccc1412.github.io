@@ -2,11 +2,15 @@
 
 配置git个人信息，生成性ssh密钥
 git config --global user.name "JUSTME"
-git config --global user.email "xxxxx@qq.com"
+git config --global user.email "674987879@qq.com"
 ssh-keygen -t rsa -C "674987879@qq.com"
+复制
 一路回车
+id_rsa.pub添加到GitHub setting
 
 
+先去掉onedrive的同步
+在本地新建文件夹，把onedrive中的文件剪切过去，然后再创建到onedrive文件夹的符号链接
 在blog文件夹下npm install
 npm install -g hexo-cli
 

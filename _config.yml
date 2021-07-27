@@ -79,8 +79,7 @@ theme: hexo-theme-icarus
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:cccc1412/cccc1412.github.io.git
+  repo: https://github.com/cccc1412/cccc1412.github.io.git
 
 admin:
   deployCommand: 'hexo-publish.bat'
-  

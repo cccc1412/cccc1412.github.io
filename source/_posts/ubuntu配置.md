@@ -27,6 +27,12 @@ $ ./vmware-install.pl
 
 后面yes回车
 
+## 挂载vmware共享文件夹
+
+默认是挂载到`/mnt/hdfs`下，想修改挂载到`home/username`下
+
+
+
 ## bashrc和profile
 
 ### shell和bash
@@ -55,7 +61,7 @@ ctrl+h可显示隐藏.文件
 
 ubuntu20.04下是`.profile`
 
-![image-20210517205327302](D:\code\myBlog\Blog\source\_posts\ubuntu配置\image-20210517205327302.png)
+![image-20210517205327302](/ubuntu配置/image-20210517205327302.png)
 
 注意13行，判断home目录下bashrc文件是否存在，存在则读入，**也就是说login shell环境下，最终读入的配置文件是`~/.bashrc`**，**也就是说自己的偏好设置写入`~/.bashrc`即可。**
 
@@ -66,4 +72,40 @@ ubuntu20.04下是`.profile`
 ### 相关命令
 
 `source` 读入环境配置文件，比如刚修改了.bashrc文件，source以下就可以生效了 
+
+
+
+## zsh ohmyzsh tmux .tmux安装
+
+`.tmux.conf.local`中加入
+
+```shell
+set -g default-shell /bin/zsh
+```
+
+注意要让tmux配置生效，直接在shell里source是不行的
+
+要进入tmux，然后ctrl+b，输入`:source ~/.tmux.conf`
+
+### zsh常用插件安装
+
+```shell
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+```
+
+然后在`.zshrc`中配置
+
+`plugins=(.. zsh-syntax-highlighting zsh-autosuggestions)`
+
+
+
+### zsh主题安装
+
+
+
+## 中文linux命令手册
+
+`pip install how`
 
