@@ -63,7 +63,7 @@ fork使用写时拷贝实现。fork的时候内核不赋值整个进程的地址
 
 linux通过调用clone实现fork，vfork，__clone
 
-![image-20210726133048556](Linux内核之进程管理/image-20210726133048556.png)
+![image-20210726133048556](Linux内核之进程管理/image-20210726214717977.png)
 
 ### linux中线程的实现
 
