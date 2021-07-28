@@ -2,9 +2,12 @@
 title: Linux内核之进程管理
 toc: true
 date: 2021-07-26 12:41:21
-tags:
+tags: Linux内核
 categories:
+- Linux内核
 ---
+
+Linux内核之进程管理
 
 <!--more-->
 
