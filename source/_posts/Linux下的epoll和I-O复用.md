@@ -2,8 +2,9 @@
 title: Linux下的epoll和I/O复用
 toc: true
 date: 2021-01-11 17:00:58
-tags:
+tags: linux内核
 categories:
+- 网络
 ---
 
 学libco过程中遇到了epoll和I/O复用相关概念。

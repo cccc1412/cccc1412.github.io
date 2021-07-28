@@ -2,8 +2,9 @@
 title: ubuntu配置
 toc: true
 date: 2020-12-28 15:24:33
-tags:
+tags: 环境配置
 categories:
+- 环境配置
 ---
 
 <!--more-->

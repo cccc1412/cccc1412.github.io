@@ -4,6 +4,7 @@ toc: true
 date: 2021-04-29 19:13:21
 tags: windows
 categories:
+- 环境配置
 ---
 
 解决部分应用无法用win+q搜索到问题

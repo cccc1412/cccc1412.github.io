@@ -1,5 +1,8 @@
 先安装git node13 npm hexo
 
+nvm可以管理node版本
+nvm install 版本号
+
 配置git个人信息，生成性ssh密钥
 git config --global user.name "JUSTME"
 git config --global user.email "674987879@qq.com"
