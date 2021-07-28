@@ -1,4 +1,11 @@
-先安装git node13 npm hexo
+先安装git nvm node npm hexo
+
+https://github.com/nvm-sh/nvm安装nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | zsh
+
+
+
+先从github从hexo分支把源克隆下来
 
 nvm可以管理node版本
 nvm install 版本号

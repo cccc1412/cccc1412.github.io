@@ -1,0 +1,8 @@
+如何创建远程仓库
+首先本地工作目录git init
+然后github上new一个仓库
+然后本地git remote add origin git@xxxxx.git
+设置ignore
+git add . 
+git commit -m "xx"
+git push -u origin master

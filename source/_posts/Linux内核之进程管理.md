@@ -2,12 +2,12 @@
 title: Linux内核之进程管理
 toc: true
 date: 2021-07-26 12:41:21
-tags: linux内核
-categories: 
-- linux内核
+tags: Linux内核
+categories:
+- Linux内核
 ---
 
-linux进程管理
+Linux内核之进程管理
 
 <!--more-->
 
@@ -66,7 +66,7 @@ fork使用写时拷贝实现。fork的时候内核不赋值整个进程的地址
 
 linux通过调用clone实现fork，vfork，__clone
 
-![image-20210726133048556](Linux内核之进程管理/image-20210726133048556.png)
+![image-20210726133048556](Linux内核之进程管理/image-20210726214717977.png)
 
 ### linux中线程的实现
 

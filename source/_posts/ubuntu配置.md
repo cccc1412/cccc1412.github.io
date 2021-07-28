@@ -7,6 +7,8 @@ categories:
 - 环境配置
 ---
 
+wsl、ubuntu、vm配置相关
+
 <!--more-->
 
 ## VMware tools安装
@@ -76,19 +78,40 @@ ubuntu20.04下是`.profile`
 
 
 
-## zsh ohmyzsh tmux .tmux安装
+## 终端shell配置
 
-`.tmux.conf.local`中加入
+环境配置
 
 ```shell
-set -g default-shell /bin/zsh
+sudo apt install tmux
+sudo apt install zsh
 ```
 
-注意要让tmux配置生效，直接在shell里source是不行的
+wsl设置走clash代理
 
-要进入tmux，然后ctrl+b，输入`:source ~/.tmux.conf`
+```shell
+export hostip=$(cat /etc/resolv.conf |grep -oP '(?<=nameserver\ ).*');
+export https_proxy="http://$hostip:7890";
+export http_proxy="http://$hostip:7890";
+export all_proxy="socks5://$hostip:7891";
+```
 
-### zsh常用插件安装
+安装ohmyzsh
+
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+安装.tmux
+
+```shell
+cd ~
+git clone https://github.com/gpakosz/.tmux.git
+ln -s -f .tmux/.tmux.conf
+cp .tmux/.tmux.conf.local .
+```
+
+安装两个zsh插件
 
 ```shell
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -100,11 +123,32 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 
 `plugins=(.. zsh-syntax-highlighting zsh-autosuggestions)`
 
+默认shell修改
 
+`.tmux.conf.local`中加入
 
-### zsh主题安装
+```shell
+set -g default-shell /bin/zsh
+```
 
+注意要让tmux配置生效，直接在shell里source是不行的
 
+要进入tmux，然后ctrl+b，输入`:source ~/.tmux.conf`
+
+安装p10k主题
+
+```shell
+git clone --depth=1 https://gitee.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+然后修改.zshrc
+
+```shell
+ZSH_THEME="powerlevel10k/powerlevel10k"
+tmux #末尾添加，开启shell默认进入tmux
+```
+
+最后 `source .zshrc`，会自动配置p10k
 
 ## 中文linux命令手册
 
