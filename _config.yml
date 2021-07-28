@@ -84,7 +84,7 @@ deploy:
 backup:
     type: git
     repository:
-       github: https://github.com/cccc1412/cccc1412.github.io.git,hexo
+       github: git@github.com:cccc1412/cccc1412.github.io.git,hexo
        
 admin:
   deployCommand: 'hexo-publish.bat'
