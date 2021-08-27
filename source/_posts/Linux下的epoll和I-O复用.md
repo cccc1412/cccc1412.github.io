@@ -140,8 +140,8 @@ struct eventpoll {
 int listenfd = socket;
 bind(listenfd,addr);
 listen(listenfd);
-int efd = epoll_creat(0);
-epoll_ctl(efd,epoll_ctl_add,listenfd,&ev);//
+int efd = epoll_create(0);//创建根节点
+epoll_ctl(efd,epoll_ctl_add,listenfd,&ev);//把fd放到红黑树
 while (true) {
     epoll_event ev[size];//需要在用户态分配内存
     int nevent = epoll_wait(efd,ev,size,timeout);//作用在数据准备阶段
@@ -156,12 +156,22 @@ while (true) {
                 logic;
                 send();
             }
-            if (写时间) send();
-            if (错误时间) close();
+            if (写事件) send();
+            if (错误事件) close();
         }
     }
 }
 ```
+
+### epoll的ET与LT
+
+> ET：边沿触发  LT:水平触发
+
+ET：recv_buffer有数据就会一直触发
+
+LT：
+
+
 
 ## reactor
 
