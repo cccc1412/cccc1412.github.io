@@ -63,6 +63,8 @@ epoll
 
 ## epoll
 
+> epoll 全程 event poll 事件轮询
+
 ### 程序接口
 
 ```c++
@@ -102,6 +104,38 @@ struct eventpoll {
     ...
 };
 ```
+
+
+
+```c++
+struct epoll_event {
+    __uint32_t events; /* Epoll events */
+    epoll_data_t data; /* User data variable */
+};
+events可以是以下几个宏的集合：
+EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；
+EPOLLOUT：表示对应的文件描述符可以写；
+EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+EPOLLERR：表示对应的文件描述符发生错误；
+EPOLLHUP：表示对应的文件描述符被挂断；
+EPOLLET： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
+EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里
+```
+
+描述监控事件，`events`对应文件描述符事件
+
+`epoll_data_t`是一个联合体，同一时间只能使用一个字段
+
+```c++
+typedef union epoll_data {
+    void *ptr;
+    int fd;
+    __uint32_t u32;
+    __uint64_t u64;
+} epoll_data_t;
+```
+
+事件发生时，用户设置的data字段将会返回给使用者
 
 
 

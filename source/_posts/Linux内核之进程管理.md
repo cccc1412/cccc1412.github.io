@@ -142,7 +142,13 @@ struct tast_struct {
 
 
 
+## 进程切换
 
+> 进程切换的关键操作：切换地址空间、切换内核堆栈、切换内核控制流程以及必要寄存器的现场保护与还原。
+
+## 进程调度
+
+> 调度需要关注什么时候进行切换和选择哪个进程来运行
 
 
 
@@ -157,4 +163,8 @@ linux2.6.11源码
 《linux内核设计与实现》
 
 https://www.bilibili.com/video/BV1ov41157pA?from=search&seid=15110093483709811855
+
+http://home.ustc.edu.cn/~hchunhui/linux_sched.html
+
+https://cloud.tencent.com/developer/article/1759921
 
