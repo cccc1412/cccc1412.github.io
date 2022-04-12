@@ -2,9 +2,9 @@
 title: Linux内核之进程管理
 toc: true
 date: 2021-07-26 12:41:21
-tags: Linux内核
+tags: kernel
 categories:
-- Linux内核
+- kernel
 ---
 
 Linux内核之进程管理
@@ -81,6 +81,8 @@ fork使用写时拷贝实现。fork的时候内核不赋值整个进程的地址
 
 ### fork的实现
 
+> 实际就是复制父进程的页表，并给子进程创建唯一的进程描述符
+
 linux通过调用clone实现fork，vfork，__clone
 
 ![image-20210726133048556](Linux内核之进程管理/image-20210726214717977.png)
@@ -148,9 +150,39 @@ struct tast_struct {
 
 ## 进程调度
 
-> 调度需要关注什么时候进行切换和选择哪个进程来运行
+> 调度需要关注什么时候进行切换和选择哪个进程来运行，这其实是个数学问题，给定一组参数，比如线程的优先级，使用的时间，然后返回下一个要运行的线程是谁。
+
+内核2.6以前使用的是O(n)调度法，2.6版本替换为了O(1)调度法（2003年）。
+
+O(1)调度法对每个优先级用两个链表管理运行的进程，一个是ready-to-run的就绪链表，一个是耗尽时间片的链表。
+
+后来，Linux放弃了预定义的时间片的概念，引入了完全公平调度（CFS）到Linux 2.6.23内核中（2007年），直到现在也一直作为Linux的调度器。
+
+CFS以模块方式组织，也就是实现了多个调度类，不同类型的进程选择不同的调度算法。比如，rt class调度试试进程，fair class才是CFS的实现，idle class处理没有任务运行的情况。
+
+### 多核调度
+
+> 多核调度的重点是load balance，其余的看成是单核调度的复刻
+
+多核调度需要额外考虑的问题：
+
+* 一个核的两个超线程不需要平衡：一个核有两个超线程，他们共享相同的执行部件，那么再平衡是没有意义的
+* 跨核调度：如果轻易的跨核调度可能引发大量的cache失效，因为L1 L2cache是不共享的
+* 线程NUMA系统的一个Node迁移到另一个
+* 考虑CPU的休眠和降频的方式降低功耗，比如两个进程是在一个核上，另一个核休眠，或者分配到两个核上一起降频
+
+CFS定期以软中断的形式周期执行load balance的代码，将任务从最繁忙的核中提取出来转移到空闲的核中来实现平衡，负载均衡的决策以来与缓存和NUMA的位置。CFS将core按层次结构划分为每个硬件级别的调度域（sched_domain），load balance在每个sched_domain执行。一个sched_domain中的cpu核又被划分为不同的调度组（sched_group），不同的组之间可以进行线程的迁移。
+
+#### CFS负载均衡
 
 
+
+
+
+## 问题
+
+* 一个多线程的进程fork出来的进程是多线程的吗？答案不是，fork出来的进程只有一个线程，就是调用fork的那个线程。
+* CFS的公平的含义是什么？
 
 
 
@@ -167,4 +199,8 @@ https://www.bilibili.com/video/BV1ov41157pA?from=search&seid=1511009348370981185
 http://home.ustc.edu.cn/~hchunhui/linux_sched.html
 
 https://cloud.tencent.com/developer/article/1759921
+
+cgroups:https://tech.meituan.com/2015/03/31/cgroups.html
+
+[进程创建过程、栈对齐]: https://www.cnblogs.com/qinghaowusu/p/14081097.html
 

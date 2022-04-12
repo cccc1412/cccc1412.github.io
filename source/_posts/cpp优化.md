@@ -31,7 +31,7 @@ Optimizing software in C++：An optimization guide for Windows, Linux, and Mac p
 通常查找表最好声明为static const，比如
 
 ```c++
-// Example 7.1
+// Example 7.16
 float SomeFunction (int x) {
     static const float list[] = {1.1, 0.3, -2.0, 4.4, 2.5};
     return list[x];

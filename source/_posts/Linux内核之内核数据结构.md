@@ -2,9 +2,9 @@
 title: Linux内核之内核数据结构
 toc: true
 date: 2021-08-27 12:21:19
-tags: Linux内核
+tags: kernel
 categories:
-- Linux
+- kernel
 ---
 
 Linux内核中用到的一些数据结构
@@ -118,6 +118,22 @@ unsigned int __kfifo_get(struct kfifo *fifo,
 ```
 
 跟入队类似。
+
+
+
+kfifo使用in和out两个指针来描述写入和读取游标，对于写入操作，只更新in指针，而读取操作，只更新out指针
+为了避免读者看到写者预计写入，但实际没有写入数据的空间，写者必须保证以下的写入顺序：
+
+1.往[kfifo->in, kfifo->in + len]空间写入数据
+2.更新kfifo->in指针为 kfifo->in + len
+
+在操作1完成时，读者是还没有看到写入的信息的，因为kfifo->in没有变化，认为读者还没有开始写操作，只有更新kfifo->in之后，读者才能看到。
+
+那么如何保证1必须在2之前完成，秘密就是使用内存屏障：smp_mb()，smp_rmb(), smp_wmb()，来保证对方观察到的内存操作顺序。
+
+关于内存屏障：https://blog.csdn.net/weixin_30446197/article/details/96602025?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-1.pc_relevant_antiscanv2&spm=1001.2101.3001.4242.2&utm_relevant_index=4
+
+memcpy后修改out，修改out之前其实是要加内存屏障的，因为可能memcpy还没完成，out已经被修改了。
 
 ## 参考资料
 

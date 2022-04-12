@@ -189,3 +189,12 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 root@localhost：vim /etc
 ```
 
+
+
+## 快捷键
+
+gg跳转到文件头
+
+shift+g跳转到文件尾
+
+:n跳转到第n行
