@@ -19,9 +19,19 @@ ssh-keygen -t rsa -C "674987879@qq.com"
 id_rsa.pub添加到GitHub setting
 
 
-先去掉onedrive的同步
-在本地新建文件夹，把onedrive中的文件剪切过去，然后再创建到onedrive文件夹的符号链接
+#先去掉onedrive的同步
+#在本地新建文件夹，把onedrive中的文件剪切过去，然后再创建到onedrive文件夹的符号链接
 在blog文件夹下npm install
 npm install -g hexo-cli
 
-然后hexo g
+然后hexo g 即可完成迁移
+
+
+如何创建远程仓库:
+首先本地工作目录git init
+然后github上new一个仓库
+然后本地git remote add origin git@xxxxx.git
+设置ignore
+git add . 
+git commit -m "xx"
+git push -u origin master
