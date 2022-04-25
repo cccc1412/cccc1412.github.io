@@ -28,6 +28,44 @@ categories:
 
 [Linux获取ns时间戳](https://zhuanlan.zhihu.com/p/58669088?utm_source=wechat_session&amp;utm_medium=social&amp;utm_oi=786355128126029824&amp;utm_campaign=shareopn)
 
-### 基本技能
+[Linux 性能优化](https://zhuanlan.zhihu.com/p/141451255?utm_source=wechat_session&utm_medium=social&s_r=0)
+
+## CPU
+
+[CPU如何读写数据、CPU如何选择线程](https://zhuanlan.zhihu.com/p/276170146?utm_source=wechat_session&utm_medium=social&utm_oi=786355128126029824&utm_campaign=shareopn&s_r=0)
+
+[CPU cache](https://zhuanlan.zhihu.com/p/266592261?utm_source=wechat_session&utm_medium=social&utm_oi=786355128126029824&utm_campaign=shareopn&s_r=0)
+
+### 基本工具
 
 perf、strace、netstat、lsof、vtune
+
+## 理解内存性能
+
+
+
+
+
+
+
+
+
+## kungfu
+
+### 易筋经
+
+一个journal由多个page组成，一个page由page header和若干个frame组成。一个frame由一个frame header和data组成。frame是数据的最小写入单元。
+
+一个journal只能有一个写入线程，writer在写入时，每一次都是通过一个院子操作在journal中形成一个frame。
+
+每个写入线程对应了一种特定的应用，如行情接受，交易下单等。
+
+![image-20220418150835834](hft-warm-up/image-20220418150835834.png)
+
+![image-20220418150915067](hft-warm-up/image-20220418150915067.png)
+
+
+
+
+
+### 咏春

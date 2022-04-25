@@ -562,9 +562,10 @@ class EventLoopThreadPool : boost::noncopyable {
     boost::ptr_vector<EventLoopThread> threads_;
     std::vector<EventLoop *> loops_;
 };
+
 ```
 
-
+TcpServer每次新建一个TcpConnection就会调用getNextLoop()来取得一个Event-Loop。
 
 
 
