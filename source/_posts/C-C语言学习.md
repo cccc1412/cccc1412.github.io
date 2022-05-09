@@ -179,6 +179,437 @@ static函数仅在声明他的函数中可见，不能被其他文件使用
 
 ## modern C++
 
+### 完美转发std::forward
+
+
+
+### RAII和智能指针
+
+#### RAII
+
+RAII是c++特有的资源管理方式。把依赖栈和析构函数，对所有资源进行管理（包括堆内存，下面有一个例子）。栈上的指针在释放的时候会调用析构函数，在析构函数里释放堆内存。
+
+例子：
+
+create_shape在堆上new了对象，返回对象的指针，如何让这块内存不会泄露？
+
+把这个函数的返回值（对象的指针），包裹到一个局部对象中，该局部对象的析构函数中delete掉这个指针。
+
+```c++
+
+class shape_wrapper {
+public:
+  explicit shape_wrapper(
+    shape* ptr = nullptr)
+    : ptr_(ptr) {}
+  ~shape_wrapper()
+  {
+    delete ptr_;
+  }
+  shape* get() const { return ptr_; }
+private:
+  shape* ptr_;
+};
+
+void foo()
+{
+  …
+  shape_wrapper ptr_wrapper(
+    create_shape(…));//这里的shape_wrapper是一个局部栈对象，退出foo函数时会自动析构wrapper对象，而wrapper的析构函数会delete传入的shape指针。
+  …
+}
+```
+
+经典RAII的例子：
+
+```c++
+
+std::mutex mtx;
+
+void some_func()
+{
+  std::lock_guard<std::mutex> guard(mtx);
+  // 做需要同步的工作
+}
+```
+
+而不写成：
+
+```c++
+
+std::mutex mtx;
+
+void some_func()
+{
+  mtx.lock();
+  // 做需要同步的工作……
+  // 如果发生异常或提前返回，
+  // 下面这句不会自动执行。
+  mtx.unlock();
+}
+```
+
+#### 智能指针实现
+
+从刚刚shape_wrapper类改造成模板类，就是一个简单的智能指针：
+
+```c++
+
+template <typename T>
+class smart_ptr {
+public:
+  explicit smart_ptr(T* ptr = nullptr)
+    : ptr_(ptr) {}
+  ~smart_ptr()
+  {
+    delete ptr_;
+  }
+  T* get() const { return ptr_; }
+private:
+  T* ptr_;
+};
+```
+
+但是这样跟指针的行为还有点差异，比如不能用*解引用，不能用->访问成员，不能用在bool表达式里，因此添加：
+
+```c++
+
+template <typename T>
+class smart_ptr {
+public:
+  …
+  T& operator*() const { return *ptr_; }
+  T* operator->() const { return ptr_; }
+  operator bool() const { return ptr_; }
+}
+```
+
+然后对于拷贝构造呢？`smart_ptr<shape> ptr2(ptr1)`应该怎么表现？
+
+转移指针所有权，这就是auto_ptr的实现了，现在已经废除，因为这样设计的smart_ptr一旦进行了赋值或拷贝，就不在拥有这个对象了。
+
+```c++
+
+template <typename T>
+class smart_ptr {
+  …
+  smart_ptr(smart_ptr& other) //拷贝构造
+  {
+    ptr_ = other.release();
+  }
+  smart_ptr& operator=(smart_ptr& rhs) //赋值
+  {
+    smart_ptr(rhs).swap(*this);
+   	//首先rhs把自己维护的指针交给给临时对象smart_ptr(rhs)，然后这个临时对象维护的指针和this对象维护的指针交换一下，this对象就拿到rhs维护的指针了，临时对象smart_ptr拿到this之前维护的指针，它会随着临时对象smart_ptr销毁而被delete。
+    return *this;
+  }
+  …
+  T* release()
+  {
+    T* ptr = ptr_;
+    ptr_ = nullptr;
+    return ptr;
+  }
+  void swap(smart_ptr& rhs)
+  {
+    using std::swap;
+    swap(ptr_, rhs.ptr_);
+  }
+  …
+};
+```
+
+再改下，就是unique_ptr：
+
+```c++
+
+template <typename T>
+class smart_ptr {
+  …
+  smart_ptr(smart_ptr&& other) //改成移动构造函数
+  {
+    ptr_ = other.release();
+  }
+  smart_ptr& operator=(smart_ptr rhs)
+  {
+    rhs.swap(*this);
+    return *this;
+  }
+  …
+};
+```
+
+现在添加引用计数，形成shared_ptr:
+
+```c++
+
+#include <utility>  // std::swap
+
+class shared_count {
+public:
+  shared_count() noexcept
+    : count_(1) {}
+  void add_count() noexcept
+  {
+    ++count_;
+  }
+  long reduce_count() noexcept
+  {
+    return --count_;
+  }
+  long get_count() const noexcept
+  {
+    return count_;
+  }
+
+private:
+  long count_;
+};
+
+template <typename T>
+class smart_ptr {
+public:
+  template <typename U>
+  friend class smart_ptr;
+
+  explicit smart_ptr(T* ptr = nullptr)
+    : ptr_(ptr)
+  {
+    if (ptr) {
+      shared_count_ =
+        new shared_count();
+    }
+  }
+  ~smart_ptr()
+  {
+    if (ptr_ &&
+      !shared_count_
+         ->reduce_count()) {
+      delete ptr_;
+      delete shared_count_;
+    }
+  }
+
+  smart_ptr(const smart_ptr& other)
+  {
+    ptr_ = other.ptr_;
+    if (ptr_) {
+      other.shared_count_
+        ->add_count();
+      shared_count_ =
+        other.shared_count_;
+    }
+  }
+  template <typename U>
+  smart_ptr(const smart_ptr<U>& other) noexcept
+  {
+    ptr_ = other.ptr_;
+    if (ptr_) {
+      other.shared_count_->add_count();
+      shared_count_ = other.shared_count_;
+    }
+  }
+  template <typename U>
+  smart_ptr(smart_ptr<U>&& other) noexcept
+  {
+    ptr_ = other.ptr_;
+    if (ptr_) {
+      shared_count_ =
+        other.shared_count_;
+      other.ptr_ = nullptr;
+    }
+  }
+  template <typename U>
+  smart_ptr(const smart_ptr<U>& other,
+            T* ptr) noexcept
+  {
+    ptr_ = ptr;
+    if (ptr_) {
+      other.shared_count_
+        ->add_count();
+      shared_count_ =
+        other.shared_count_;
+    }
+  }
+  smart_ptr&
+  operator=(smart_ptr rhs) noexcept
+  {
+    rhs.swap(*this);
+    return *this;
+  }
+
+  T* get() const noexcept
+  {
+    return ptr_;
+  }
+  long use_count() const noexcept
+  {
+    if (ptr_) {
+      return shared_count_
+        ->get_count();
+    } else {
+      return 0;
+    }
+  }
+  void swap(smart_ptr& rhs) noexcept
+  {
+    using std::swap;
+    swap(ptr_, rhs.ptr_);
+    swap(shared_count_,
+         rhs.shared_count_);
+  }
+
+  T& operator*() const noexcept
+  {
+    return *ptr_;
+  }
+  T* operator->() const noexcept
+  {
+    return ptr_;
+  }
+  operator bool() const noexcept
+  {
+    return ptr_;
+  }
+
+private:
+  T* ptr_;
+  shared_count* shared_count_;
+};
+
+template <typename T>
+void swap(smart_ptr<T>& lhs,
+          smart_ptr<T>& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
+
+template <typename T, typename U>
+smart_ptr<T> static_pointer_cast(
+  const smart_ptr<U>& other) noexcept
+{
+  T* ptr = static_cast<T*>(other.get());
+  return smart_ptr<T>(other, ptr);
+}
+
+template <typename T, typename U>
+smart_ptr<T> reinterpret_pointer_cast(
+  const smart_ptr<U>& other) noexcept
+{
+  T* ptr = reinterpret_cast<T*>(other.get());
+  return smart_ptr<T>(other, ptr);
+}
+
+template <typename T, typename U>
+smart_ptr<T> const_pointer_cast(
+  const smart_ptr<U>& other) noexcept
+{
+  T* ptr = const_cast<T*>(other.get());
+  return smart_ptr<T>(other, ptr);
+}
+
+template <typename T, typename U>
+smart_ptr<T> dynamic_pointer_cast(
+  const smart_ptr<U>& other) noexcept
+{
+  T* ptr = dynamic_cast<T*>(other.get());
+  return smart_ptr<T>(other, ptr);
+}
+```
+
+
+
+![image-20220505200625623](C-C语言学习/image-20220505200625623.png)
+
+#### 问题
+
+* shared_ptr怎么实现的
+  * 见上
+* shared_ptr是否线程安全
+  * 分场景，同一个shared_ptr被多个线程写，不是线程安全的。多线程读是安全的，根据同一个智能指针创建新的智能指针（增加引用计数）也是安全的。（不懂）
+
+### atomic
+
+c++11引入atomic模板，可以应用到任何类型上，但实现不一样
+
+对于整型量和指针等简单类型，通常结果是无锁的原子对象；
+
+而对于另外一些类型，比如 64 位机器上大小不是 1、2、4、8（有些平台 / 编译器也支持对更大的数据进行无锁原子操作）的类型，编译器会自动为这些原子对象的操作加上锁。
+
+编译器提供了一个原子对象的成员函数 is_lock_free，可以检查这个原子对象上的操作是否是无锁的。
+
+#### 问题
+
+* atomic怎么实现的
+* 
+
+### std::function
+
+std::function是一个可调用对象的包装器
+
+可调用对象可以是：函数指针、一个有operator成员函数的类对象、可以被转换成函数指针的类对象、类成员函数指针。
+
+比如：
+
+```c++
+// 普通函数
+int add(int a, int b){return a+b;} 
+
+// lambda表达式
+auto mod = [](int a, int b){ return a % b;}
+
+// 函数对象类
+struct divide{
+    int operator()(int denominator, int divisor){
+        return denominator/divisor;
+    }
+};
+```
+
+虽然他们类型不同，但是调用形式是相同的，调用形式就是参数和返回值，也就是function初始化时候的模板参数，于是就可以这样写：
+
+```c++
+std::function<int(int ,int)>  a = add; 
+std::function<int(int ,int)>  b = mod ; 
+std::function<int(int ,int)>  c = divide(); 
+```
+
+用来取代函数指针，特别适合作为回调函数使用。
+
+### std::bind
+
+把可调用实体的某些传入参数，绑定到已有的变量，返回一个std::function
+
+```c++
+struct Foo {
+    void print_sum(int n1, int n2)
+    {
+        std::cout << n1+n2 << '\n';
+    }
+    int data = 10;
+};
+int main() 
+{
+    Foo foo;
+    auto f = std::bind(&Foo::print_sum, &foo, 95, std::placeholders::_1);
+    f(5); // 100
+}
+```
+
+通过std::bind和std::function配合使用，所有的可调用对象均有了统一的操作方法。
+
+### auto和decltype
+
+auto 的推导用在初始化时候，但目前的c++标准不允许类成员变量使用auto。
+
+auto总是推导出值类型，不可能是引用。
+
+auto可以加上const、volatile、*、& 这样的类型修饰符，得到新的类型。
+
+## STL
+
+
+
 
 
 ## 参考

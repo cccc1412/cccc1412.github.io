@@ -142,7 +142,13 @@ struct tast_struct {
 
 现代线程都是1：1的，每个线程有两个栈，一个用户空间的一个内核的。
 
+### 进程线程区别
 
+创建进程的话，调用的系统调用是 fork，在 copy_process 函数里面，会将五大结构 files_struct、fs_struct、sighand_struct、signal_struct、mm_struct 都复制一遍，从此父进程和子进程各用各的数据结构。
+
+而创建线程的话，调用的是系统调用 clone，在 copy_process 函数里面， 五大结构仅仅是引用计数加一，也即线程共享进程的数据结构。
+
+![img](Linux内核之进程管理/14635b1613d04df9f217c3508ae8524b.jpeg)
 
 ## 进程切换
 
@@ -175,7 +181,9 @@ CFS定期以软中断的形式周期执行load balance的代码，将任务从�
 
 #### CFS负载均衡
 
+## 内核线程
 
+https://mp.weixin.qq.com/s/GO0z646XZko_pUvmMSa9RQ
 
 
 
