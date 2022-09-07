@@ -35,8 +35,15 @@ npm install
 ```
 ![](xxxx/example.jpg) 
 ```
+## vscode remote 图片上传插件
+https://marketplace.visualstudio.com/items?itemName=sakamoto66.vscode-paste-image
+![](hexo图片插入/2022-06-02-13-54-52.png)
+![](hexo图片插入/2022-06-02-13-47-09.png)
+${fileBasenameNoExtension}
+这样就可以remote编写markdown插入图片了,ctrl+alt+v
 
-____
+### markdown 导出 pdf
+http://sunqunyan.net/2019/08/11/markdown-pdf/
 
 参考资料：https://alreadyright.github.io/2019/06/16/aboutHexo/
 

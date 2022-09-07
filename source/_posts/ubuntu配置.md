@@ -64,7 +64,7 @@ ctrl+h可显示隐藏.文件
 
 ubuntu20.04下是`.profile`
 
-![image-20210517205327302](/ubuntu配置/image-20210517205327302.png)
+![image-20210517205327302](./ubuntu配置/image-20210517205327302.png)
 
 注意13行，判断home目录下bashrc文件是否存在，存在则读入，**也就是说login shell环境下，最终读入的配置文件是`~/.bashrc`**，**也就是说自己的偏好设置写入`~/.bashrc`即可。**
 
@@ -111,17 +111,25 @@ ln -s -f .tmux/.tmux.conf
 cp .tmux/.tmux.conf.local .
 ```
 
-安装两个zsh插件
+安装三个zsh插件
 
 ```shell
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions
+
+sudo apt install autojump
 ```
 
 然后在`.zshrc`中配置
 
-`plugins=(.. zsh-syntax-highlighting zsh-autosuggestions)`
+```
+plugins=(.. zsh-syntax-highlighting zsh-autosuggestions autojump)
+[[ -s ~/.autojump/etc/profile.d/autojump.zsh ]] && . ~/.autojump/etc/profile.d/autojump.zsh
+autoload -U compinit && compinit -u
+```
 
 默认shell修改
 
@@ -153,4 +161,17 @@ tmux #末尾添加，开启shell默认进入tmux
 ## 中文linux命令手册
 
 `pip install how`
+
+## conda
+
+防止conda污染原本的环境，一定一定一定要记住，不要把conda加到环境变量里。
+
+如果之后我们要启动conda，我们可以用如下命令：
+
+source <path_to_your_conda_installation>/bin/activate  # 默认进入base
+source <path_to_your_conda_installation>/bin/activate <your_env_name>  # 进入指定环境
+
+## nvim
+
+https://space.bilibili.com/26319956/video?tid=0&page=1&keyword=&order=pubdate
 

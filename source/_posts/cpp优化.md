@@ -257,6 +257,32 @@ STL以通用性和灵活性为准测设计，而在执行速度、内存占用�
 
 string在每次创建和修改字符串时使用new来分配新的内存块，如果程序多次创建修改字符串，这样做是低效的。
 
+## 编译优化
+CMAKE配置的编译选项，有很多开关，基本上Release版本会打开以下选项
+1. Use google tcmalloc代替标准的malloc(开关控制)
+2. 打开编译警告选项，
+-Wall
+-Wextra
+-Wlogical-op    
+-Wcast-align
+-Wdisabled-optimization
+-Wvector-operation-performance
+-Wstack-protector
+-Wno-ignored-qualifiers
+ -Wno-unused-parameter
+3. 把编译警告当成错误（开关控制， -Werror）
+4. Enable C++ 20
+5. -O3 -DNDEBUG
+6. LTO优化相关选项（开关控制）
+-flto -fuse-linker-plugin -fdevirtualize-speculatively -Wmaybe-uninitialized
+7. Fast math
+-ffast-math
+8. 其它
+-pipe -Winvalid-pch -pthread
+-Wl,--disable-new-dtags
+9. native或AVX之类的开关
+一般情况下，因为编译机器和生产机器有差异，一般情况下未打开
+
 
 
 

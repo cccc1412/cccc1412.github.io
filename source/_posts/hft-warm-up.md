@@ -28,6 +28,8 @@ categories:
 
 [Linux获取ns时间戳](https://zhuanlan.zhihu.com/p/58669088?utm_source=wechat_session&amp;utm_medium=social&amp;utm_oi=786355128126029824&amp;utm_campaign=shareopn)
 
+[RDTSC的坑](http://www.wangkaixuan.tech/?p=901)
+
 [Linux 性能优化](https://zhuanlan.zhihu.com/p/141451255?utm_source=wechat_session&utm_medium=social&s_r=0)
 
 ## CPU
@@ -64,8 +66,5 @@ perf、strace、netstat、lsof、vtune
 
 ![image-20220418150915067](hft-warm-up/image-20220418150915067.png)
 
-
-
-
-
-### 咏春
+## x86指令相关
+https://www.felixcloutier.com/x86/

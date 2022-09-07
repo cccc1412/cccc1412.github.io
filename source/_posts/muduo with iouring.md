@@ -8,6 +8,279 @@ categories:
 
 <!--more-->
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+# 调用关系分析
+## Muduo自顶向下
+> 自顶向下分析muduo的调用逻辑
+### 创建自己的业务server
+
+* 创建自己的server类,包含了两个私有成员:`EventLoop *loop_`,`TcpServer server_`
+*  实现`on_message`和`on_connection`，在构造函数里设置回调，设置线程数
+*  main函数调用server.start()
+*  server.start()会调用内部TcpServer的start,然后调用EventLoop的loop()。
+```c++
+class EchoServer
+{
+public:
+    EchoServer(EventLoop *loop, InetAddress &addr, string name)
+        : server_(loop, addr, name), loop_(loop)
+    {
+        //注册回调函数
+        server_.set_connection_callback(bind(&EchoServer::on_connection, this, _1));
+        server_.set_message_callback(bind(&EchoServer::on_message, this, _1, _2, _3));
+
+        //设置线程数量
+        server_.set_thread_num(3);
+    }
+    void start()
+    {
+        server_.start();
+        loop_->loop();
+    }
+
+private:
+    //连接建立或者断开的回调
+    void on_connection(const TcpConnectionPtr &conn)
+    {
+        if (conn->connected())
+        {
+            LOG_INFO("conn up: %s", conn->get_peeraddr().get_ip_port().c_str());
+        }
+        else
+        {
+            LOG_INFO("conn down: %s", conn->get_peeraddr().get_ip_port().c_str());
+        }
+    }
+
+    //可读事件回调
+    void on_message(const TcpConnectionPtr &conn, Buffer *buffer, TimeStamp time)
+    {
+        string msg = buffer->retrieve_all_asString();
+        conn->send(msg);
+        //conn->shutdown();
+    }
+
+private:
+    EventLoop *loop_;
+    TcpServer server_;
+};
+
+int main()
+{
+    EventLoop loop(1);
+    InetAddress addr(8000);
+    EchoServer server(&loop, addr, "echo 01");
+    server.start();
+    //loop.loop(); //启动main loop的底层poller
+    return 0;
+}
+```
+### TcpServer的start
+> 业务server调用TcpServer的start
+
+
+TcpServer有一个main Loop,一个线程池，池子里是所有的subReactor，每个线程也有自己的loop
+TcpServer的start会调用自己的线程池的start，然后在自己的main loop里调用listen
+
+```c++
+//开启服务器监听
+void TcpServer::start()
+{
+    if (started_++ == 0) //防止被多次启动
+    {
+        thread_pool_->start(thread_init_callback_);
+        loop_->run_in_loop(bind(&Acceptor::listen, acceptor_.get()));
+    }
+}
+```
+### 线程池的start
+创建thread_nums个EventLoopThread,每个thread有自己的一个EventLoop，调用start_loop，返回的eventloop地址然后放到线程池的loops_数组中。
+```c++
+void EventLoopThreadPool::start(const ThreadInitCallback &callback)
+{
+    started_ = true;
+    //整个服务端只有baseloop，也就是mainreactor
+    if (thread_nums_ == 0)
+    {
+        callback(baseloop_);
+    }
+    else
+    {
+        for (int i = 0; i < thread_nums_; ++i)
+        {
+            char buffer[name_.size() + 32] = {0};
+            snprintf(buffer, sizeof(buffer), "%s %d", name_.c_str(), i);
+            EventLoopThread *t = new EventLoopThread(callback, buffer);
+            threads_.push_back(unique_ptr<EventLoopThread>(t));
+            loops_.push_back(t->start_loop()); //底层开始创建线程，并绑定一个新的eventloop，返回其地址
+        }
+    }
+}
+```
+
+### EventLoopThread的start_loop
+```c++
+EventLoop *EventLoopThread::start_loop()
+{
+    thread_.start(); //启动线程
+
+    EventLoop *loop = nullptr;
+    {
+        unique_lock<mutex> lock(thread_mutex_);
+        while (loop_ == nullptr)
+        {
+            condition_.wait(lock);
+        }
+        loop = loop_;
+    }
+
+    return loop;
+}
+
+```
+里面再调用Thread的start
+```c++
+void Thread::start()
+{
+    started_ = true;
+    sem_t sem;
+    sem_init(&sem, false, 0);
+
+    //开启线程
+    thread_ = shared_ptr<thread>(new thread([&]() {
+        //获取线程tid值
+        tid_ = Current_thread::tid();
+        sem_post(&sem);
+        //执行函数
+        function_();
+    }));
+    //需要等待新创建的线程，获取其线程的id
+    sem_wait(&sem);
+}
+```
+这里会创建新的线程，然后新的线程里跑function_, function_实际就是初始化EventLoopThread时传入了的thread_function，在里面会创建EventLoop，然后进入EventLoop的while 1循环。 
+```c++
+//启动的线程中执行以下方法
+void EventLoopThread::thread_function()
+{
+    EventLoop loop(0); //创建一个独立的EventLoop，和上面的线程是一一对应 one loop per thread
+
+    if (callback_function_)
+    {
+        callback_function_(&loop);
+    }
+
+    {
+        unique_lock<mutex> lock(thread_mutex_);
+        loop_ = &loop;
+        condition_.notify_one();
+    }
+
+    loop.loop(); //开启事件循环
+
+    //结束事件循环
+    unique_lock<mutex> lock(thread_mutex_);
+    loop_ = nullptr;
+}
+```
+上面说的while 1循环就是调用poller的poll，然后填充active_channel，然后在使用channel来处理不同事件，比如读写的回调函数。
+```c++
+while (!quit_)
+{
+    active_channels.clear();
+    //监听两类fd 一种是client的fd，一种wakeup的fd
+    poll_return_time_ = poller_->poll(k_poll_timeout, &active_channels);
+
+    for (Channel *channel : active_channels)
+    {
+        //Poller监听哪些channel发生事件了，然后上报给eventloop，通知channel处理事件
+        channel->handle_event(poll_return_time_);
+    }
+
+    //执行当前EventLoop事件循环需要处理的回调操作
+    do_pending_functors();
+}
+```
+然后main reactor会调用run_in_loop, 开启acceptor的listen
+```c++
+void Acceptor::listen()
+{
+    LOG_INFO("Acceptor listen called!\n");
+    listenning_ = true;
+    accept_socket_.listen();
+    //借助poller进行监听
+    accept_channel_.enable_reading();
+    
+}
+```
+### Acceptor
+acceptor_是TcpServer类中的一个指针成员。包含两个关键成员：指向mainloop的指针，和用来管理listenfd的channel。
+```c++
+EventLoop *loop_; //acceptor用的用户定义的那个baseloop，也就是mainloop
+
+Channel accept_channel_;
+```
+当有新的连接到达时，Acceptor会执行new_connection的回调，里面会选择一个subreactor，创建一个新的connection，放到TcpServer的map里，然后，在这个subreactor里调用establish_connect，establish_connect会像Poller添加关于这个新连接fd的事件监听。
+```c++
+void TcpServer::new_connection(int sockfd, const InetAddress &peeraddr)
+{
+    LOG_INFO("new connection callback called\n");
+    //轮询算法，选择一个subloop管理channel
+    EventLoop *ioloop = thread_pool_->get_nextEventLoop();//连接均匀打到每个eventloop上
+
+    char buffer[BUFFER_SIZE64] = {0};
+    snprintf(buffer, sizeof(buffer), "-%s#%d", ip_port_.c_str(), next_conn_id_);
+    ++next_conn_id_;
+    string conn_name = name_ + buffer;
+
+    LOG_INFO("tcp server:: new connection[%s] - new connection[%s] from %s\n", name_.c_str(), conn_name.c_str(), peeraddr.get_ip_port().c_str());
+
+    //通过sockfd，获取其绑定的端口号和ip信息
+    sockaddr_in local;
+    bzero(&local, sizeof(local));
+    socklen_t addrlen = sizeof(local);
+    if (::getsockname(sockfd, (sockaddr *)&local, &addrlen) < 0)
+    {
+        LOG_ERROR("new connection get localaddr error\n");
+    }
+
+    InetAddress localaddr(local);
+
+    //根据连接成功的sockfd，创建tcpc连接对象
+    TcpConnectionPtr conn(new TcpConnection(ioloop, conn_name, sockfd, localaddr, peeraddr));
+
+    connections_[conn_name] = conn;
+
+    //下面回调是用户设置给tcpserver-》tcpconn-》channel-》poller-》notify channel
+    conn->set_connection_callback(connection_callback_);
+    conn->set_message_callback(message_callback_);
+    conn->set_write_complete_callback(write_complete_callback_);
+
+    //设置如何关闭连接的回调
+    conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
+    ioloop->run_in_loop(bind(&TcpConnection::establish_connect, conn));
+}
+```
+看下run_in_loop怎么实现的：
+如果调用方就是这个loop所属的线程，直接调用
+否则放到这个eventloop的pending_Functors_里，而eventloop每次poll完，处理完对应channel的handle都会调用do_pending_functors()。
+```c++
+void EventLoop::run_in_loop(Functor cb)
+{
+    //在当前的loop线程中执行回调
+    if (is_in_loopThread())
+    {
+        cb();
+    }
+    else //在其他线程执行cb，唤醒loop所在线程执行cb
+    {
+        queue_in_loop(cb);
+    }
+}
+```
+
+# 模块分析
 ## Reactor
 
 ![image-20220328164152236](muduo学习笔记/image-20220328164152236.png)
@@ -444,7 +717,7 @@ class TcpServer : boost::noncopyable {
 内部使用acceptor管理新连接的fd。持有目前存活的TcpConnection的shared_ptr。
 
 ### TcpConnetction
-
+包含了这个连接对应的socket，和对应的channel
 ```c++
 class TcpConnection : boost::noncopyable,
 public boost::enable_shared_from_this<TcpConnection> {
@@ -567,8 +840,122 @@ class EventLoopThreadPool : boost::noncopyable {
 
 TcpServer每次新建一个TcpConnection就会调用getNextLoop()来取得一个Event-Loop。
 
+# 使用io_uring的改写
+muduo原生支持epoll和poll两种poller，都是为Poller基类派生出来，现在派生出一种新的Poller，叫UringPoller如下，包含了uring需要的资源，如sqe,cqe， 然添加新的接口：
+* add_accept
+* add_socket
+* add_socket_write
+* add_provide_buf
+
+
+都是向sqe队列中添加读写事件，等待内核完成后返回给cqe队列。
+## 基于iouring实现新的Poller
+```c++
+class UringPoller : public Poller
+{
+public:
+    UringPoller(EventLoop *loop);
+    ~UringPoller() override;
+
+    TimeStamp poll(int timeout, ChannelList *active_channels) override;
+
+    void update_channel(Channel *channel);
+    void remove_channel(Channel *channel);
+
+private:
+    //填写活跃的链接
+    void fill_active_channels(int events_num, ChannelList *active_channels) ;
+    //更新channel，调用epoll_ctl
+    //void update(int operation, Channel *channel);
+    void add_accept(Channel* channel, struct sockaddr *client_addr, socklen_t *client_len, unsigned flags); //新链接
+    void add_socket_read(Channel* channel, unsigned gid, size_t message_size, unsigned flags);
+    void add_socket_write(Channel* channel, unsigned flags, const string &buf);
+    void add_provide_buf(__u16 bid, unsigned gid);
+
+private:
+    static const int k_init_eventList_size_ = 16;
+
+private:
+    conn_info* conns;
+    char bufs_[BUFFERS_COUNT][MAX_MESSAGE_LEN] = {0};
+    int group_id_ = 1337;
+    struct io_uring_params params_;
+    struct io_uring ring_;
+    struct io_uring_sqe *sqe_;
+    unsigned count;
+    struct io_uring_cqe *cqes_[BACKLOG];
+};
+```
+
+## 使用UringPoller
+以add_socket_read为例：
+当一个新的连接到来，main reactor会用轮询的方式选择一个sub reactor，然后创建TcpConnection，这个新的连接就由选择出来的sub reactor所属的eventloop负责，然后建立连接的回调函数就会在这个eventloop的poller里添加负责管理这个新fd的channel的事件监听。
+
+```c++
+void TcpConnection::establish_connect()
+{
+    set_state(k_connected);
+    channel_->tie(shared_from_this());
+    channel_->enable_reading(); //向poller注册channel的epollin事件
+    printf("get fd from channel fd = %d\n",channel_->get_fd());
+    loop_->poller_->add_socket_read(channel_.get(), 1337, 0, 0);
+    //新连接建立
+    connection_callback_(shared_from_this());
+}
+```
+这里自己定义了一个结构体conn_info，把这个结构体放在sqe的user_data域里，等内核处理完成后，返回的cqe队列也会有这个conn_info,这样就能知道那个channel发生了（完成了）事件。
+```
+typedef struct conn_info {
+    __u32 fd;
+    __u16 event;
+    __u16 bid;
+    Channel* channel;
+} conn_info;
+```
+
+```c++
+void UringPoller::add_socket_read(Channel* channel, unsigned gid, size_t message_size, unsigned flags) {
+    int fd = channel->get_fd();
+    conn_info *conn_i = &conns[fd];
+    printf("add_socket_read:fd = %d\n",fd);
+    struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_);
+    io_uring_prep_recv(sqe, fd, NULL, 0, 0); //读0长度，只关注事件是否发生。
+    io_uring_sqe_set_flags(sqe, flags);
+    sqe->buf_group = gid;
+
+    conn_i->fd = fd;
+	conn_i->event = READ;
+    conn_i->channel = channel;
+	io_uring_sqe_set_data(sqe, conn_i);
+}
+```
+## UringPoller的poll实现
+对于UringPoller，实现poll成员函数：
+```c++
+TimeStamp UringPoller::poll(int timeout, ChannelList *active_channels)
+{
+    count++;
+    int ret = io_uring_submit_and_wait(&ring_, 0); //提交sq的entry
+    if (ret < 0) {
+        printf("Returned from io is %d\n", errno);
+        perror("Error io_uring_submit_and_wait\n");
+        LOG_ERROR("%s", "io_uring failure");
+        exit(1);
+    }
+    //将准备好的队列填充到cqes中，并返回已准备好的数目，收割cqe
+    int cqe_count = io_uring_peek_batch_cqe(&ring_, cqes_, sizeof(cqes_) / sizeof(cqes_[0]));
+    TimeStamp now(TimeStamp::now());
+    if (cqe_count > 0)
+    {
+        LOG_INFO("%d events happened \n", cqe_count);
+        fill_active_channels(cqe_count, active_channels);
+    }
+    //返回发生事件时间点
+    return now;
+}
+```
 
 
 
 
-### EventLoopThread
+
