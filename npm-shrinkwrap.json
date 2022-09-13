@@ -15649,7 +15649,8 @@
       }
     },
     "graceful-fs": {
-      "version": "4.2.2"
+      "version": "4.2.2",
+      "integrity": "sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q=="
     },
     "har-schema": {
       "version": "1.0.5",
