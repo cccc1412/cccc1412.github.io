@@ -4646,9 +4646,8 @@
       }
     },
     "node_modules/graceful-fs": {
-      "version": "4.2.10",
-      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.10.tgz",
-      "integrity": "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="
+      "version": "4.2.2",
+      "integrity": "sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q=="
     },
     "node_modules/har-schema": {
       "version": "1.0.5",
@@ -15650,9 +15649,7 @@
       }
     },
     "graceful-fs": {
-      "version": "4.2.10",
-      "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.10.tgz",
-      "integrity": "sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA=="
+      "version": "4.2.2"
     },
     "har-schema": {
       "version": "1.0.5",
