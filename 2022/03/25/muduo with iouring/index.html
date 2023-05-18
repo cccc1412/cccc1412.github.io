@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>muduo学习笔记 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="调用关系分析Muduo自顶向下 自顶向下分析muduo的调用逻辑  创建自己的业务server 创建自己的server类,包含了两个私有成员:EventLoop *loop_,TcpServer server_ 实现on_message和on_connection，在构造函数里设置回调，设置线程数 main函数调用server.start() server.start()会调用内部TcpS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="muduo学习笔记">
+<meta property="og:url" content="http://yoursite.com/2022/03/25/muduo%20with%20iouring/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="调用关系分析Muduo自顶向下 自顶向下分析muduo的调用逻辑  创建自己的业务server 创建自己的server类,包含了两个私有成员:EventLoop *loop_,TcpServer server_ 实现on_message和on_connection，在构造函数里设置回调，设置线程数 main函数调用server.start() server.start()会调用内部TcpS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-03-25T08:43:46.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.275Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="muduo学习笔记" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-03-25T08:43:46.000Z">2022-03-25</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    30 分钟 读完 (大约 4494 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                muduo学习笔记
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><span id="more"></span>
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<h1 id="调用关系分析"><a href="#调用关系分析" class="headerlink" title="调用关系分析"></a>调用关系分析</h1><h2 id="Muduo自顶向下"><a href="#Muduo自顶向下" class="headerlink" title="Muduo自顶向下"></a>Muduo自顶向下</h2><blockquote>
+<p>自顶向下分析muduo的调用逻辑</p>
+</blockquote>
+<h3 id="创建自己的业务server"><a href="#创建自己的业务server" class="headerlink" title="创建自己的业务server"></a>创建自己的业务server</h3><ul>
+<li>创建自己的server类,包含了两个私有成员:<code>EventLoop *loop_</code>,<code>TcpServer server_</code></li>
+<li>实现<code>on_message</code>和<code>on_connection</code>，在构造函数里设置回调，设置线程数</li>
+<li>main函数调用server.start()</li>
+<li>server.start()会调用内部TcpServer的start,然后调用EventLoop的loop()。<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">EchoServer</span></span><br><span class="line">{</span><br><span class="line"><span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-built_in">EchoServer</span>(EventLoop *loop, InetAddress &amp;addr, string name)</span><br><span class="line">        : <span class="hljs-built_in">server_</span>(loop, addr, name), <span class="hljs-built_in">loop_</span>(loop)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-comment">//注册回调函数</span></span><br><span class="line">        server_.<span class="hljs-built_in">set_connection_callback</span>(<span class="hljs-built_in">bind</span>(&amp;EchoServer::on_connection, <span class="hljs-keyword">this</span>, _1));</span><br><span class="line">        server_.<span class="hljs-built_in">set_message_callback</span>(<span class="hljs-built_in">bind</span>(&amp;EchoServer::on_message, <span class="hljs-keyword">this</span>, _1, _2, _3));</span><br><span class="line"></span><br><span class="line">        <span class="hljs-comment">//设置线程数量</span></span><br><span class="line">        server_.<span class="hljs-built_in">set_thread_num</span>(<span class="hljs-number">3</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function">    </span>{</span><br><span class="line">        server_.<span class="hljs-built_in">start</span>();</span><br><span class="line">        loop_-&gt;<span class="hljs-built_in">loop</span>();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-comment">//连接建立或者断开的回调</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">on_connection</span><span class="hljs-params">(<span class="hljs-type">const</span> TcpConnectionPtr &amp;conn)</span></span></span><br><span class="line"><span class="hljs-function">    </span>{</span><br><span class="line">        <span class="hljs-keyword">if</span> (conn-&gt;<span class="hljs-built_in">connected</span>())</span><br><span class="line">        {</span><br><span class="line">            <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"conn up: %s"</span>, conn-&gt;<span class="hljs-built_in">get_peeraddr</span>().<span class="hljs-built_in">get_ip_port</span>().<span class="hljs-built_in">c_str</span>());</span><br><span class="line">        }</span><br><span class="line">        <span class="hljs-keyword">else</span></span><br><span class="line">        {</span><br><span class="line">            <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"conn down: %s"</span>, conn-&gt;<span class="hljs-built_in">get_peeraddr</span>().<span class="hljs-built_in">get_ip_port</span>().<span class="hljs-built_in">c_str</span>());</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//可读事件回调</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">on_message</span><span class="hljs-params">(<span class="hljs-type">const</span> TcpConnectionPtr &amp;conn, Buffer *buffer, TimeStamp time)</span></span></span><br><span class="line"><span class="hljs-function">    </span>{</span><br><span class="line">        string msg = buffer-&gt;<span class="hljs-built_in">retrieve_all_asString</span>();</span><br><span class="line">        conn-&gt;<span class="hljs-built_in">send</span>(msg);</span><br><span class="line">        <span class="hljs-comment">//conn-&gt;shutdown();</span></span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">    EventLoop *loop_;</span><br><span class="line">    TcpServer server_;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-function">EventLoop <span class="hljs-title">loop</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span></span>;</span><br><span class="line">    <span class="hljs-function">InetAddress <span class="hljs-title">addr</span><span class="hljs-params">(<span class="hljs-number">8000</span>)</span></span>;</span><br><span class="line">    <span class="hljs-function">EchoServer <span class="hljs-title">server</span><span class="hljs-params">(&amp;loop, addr, <span class="hljs-string">"echo 01"</span>)</span></span>;</span><br><span class="line">    server.<span class="hljs-built_in">start</span>();</span><br><span class="line">    <span class="hljs-comment">//loop.loop(); //启动main loop的底层poller</span></span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="TcpServer的start"><a href="#TcpServer的start" class="headerlink" title="TcpServer的start"></a>TcpServer的start</h3><blockquote>
+<p>业务server调用TcpServer的start</p>
+</blockquote>
+</li>
+</ul>
+<p>TcpServer有一个main Loop,一个线程池，池子里是所有的subReactor，每个线程也有自己的loop<br>TcpServer的start会调用自己的线程池的start，然后在自己的main loop里调用listen</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">//开启服务器监听</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">TcpServer::start</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-keyword">if</span> (started_++ == <span class="hljs-number">0</span>) <span class="hljs-comment">//防止被多次启动</span></span><br><span class="line">    {</span><br><span class="line">        thread_pool_-&gt;<span class="hljs-built_in">start</span>(thread_init_callback_);</span><br><span class="line">        loop_-&gt;<span class="hljs-built_in">run_in_loop</span>(<span class="hljs-built_in">bind</span>(&amp;Acceptor::listen, acceptor_.<span class="hljs-built_in">get</span>()));</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="线程池的start"><a href="#线程池的start" class="headerlink" title="线程池的start"></a>线程池的start</h3><p>创建thread_nums个EventLoopThread,每个thread有自己的一个EventLoop，调用start_loop，返回的eventloop地址然后放到线程池的loops_数组中。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">EventLoopThreadPool::start</span><span class="hljs-params">(<span class="hljs-type">const</span> ThreadInitCallback &amp;callback)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    started_ = <span class="hljs-literal">true</span>;</span><br><span class="line">    <span class="hljs-comment">//整个服务端只有baseloop，也就是mainreactor</span></span><br><span class="line">    <span class="hljs-keyword">if</span> (thread_nums_ == <span class="hljs-number">0</span>)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">callback</span>(baseloop_);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span></span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; thread_nums_; ++i)</span><br><span class="line">        {</span><br><span class="line">            <span class="hljs-type">char</span> buffer[name_.<span class="hljs-built_in">size</span>() + <span class="hljs-number">32</span>] = {<span class="hljs-number">0</span>};</span><br><span class="line">            <span class="hljs-built_in">snprintf</span>(buffer, <span class="hljs-built_in">sizeof</span>(buffer), <span class="hljs-string">"%s %d"</span>, name_.<span class="hljs-built_in">c_str</span>(), i);</span><br><span class="line">            EventLoopThread *t = <span class="hljs-keyword">new</span> <span class="hljs-built_in">EventLoopThread</span>(callback, buffer);</span><br><span class="line">            threads_.<span class="hljs-built_in">push_back</span>(<span class="hljs-built_in">unique_ptr</span>&lt;EventLoopThread&gt;(t));</span><br><span class="line">            loops_.<span class="hljs-built_in">push_back</span>(t-&gt;<span class="hljs-built_in">start_loop</span>()); <span class="hljs-comment">//底层开始创建线程，并绑定一个新的eventloop，返回其地址</span></span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="EventLoopThread的start-loop"><a href="#EventLoopThread的start-loop" class="headerlink" title="EventLoopThread的start_loop"></a>EventLoopThread的start_loop</h3><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">EventLoop *<span class="hljs-title">EventLoopThread::start_loop</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    thread_.<span class="hljs-built_in">start</span>(); <span class="hljs-comment">//启动线程</span></span><br><span class="line"></span><br><span class="line">    EventLoop *loop = <span class="hljs-literal">nullptr</span>;</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-function">unique_lock&lt;mutex&gt; <span class="hljs-title">lock</span><span class="hljs-params">(thread_mutex_)</span></span>;</span><br><span class="line">        <span class="hljs-keyword">while</span> (loop_ == <span class="hljs-literal">nullptr</span>)</span><br><span class="line">        {</span><br><span class="line">            condition_.<span class="hljs-built_in">wait</span>(lock);</span><br><span class="line">        }</span><br><span class="line">        loop = loop_;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">return</span> loop;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+<p>里面再调用Thread的start</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Thread::start</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    started_ = <span class="hljs-literal">true</span>;</span><br><span class="line">    <span class="hljs-type">sem_t</span> sem;</span><br><span class="line">    <span class="hljs-built_in">sem_init</span>(&amp;sem, <span class="hljs-literal">false</span>, <span class="hljs-number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//开启线程</span></span><br><span class="line">    thread_ = <span class="hljs-built_in">shared_ptr</span>&lt;thread&gt;(<span class="hljs-keyword">new</span> <span class="hljs-built_in">thread</span>([&amp;]() {</span><br><span class="line">        <span class="hljs-comment">//获取线程tid值</span></span><br><span class="line">        tid_ = Current_thread::<span class="hljs-built_in">tid</span>();</span><br><span class="line">        <span class="hljs-built_in">sem_post</span>(&amp;sem);</span><br><span class="line">        <span class="hljs-comment">//执行函数</span></span><br><span class="line">        <span class="hljs-built_in">function_</span>();</span><br><span class="line">    }));</span><br><span class="line">    <span class="hljs-comment">//需要等待新创建的线程，获取其线程的id</span></span><br><span class="line">    <span class="hljs-built_in">sem_wait</span>(&amp;sem);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>这里会创建新的线程，然后新的线程里跑function_, function_实际就是初始化EventLoopThread时传入了的thread_function，在里面会创建EventLoop，然后进入EventLoop的while 1循环。 </p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">//启动的线程中执行以下方法</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">EventLoopThread::thread_function</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-function">EventLoop <span class="hljs-title">loop</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>; <span class="hljs-comment">//创建一个独立的EventLoop，和上面的线程是一一对应 one loop per thread</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">if</span> (callback_function_)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">callback_function_</span>(&amp;loop);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-function">unique_lock&lt;mutex&gt; <span class="hljs-title">lock</span><span class="hljs-params">(thread_mutex_)</span></span>;</span><br><span class="line">        loop_ = &amp;loop;</span><br><span class="line">        condition_.<span class="hljs-built_in">notify_one</span>();</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    loop.<span class="hljs-built_in">loop</span>(); <span class="hljs-comment">//开启事件循环</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//结束事件循环</span></span><br><span class="line">    <span class="hljs-function">unique_lock&lt;mutex&gt; <span class="hljs-title">lock</span><span class="hljs-params">(thread_mutex_)</span></span>;</span><br><span class="line">    loop_ = <span class="hljs-literal">nullptr</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>上面说的while 1循环就是调用poller的poll，然后填充active_channel，然后在使用channel来处理不同事件，比如读写的回调函数。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">while</span> (!quit_)</span><br><span class="line">{</span><br><span class="line">    active_channels.<span class="hljs-built_in">clear</span>();</span><br><span class="line">    <span class="hljs-comment">//监听两类fd 一种是client的fd，一种wakeup的fd</span></span><br><span class="line">    poll_return_time_ = poller_-&gt;<span class="hljs-built_in">poll</span>(k_poll_timeout, &amp;active_channels);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">for</span> (Channel *channel : active_channels)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-comment">//Poller监听哪些channel发生事件了，然后上报给eventloop，通知channel处理事件</span></span><br><span class="line">        channel-&gt;<span class="hljs-built_in">handle_event</span>(poll_return_time_);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//执行当前EventLoop事件循环需要处理的回调操作</span></span><br><span class="line">    <span class="hljs-built_in">do_pending_functors</span>();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>然后main reactor会调用run_in_loop, 开启acceptor的listen</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Acceptor::listen</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"Acceptor listen called!\n"</span>);</span><br><span class="line">    listenning_ = <span class="hljs-literal">true</span>;</span><br><span class="line">    accept_socket_.<span class="hljs-built_in">listen</span>();</span><br><span class="line">    <span class="hljs-comment">//借助poller进行监听</span></span><br><span class="line">    accept_channel_.<span class="hljs-built_in">enable_reading</span>();</span><br><span class="line">    </span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="Acceptor"><a href="#Acceptor" class="headerlink" title="Acceptor"></a>Acceptor</h3><p>acceptor_是TcpServer类中的一个指针成员。包含两个关键成员：指向mainloop的指针，和用来管理listenfd的channel。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EventLoop *loop_; <span class="hljs-comment">//acceptor用的用户定义的那个baseloop，也就是mainloop</span></span><br><span class="line"></span><br><span class="line">Channel accept_channel_;</span><br></pre></td></tr></tbody></table></figure>
+<p>当有新的连接到达时，Acceptor会执行new_connection的回调，里面会选择一个subreactor，创建一个新的connection，放到TcpServer的map里，然后，在这个subreactor里调用establish_connect，establish_connect会像Poller添加关于这个新连接fd的事件监听。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">TcpServer::new_connection</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">const</span> InetAddress &amp;peeraddr)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"new connection callback called\n"</span>);</span><br><span class="line">    <span class="hljs-comment">//轮询算法，选择一个subloop管理channel</span></span><br><span class="line">    EventLoop *ioloop = thread_pool_-&gt;<span class="hljs-built_in">get_nextEventLoop</span>();<span class="hljs-comment">//连接均匀打到每个eventloop上</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-type">char</span> buffer[BUFFER_SIZE64] = {<span class="hljs-number">0</span>};</span><br><span class="line">    <span class="hljs-built_in">snprintf</span>(buffer, <span class="hljs-built_in">sizeof</span>(buffer), <span class="hljs-string">"-%s#%d"</span>, ip_port_.<span class="hljs-built_in">c_str</span>(), next_conn_id_);</span><br><span class="line">    ++next_conn_id_;</span><br><span class="line">    string conn_name = name_ + buffer;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"tcp server:: new connection[%s] - new connection[%s] from %s\n"</span>, name_.<span class="hljs-built_in">c_str</span>(), conn_name.<span class="hljs-built_in">c_str</span>(), peeraddr.<span class="hljs-built_in">get_ip_port</span>().<span class="hljs-built_in">c_str</span>());</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//通过sockfd，获取其绑定的端口号和ip信息</span></span><br><span class="line">    sockaddr_in local;</span><br><span class="line">    <span class="hljs-built_in">bzero</span>(&amp;local, <span class="hljs-built_in">sizeof</span>(local));</span><br><span class="line">    <span class="hljs-type">socklen_t</span> addrlen = <span class="hljs-built_in">sizeof</span>(local);</span><br><span class="line">    <span class="hljs-keyword">if</span> (::<span class="hljs-built_in">getsockname</span>(sockfd, (sockaddr *)&amp;local, &amp;addrlen) &lt; <span class="hljs-number">0</span>)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">LOG_ERROR</span>(<span class="hljs-string">"new connection get localaddr error\n"</span>);</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function">InetAddress <span class="hljs-title">localaddr</span><span class="hljs-params">(local)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//根据连接成功的sockfd，创建tcpc连接对象</span></span><br><span class="line">    <span class="hljs-function">TcpConnectionPtr <span class="hljs-title">conn</span><span class="hljs-params">(<span class="hljs-keyword">new</span> TcpConnection(ioloop, conn_name, sockfd, localaddr, peeraddr))</span></span>;</span><br><span class="line"></span><br><span class="line">    connections_[conn_name] = conn;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//下面回调是用户设置给tcpserver-》tcpconn-》channel-》poller-》notify channel</span></span><br><span class="line">    conn-&gt;<span class="hljs-built_in">set_connection_callback</span>(connection_callback_);</span><br><span class="line">    conn-&gt;<span class="hljs-built_in">set_message_callback</span>(message_callback_);</span><br><span class="line">    conn-&gt;<span class="hljs-built_in">set_write_complete_callback</span>(write_complete_callback_);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//设置如何关闭连接的回调</span></span><br><span class="line">    conn-&gt;<span class="hljs-built_in">set_close_callback</span>(<span class="hljs-built_in">bind</span>(&amp;TcpServer::remove_connection, <span class="hljs-keyword">this</span>, _1));</span><br><span class="line">    ioloop-&gt;<span class="hljs-built_in">run_in_loop</span>(<span class="hljs-built_in">bind</span>(&amp;TcpConnection::establish_connect, conn));</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>看下run_in_loop怎么实现的：<br>如果调用方就是这个loop所属的线程，直接调用<br>否则放到这个eventloop的pending_Functors_里，而eventloop每次poll完，处理完对应channel的handle都会调用do_pending_functors()。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">EventLoop::run_in_loop</span><span class="hljs-params">(Functor cb)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-comment">//在当前的loop线程中执行回调</span></span><br><span class="line">    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">is_in_loopThread</span>())</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">cb</span>();</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span> <span class="hljs-comment">//在其他线程执行cb，唤醒loop所在线程执行cb</span></span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">queue_in_loop</span>(cb);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h1 id="模块分析"><a href="#模块分析" class="headerlink" title="模块分析"></a>模块分析</h1><h2 id="Reactor"><a href="#Reactor" class="headerlink" title="Reactor"></a>Reactor</h2><p><img src="/2022/03/25/muduo%20with%20iouring/image-20220328164152236.png" alt="image-20220328164152236"></p>
+<h3 id="EventLoop"><a href="#EventLoop" class="headerlink" title="EventLoop"></a>EventLoop</h3><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">EventLoop</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">        <span class="hljs-built_in">EventLoop</span>();</span><br><span class="line">        ~<span class="hljs-built_in">EventLoop</span>();</span><br><span class="line">        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">loop</span><span class="hljs-params">()</span></span>;</span><br><span class="line">        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">assertInLoopThread</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">            <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">isInLoopThread</span>()) {</span><br><span class="line">                <span class="hljs-built_in">abortNotInLoopThread</span>();</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isInLoopThread</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> threadId_ == CurrentThread::<span class="hljs-built_in">tid</span>(); }</span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">abortNotInLoopThread</span><span class="hljs-params">()</span></span>;</span><br><span class="line">        <span class="hljs-type">bool</span> looping_; <span class="hljs-comment">/* atomic */</span></span><br><span class="line">        <span class="hljs-type">const</span> <span class="hljs-type">pid_t</span> threadId_; <span class="hljs-comment">//记录自己所属的线程</span></span><br><span class="line">    };</span><br></pre></td></tr></tbody></table></figure>
+
+<p>构造函数会检查当前线程是否创建了EventLoop对象，如果已经创建了就返回错误。这是one loop per thread的要求，一个IO线程只能有一个EventLoop对象。</p>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><p>用来管理各种callback，比如对于readcallback:</p>
+<p>TimerQueue用它来读timerfd</p>
+<p>EventLoop用来读eventfd</p>
+<p>TcpServer/Acceptor用来读listening socket</p>
+<p>TcpConnection 用它来读Tcp socket</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">Channel</span> : boost::noncopyable {</span><br><span class="line"> <span class="hljs-keyword">public</span>:</span><br><span class="line">     <span class="hljs-keyword">typedef</span> boost::function&lt;<span class="hljs-type">void</span>()&gt; EventCallback;</span><br><span class="line">     <span class="hljs-built_in">Channel</span>(EventLoop *loop, <span class="hljs-type">int</span> fd);</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleEvent</span><span class="hljs-params">()</span></span>;</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setReadCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> EventCallback &amp;cb)</span> </span>{ readCallback_ = cb; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setWriteCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> EventCallback &amp;cb)</span> </span>{ writeCallback_ = cb; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setErrorCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> EventCallback &amp;cb)</span> </span>{ errorCallback_ = cb; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">fd</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> fd_; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">events</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> events_; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">set_revents</span><span class="hljs-params">(<span class="hljs-type">int</span> revt)</span> </span>{ revents_ = revt; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">isNoneEvent</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> events_ == kNoneEvent; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">enableReading</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">         events_ |= kReadEvent;</span><br><span class="line">         <span class="hljs-built_in">update</span>();</span><br><span class="line">     }</span><br><span class="line">     <span class="hljs-comment">// void enableWriting() { events_ |= kWriteEvent; update(); }</span></span><br><span class="line">     <span class="hljs-comment">// void disableWriting() { events_ &amp;= ~kWriteEvent; update(); }</span></span><br><span class="line">     <span class="hljs-comment">// void disableAll() { events_ = kNoneEvent; update(); }</span></span><br><span class="line">     <span class="hljs-comment">// for Poller</span></span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">index</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> index_; }</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">set_index</span><span class="hljs-params">(<span class="hljs-type">int</span> idx)</span> </span>{ index_ = idx; }</span><br><span class="line">     <span class="hljs-function">EventLoop *<span class="hljs-title">ownerLoop</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> loop_; }</span><br><span class="line"> <span class="hljs-keyword">private</span>:</span><br><span class="line">     <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">update</span><span class="hljs-params">()</span></span>;</span><br><span class="line">     <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> kNoneEvent;<span class="hljs-comment">//几种事件的定义</span></span><br><span class="line">     <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> kReadEvent;</span><br><span class="line">     <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> kWriteEvent;</span><br><span class="line">     EventLoop *loop_;</span><br><span class="line">     <span class="hljs-type">const</span> <span class="hljs-type">int</span> fd_;</span><br><span class="line">     <span class="hljs-type">int</span> events_;<span class="hljs-comment">//关心的IO事件，由用户设置</span></span><br><span class="line">     <span class="hljs-type">int</span> revents_;<span class="hljs-comment">//目前活动的事件，由Event/Poller设置</span></span><br><span class="line">     <span class="hljs-type">int</span> index_; <span class="hljs-comment">// used by Poller.</span></span><br><span class="line">     EventCallback readCallback_;</span><br><span class="line">     EventCallback writeCallback_;</span><br><span class="line">     EventCallback errorCallback_;</span><br><span class="line"> };</span><br></pre></td></tr></tbody></table></figure>
+
+<p>每个channel只属于一个EventLoop，因此每个channel只属于一个IO线程，每个Channel对象自始至终只负责一个文件描述符的IO事件分发，Channel把不同的IO线程分发为不同的回调，例如ReadCallback、writeCallback等，回调用boost::function。后面的TcpConnection是对Channel的更上层封装，用户一般不使用channel。</p>
+<p>由于channel的成员函数只能在IO线程使用，所以更新成员函数不用加锁。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">const</span> <span class="hljs-type">int</span> Channel::kNoneEvent = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-type">const</span> <span class="hljs-type">int</span> Channel::kReadEvent = POLLIN | POLLPRI;</span><br><span class="line"><span class="hljs-type">const</span> <span class="hljs-type">int</span> Channel::kWriteEvent = POLLOUT;</span><br><span class="line"></span><br><span class="line">Channel::<span class="hljs-built_in">Channel</span>(EventLoop *loop, <span class="hljs-type">int</span> fdArg)</span><br><span class="line">        : <span class="hljs-built_in">loop_</span>(loop),</span><br><span class="line">          <span class="hljs-built_in">fd_</span>(fdArg),</span><br><span class="line">          <span class="hljs-built_in">events_</span>(<span class="hljs-number">0</span>),</span><br><span class="line">          <span class="hljs-built_in">revents_</span>(<span class="hljs-number">0</span>),</span><br><span class="line">          <span class="hljs-built_in">index_</span>(<span class="hljs-number">-1</span>) {</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Channel::update</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">    loop_-&gt;<span class="hljs-built_in">updateChannel</span>(<span class="hljs-keyword">this</span>);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Channel::handleEvent</span><span class="hljs-params">()</span> </span>{ </span><br><span class="line">    <span class="hljs-keyword">if</span> (revents_ &amp; POLLNVAL) {</span><br><span class="line">        LOG_WARN &lt;&lt; <span class="hljs-string">"Channel::handle_event() POLLNVAL"</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">if</span> (revents_ &amp; (POLLERR | POLLNVAL)) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (errorCallback_) <span class="hljs-built_in">errorCallback_</span>();</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">if</span> (revents_ &amp; (POLLIN | POLLPRI | POLLRDHUP)) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (readCallback_) <span class="hljs-built_in">readCallback_</span>();</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">if</span> (revents_ &amp; POLLOUT) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (writeCallback_) <span class="hljs-built_in">writeCallback_</span>();</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>updata()会调用eventloop的updateChannel</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line">void Channel::handleEvent() 是Channel的核心，由EventLoop::loop()调用，根据revents_的值分别调用不同的用户回调。</span><br><span class="line"></span><br><span class="line">```c++</span><br><span class="line">void EventLoop::loop() {</span><br><span class="line">    assert(!looping_);</span><br><span class="line">    assertInLoopThread();</span><br><span class="line">    looping_ = true;</span><br><span class="line">    quit_ = false;</span><br><span class="line"></span><br><span class="line">    while (!quit_) {</span><br><span class="line">        activeChannels_.clear();</span><br><span class="line">        poller_-&gt;poll(kPollTimeMs, &amp;activeChannels_);</span><br><span class="line">        for (ChannelList::iterator it = activeChannels_.begin();</span><br><span class="line">             it != activeChannels_.end(); ++it) {</span><br><span class="line">            (*it)-&gt;handleEvent();</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    LOG_TRACE &lt;&lt; "EventLoop " &lt;&lt; this &lt;&lt; " stop looping";</span><br><span class="line">    looping_ = false;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="Poller"><a href="#Poller" class="headerlink" title="Poller"></a>Poller</h3><p>Poller是IO 多路复用的封装。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">Poller</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::vector&lt;Channel *&gt; ChannelList;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-built_in">Poller</span>(EventLoop *loop);</span><br><span class="line"></span><br><span class="line">    ~<span class="hljs-built_in">Poller</span>();</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Polls the I/O events.</span></span><br><span class="line">    <span class="hljs-comment">/// Must be called in the loop thread.</span></span><br><span class="line">    <span class="hljs-function">Timestamp <span class="hljs-title">poll</span><span class="hljs-params">(<span class="hljs-type">int</span> timeoutMs, ChannelList *activeChannels)</span></span>; <span class="hljs-comment">//核心</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Changes the interested I/O events.</span></span><br><span class="line">    <span class="hljs-comment">/// Must be called in the loop thread.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">updateChannel</span><span class="hljs-params">(Channel *channel)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">assertInLoopThread</span><span class="hljs-params">()</span> </span>{ ownerLoop_-&gt;<span class="hljs-built_in">assertInLoopThread</span>(); }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fillActiveChannels</span><span class="hljs-params">(<span class="hljs-type">int</span> numEvents,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                            ChannelList *activeChannels)</span> <span class="hljs-type">const</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::vector&lt;<span class="hljs-keyword">struct</span> pollfd&gt; PollFdList;</span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::map&lt;<span class="hljs-type">int</span>, Channel *&gt; ChannelMap; <span class="hljs-comment">//fd到Channel*的映射</span></span><br><span class="line"></span><br><span class="line">    EventLoop *ownerLoop_;</span><br><span class="line">    PollFdList pollfds_;</span><br><span class="line">    ChannelMap channels_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Channel提供了fd到Channel*的映射，poll()不会在每次调用前构造pollfd数组，而是把它缓存到follfds_里。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">Timestamp <span class="hljs-title">Poller::poll</span><span class="hljs-params">(<span class="hljs-type">int</span> timeoutMs, ChannelList *activeChannels)</span> </span>{</span><br><span class="line">    <span class="hljs-comment">// XXX pollfds_ shouldn't change</span></span><br><span class="line">    <span class="hljs-type">int</span> numEvents = ::<span class="hljs-built_in">poll</span>(&amp;*pollfds_.<span class="hljs-built_in">begin</span>(), pollfds_.<span class="hljs-built_in">size</span>(), timeoutMs);</span><br><span class="line">    <span class="hljs-function">Timestamp <span class="hljs-title">now</span><span class="hljs-params">(Timestamp::now())</span></span>;</span><br><span class="line">    <span class="hljs-keyword">if</span> (numEvents &gt; <span class="hljs-number">0</span>) {</span><br><span class="line">        LOG_TRACE &lt;&lt; numEvents &lt;&lt; <span class="hljs-string">" events happended"</span>;</span><br><span class="line">        <span class="hljs-built_in">fillActiveChannels</span>(numEvents, activeChannels);</span><br><span class="line">    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (numEvents == <span class="hljs-number">0</span>) {</span><br><span class="line">        LOG_TRACE &lt;&lt; <span class="hljs-string">" nothing happended"</span>;</span><br><span class="line">    } <span class="hljs-keyword">else</span> {</span><br><span class="line">        LOG_SYSERR &lt;&lt; <span class="hljs-string">"Poller::poll()"</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">return</span> now;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>poll是Poller的核心功能，调用poll（2）获取当前活动的IO事件，然后放入activeChannels中（fillActiveChannels）。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Poller::fillActiveChannels</span><span class="hljs-params">(<span class="hljs-type">int</span> numEvents,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                                ChannelList *activeChannels)</span> <span class="hljs-type">const</span> </span>{</span><br><span class="line">    <span class="hljs-keyword">for</span> (PollFdList::const_iterator pfd = pollfds_.<span class="hljs-built_in">begin</span>();</span><br><span class="line">         pfd != pollfds_.<span class="hljs-built_in">end</span>() &amp;&amp; numEvents &gt; <span class="hljs-number">0</span>; ++pfd) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (pfd-&gt;revents &gt; <span class="hljs-number">0</span>) { <span class="hljs-comment">//有事件发生</span></span><br><span class="line">            --numEvents;</span><br><span class="line">            ChannelMap::const_iterator ch = channels_.<span class="hljs-built_in">find</span>(pfd-&gt;fd);</span><br><span class="line">            <span class="hljs-built_in">assert</span>(ch != channels_.<span class="hljs-built_in">end</span>());</span><br><span class="line">            Channel *channel = ch-&gt;second;</span><br><span class="line">            <span class="hljs-built_in">assert</span>(channel-&gt;<span class="hljs-built_in">fd</span>() == pfd-&gt;fd);</span><br><span class="line">            channel-&gt;<span class="hljs-built_in">set_revents</span>(pfd-&gt;revents);</span><br><span class="line">            <span class="hljs-comment">// pfd-&gt;revents = 0;</span></span><br><span class="line">            activeChannels-&gt;<span class="hljs-built_in">push_back</span>(channel);</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">//注pollfd结构</span></span><br><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">pollfd</span></span><br><span class="line">  {</span><br><span class="line">    <span class="hljs-type">int</span> fd;			<span class="hljs-comment">/* File descriptor to poll.  */</span></span><br><span class="line">    <span class="hljs-type">short</span> <span class="hljs-type">int</span> events;		<span class="hljs-comment">/* Types of events poller cares about.  */</span></span><br><span class="line">    <span class="hljs-type">short</span> <span class="hljs-type">int</span> revents;		<span class="hljs-comment">/* Types of events that actually occurred.  */</span></span><br><span class="line">  };</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>fillActiveChannels() 先遍历了缓存的pollfds_，判断pollfd是否有事件发生，如果有事件，则根据ChannelMap找到该fd对应的Channel，放到activeChannels中。</p>
+<p>poll完之后，eventloop会handleEvent。</p>
+<p>一个点是，这里不能边遍历pollfds，一边handleEvents，因为handleEvents会添加或删除Channel，从而造成pollfds数组大小改变。另一个原因是Poller的职责是多路复用，并不负责事件分发。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Poller::updateChannel</span><span class="hljs-params">(Channel *channel)</span> </span>{</span><br><span class="line">    <span class="hljs-built_in">assertInLoopThread</span>();</span><br><span class="line">    LOG_TRACE &lt;&lt; <span class="hljs-string">"fd = "</span> &lt;&lt; channel-&gt;<span class="hljs-built_in">fd</span>() &lt;&lt; <span class="hljs-string">" events = "</span> &lt;&lt; channel-&gt;<span class="hljs-built_in">events</span>();</span><br><span class="line">    <span class="hljs-keyword">if</span> (channel-&gt;<span class="hljs-built_in">index</span>() &lt; <span class="hljs-number">0</span>) {</span><br><span class="line">        <span class="hljs-comment">// a new one, add to pollfds_</span></span><br><span class="line">        <span class="hljs-built_in">assert</span>(channels_.<span class="hljs-built_in">find</span>(channel-&gt;<span class="hljs-built_in">fd</span>()) == channels_.<span class="hljs-built_in">end</span>());</span><br><span class="line">        <span class="hljs-keyword">struct</span> <span class="title class_">pollfd</span> pfd;</span><br><span class="line">        pfd.fd = channel-&gt;<span class="hljs-built_in">fd</span>();</span><br><span class="line">        pfd.events = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">short</span>&gt;(channel-&gt;<span class="hljs-built_in">events</span>());</span><br><span class="line">        pfd.revents = <span class="hljs-number">0</span>;</span><br><span class="line">        pollfds_.<span class="hljs-built_in">push_back</span>(pfd);</span><br><span class="line">        <span class="hljs-type">int</span> idx = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(pollfds_.<span class="hljs-built_in">size</span>()) - <span class="hljs-number">1</span>;</span><br><span class="line">        channel-&gt;<span class="hljs-built_in">set_index</span>(idx); <span class="hljs-comment">//记住自己在fd数组中的下标</span></span><br><span class="line">        channels_[pfd.fd] = channel;</span><br><span class="line">    } <span class="hljs-keyword">else</span> {</span><br><span class="line">        <span class="hljs-comment">// update existing one</span></span><br><span class="line">        <span class="hljs-built_in">assert</span>(channels_.<span class="hljs-built_in">find</span>(channel-&gt;<span class="hljs-built_in">fd</span>()) != channels_.<span class="hljs-built_in">end</span>());</span><br><span class="line">        <span class="hljs-built_in">assert</span>(channels_[channel-&gt;<span class="hljs-built_in">fd</span>()] == channel);</span><br><span class="line">        <span class="hljs-type">int</span> idx = channel-&gt;<span class="hljs-built_in">index</span>();</span><br><span class="line">        <span class="hljs-built_in">assert</span>(<span class="hljs-number">0</span> &lt;= idx &amp;&amp; idx &lt; <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(pollfds_.<span class="hljs-built_in">size</span>()));</span><br><span class="line">        <span class="hljs-keyword">struct</span> <span class="title class_">pollfd</span> &amp;pfd = pollfds_[idx];</span><br><span class="line">        <span class="hljs-built_in">assert</span>(pfd.fd == channel-&gt;<span class="hljs-built_in">fd</span>() || pfd.fd == <span class="hljs-number">-1</span>);</span><br><span class="line">        pfd.events = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">short</span>&gt;(channel-&gt;<span class="hljs-built_in">events</span>());</span><br><span class="line">        pfd.revents = <span class="hljs-number">0</span>;</span><br><span class="line">        <span class="hljs-keyword">if</span> (channel-&gt;<span class="hljs-built_in">isNoneEvent</span>()) {</span><br><span class="line">            <span class="hljs-comment">// ignore this pollfd</span></span><br><span class="line">            pfd.fd = <span class="hljs-number">-1</span>;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>updateChannel()负责维护和更新pollfds_数组。为什么说插入删除是logN?</p>
+<h2 id="定时器"><a href="#定时器" class="headerlink" title="定时器"></a>定时器</h2><p>muduo的定时器实现用了三个类，TimerId、Timer、TimerQueue。</p>
+<h3 id="TimerQueue"><a href="#TimerQueue" class="headerlink" title="TimerQueue"></a>TimerQueue</h3><p>有了Reactor的基础，在EventLoop加上定时器功能。现代Linux中有timerfd，可以用和处理IO事件相同的方式来处理定时。传统reactor通过控制select和poll的等待事件来实现定时。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">TimerQueue</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-built_in">TimerQueue</span>(EventLoop *loop);</span><br><span class="line">    ~<span class="hljs-built_in">TimerQueue</span>();</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">///</span></span><br><span class="line">    <span class="hljs-comment">/// Schedules the callback to be run at given time,</span></span><br><span class="line">    <span class="hljs-comment">/// repeats if @c interval &gt; 0.0.</span></span><br><span class="line">    <span class="hljs-comment">///</span></span><br><span class="line">    <span class="hljs-comment">/// Must be thread safe. Usually be called from other threads.</span></span><br><span class="line">    <span class="hljs-function">TimerId <span class="hljs-title">addTimer</span><span class="hljs-params">(<span class="hljs-type">const</span> TimerCallback &amp;cb,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                     Timestamp when,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                     <span class="hljs-type">double</span> interval)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// void cancel(TimerId timerId);</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// <span class="hljs-doctag">FIXME:</span> use unique_ptr&lt;Timer&gt; instead of raw pointers.</span></span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::pair&lt;Timestamp, Timer *&gt; Entry; </span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::set&lt;Entry&gt; TimerList;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// called when timerfd alarms</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleRead</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// move out all expired timers</span></span><br><span class="line">    <span class="hljs-function">std::vector&lt;Entry&gt; <span class="hljs-title">getExpired</span><span class="hljs-params">(Timestamp now)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">reset</span><span class="hljs-params">(<span class="hljs-type">const</span> std::vector&lt;Entry&gt; &amp;expired, Timestamp now)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">insert</span><span class="hljs-params">(Timer *timer)</span></span>;</span><br><span class="line"></span><br><span class="line">    EventLoop *loop_;</span><br><span class="line">    <span class="hljs-type">const</span> <span class="hljs-type">int</span> timerfd_;</span><br><span class="line">    Channel timerfdChannel_; <span class="hljs-comment">//用来观察timerfd_上的readable事件</span></span><br><span class="line">    <span class="hljs-comment">// Timer list sorted by expiration</span></span><br><span class="line">    TimerList timers_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>TimerQueue提供了两个接口addTimer()和cancel()，只能在它所属的IO线程调用，所以不用加锁。</p>
+<p>addTimer()提供给EventLoop使用。EventLoop会把addTimer()封装为更好用的runAt()、runAfter()、runEvery()等函数。</p>
+<p>TimerQueue需要管理未到期的Timer，能快速根据当前时间找到已经到期的Timer，同时能高效添加和删除Timer。</p>
+<h3 id="EventLoop的改动"><a href="#EventLoop的改动" class="headerlink" title="EventLoop的改动"></a>EventLoop的改动</h3><p>新增几个调用定时器的接口。</p>
+<h2 id="EventLoop-runInLoop-函数"><a href="#EventLoop-runInLoop-函数" class="headerlink" title="EventLoop::runInLoop()函数"></a>EventLoop::runInLoop()函数</h2><p>在IO线程内执行某个用户任务回调。</p>
+<h2 id="TCP网络库"><a href="#TCP网络库" class="headerlink" title="TCP网络库"></a>TCP网络库</h2><h3 id="Acceptor-1"><a href="#Acceptor-1" class="headerlink" title="Acceptor"></a>Acceptor</h3><p>acceptor用来accept新的TCP连接，并通过回调通知使用者。这个类是TcpServer使用的。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">Acceptor</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-keyword">typedef</span> boost::function&lt;<span class="hljs-type">void</span>(<span class="hljs-type">int</span> sockfd,</span><br><span class="line">                                 <span class="hljs-type">const</span> InetAddress &amp;)&gt; NewConnectionCallback;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-built_in">Acceptor</span>(EventLoop *loop, <span class="hljs-type">const</span> InetAddress &amp;listenAddr);<span class="hljs-comment">//构造函数则执行TCP服务端的传统步骤，创建socket,bind</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setNewConnectionCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> NewConnectionCallback &amp;cb)</span> </span>{ newConnectionCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">listenning</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> listenning_; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">listen</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">//然后listen</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleRead</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">//调用accept接受新的连接，并回调用户的callback</span></span><br><span class="line"></span><br><span class="line">    EventLoop *loop_;</span><br><span class="line">    Socket acceptSocket_;<span class="hljs-comment">//封装了socket，利用RAII管理生命期。这里是个listen socket</span></span><br><span class="line">    Channel acceptChannel_;</span><br><span class="line">    NewConnectionCallback newConnectionCallback_;</span><br><span class="line">    <span class="hljs-type">bool</span> listenning_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="TcpServer"><a href="#TcpServer" class="headerlink" title="TcpServer"></a>TcpServer</h3><p>管理accept得到的连接，直接给框架的用户使用。用户只需要设置好callback，然后调用start</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">TcpServer</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="hljs-built_in">TcpServer</span>(EventLoop *loop, <span class="hljs-type">const</span> InetAddress &amp;listenAddr);</span><br><span class="line"></span><br><span class="line">    ~<span class="hljs-built_in">TcpServer</span>();  <span class="hljs-comment">// force out-line dtor, for scoped_ptr members.</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Set the number of threads for handling input.</span></span><br><span class="line">    <span class="hljs-comment">///</span></span><br><span class="line">    <span class="hljs-comment">/// Always accepts new connection in loop's thread.</span></span><br><span class="line">    <span class="hljs-comment">/// Must be called before @c start</span></span><br><span class="line">    <span class="hljs-comment">/// @param numThreads</span></span><br><span class="line">    <span class="hljs-comment">/// - 0 means all I/O in loop's thread, no thread will created.</span></span><br><span class="line">    <span class="hljs-comment">///   this is the default value.</span></span><br><span class="line">    <span class="hljs-comment">/// - 1 means all I/O in another thread.</span></span><br><span class="line">    <span class="hljs-comment">/// - N means a thread pool with N threads, new connections</span></span><br><span class="line">    <span class="hljs-comment">///   are assigned on a round-robin basis.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setThreadNum</span><span class="hljs-params">(<span class="hljs-type">int</span> numThreads)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Starts the server if it's not listenning.</span></span><br><span class="line">    <span class="hljs-comment">///</span></span><br><span class="line">    <span class="hljs-comment">/// It's harmless to call it multiple times.</span></span><br><span class="line">    <span class="hljs-comment">/// Thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Set connection callback.</span></span><br><span class="line">    <span class="hljs-comment">/// Not thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setConnectionCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ConnectionCallback &amp;cb)</span> </span>{ connectionCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Set message callback.</span></span><br><span class="line">    <span class="hljs-comment">/// Not thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setMessageCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> MessageCallback &amp;cb)</span> </span>{ messageCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Set write complete callback.</span></span><br><span class="line">    <span class="hljs-comment">/// Not thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setWriteCompleteCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> WriteCompleteCallback &amp;cb)</span> </span>{ writeCompleteCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-comment">/// Not thread safe, but in loop</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">newConnection</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd, <span class="hljs-type">const</span> InetAddress &amp;peerAddr)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">removeConnection</span><span class="hljs-params">(<span class="hljs-type">const</span> TcpConnectionPtr &amp;conn)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Not thread safe, but in loop</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">removeConnectionInLoop</span><span class="hljs-params">(<span class="hljs-type">const</span> TcpConnectionPtr &amp;conn)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">typedef</span> std::map&lt;std::string, TcpConnectionPtr&gt; ConnectionMap;</span><br><span class="line"></span><br><span class="line">    EventLoop *loop_;  <span class="hljs-comment">// the acceptor loop</span></span><br><span class="line">    <span class="hljs-type">const</span> std::string name_;</span><br><span class="line">    boost::scoped_ptr&lt;Acceptor&gt; acceptor_; <span class="hljs-comment">// avoid revealing Acceptor</span></span><br><span class="line">    boost::scoped_ptr&lt;EventLoopThreadPool&gt; threadPool_;</span><br><span class="line">    ConnectionCallback connectionCallback_;</span><br><span class="line">    MessageCallback messageCallback_;</span><br><span class="line">    WriteCompleteCallback writeCompleteCallback_;</span><br><span class="line">    <span class="hljs-type">bool</span> started_;</span><br><span class="line">    <span class="hljs-type">int</span> nextConnId_;  <span class="hljs-comment">// always in loop thread</span></span><br><span class="line">    ConnectionMap connections_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>内部使用acceptor管理新连接的fd。持有目前存活的TcpConnection的shared_ptr。</p>
+<h3 id="TcpConnetction"><a href="#TcpConnetction" class="headerlink" title="TcpConnetction"></a>TcpConnetction</h3><p>包含了这个连接对应的socket，和对应的channel</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">TcpConnection</span> : boost::noncopyable,</span><br><span class="line"><span class="hljs-keyword">public</span> boost::enable_shared_from_this&lt;TcpConnection&gt; {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-comment">/// Constructs a TcpConnection with a connected sockfd</span></span><br><span class="line">    <span class="hljs-comment">///</span></span><br><span class="line">    <span class="hljs-comment">/// User should not create this object.</span></span><br><span class="line">    <span class="hljs-built_in">TcpConnection</span>(EventLoop *loop,</span><br><span class="line">                  <span class="hljs-type">const</span> std::string &amp;name,</span><br><span class="line">                  <span class="hljs-type">int</span> sockfd,</span><br><span class="line">                  <span class="hljs-type">const</span> InetAddress &amp;localAddr,</span><br><span class="line">                  <span class="hljs-type">const</span> InetAddress &amp;peerAddr);</span><br><span class="line"></span><br><span class="line">    ~<span class="hljs-built_in">TcpConnection</span>();</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function">EventLoop *<span class="hljs-title">getLoop</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> loop_; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">const</span> std::string &amp;<span class="hljs-title">name</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> name_; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">const</span> InetAddress &amp;<span class="hljs-title">localAddress</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> localAddr_; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">const</span> InetAddress &amp;<span class="hljs-title">peerAddress</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> peerAddr_; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">connected</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{ <span class="hljs-keyword">return</span> state_ == kConnected; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">//void send(const void* message, size_t len);</span></span><br><span class="line">    <span class="hljs-comment">// Thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">send</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string &amp;message)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// Thread safe.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">shutdown</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setTcpNoDelay</span><span class="hljs-params">(<span class="hljs-type">bool</span> on)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setConnectionCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> ConnectionCallback &amp;cb)</span> </span>{ connectionCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setMessageCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> MessageCallback &amp;cb)</span> </span>{ messageCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setWriteCompleteCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> WriteCompleteCallback &amp;cb)</span> </span>{ writeCompleteCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">/// Internal use only.</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setCloseCallback</span><span class="hljs-params">(<span class="hljs-type">const</span> CloseCallback &amp;cb)</span> </span>{ closeCallback_ = cb; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// called when TcpServer accepts a new connection</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">connectEstablished</span><span class="hljs-params">()</span></span>;   <span class="hljs-comment">// should be called only once</span></span><br><span class="line">    <span class="hljs-comment">// called when TcpServer has removed me from its map</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">connectDestroyed</span><span class="hljs-params">()</span></span>;  <span class="hljs-comment">// should be called only once</span></span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-keyword">enum</span> <span class="title class_">StateE</span> {</span><br><span class="line">        kConnecting, kConnected, kDisconnecting, kDisconnected,</span><br><span class="line">    };</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setState</span><span class="hljs-params">(StateE s)</span> </span>{ state_ = s; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleRead</span><span class="hljs-params">(Timestamp receiveTime)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleWrite</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleClose</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handleError</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">sendInLoop</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string &amp;message)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">shutdownInLoop</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    EventLoop *loop_;</span><br><span class="line">    std::string name_;</span><br><span class="line">    StateE state_;  <span class="hljs-comment">// <span class="hljs-doctag">FIXME:</span> use atomic variable</span></span><br><span class="line">    <span class="hljs-comment">// we don't expose those classes to client.</span></span><br><span class="line">    boost::scoped_ptr&lt;Socket&gt; socket_;</span><br><span class="line">    boost::scoped_ptr&lt;Channel&gt; channel_;</span><br><span class="line">    InetAddress localAddr_;</span><br><span class="line">    InetAddress peerAddr_;</span><br><span class="line">    ConnectionCallback connectionCallback_;</span><br><span class="line">    MessageCallback messageCallback_;</span><br><span class="line">    WriteCompleteCallback writeCompleteCallback_;</span><br><span class="line">    CloseCallback closeCallback_;</span><br><span class="line">    Buffer inputBuffer_;</span><br><span class="line">    Buffer outputBuffer_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>TcpConnection使用Channel来获得socket上的IO事件。</p>
+<h2 id="Buffer"><a href="#Buffer" class="headerlink" title="Buffer"></a>Buffer</h2><p>Buffer是非阻塞Tcp网络编程比不可少的东西。在TcpConnection中作为输入输出缓冲。</p>
+<h2 id="多线程TcpServer"><a href="#多线程TcpServer" class="headerlink" title="多线程TcpServer"></a>多线程TcpServer</h2><h3 id="EventLoopThreadPool"><a href="#EventLoopThreadPool" class="headerlink" title="EventLoopThreadPool"></a>EventLoopThreadPool</h3><p>多线程TcpServer自己的EventLoop只用来接受新连接，而新连接会用其他EventLoop来执行IO。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">EventLoopThreadPool</span> : boost::noncopyable {</span><br><span class="line">    <span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-built_in">EventLoopThreadPool</span>(EventLoop *baseLoop);</span><br><span class="line"></span><br><span class="line">    ~<span class="hljs-built_in">EventLoopThreadPool</span>();</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setThreadNum</span><span class="hljs-params">(<span class="hljs-type">int</span> numThreads)</span> </span>{ numThreads_ = numThreads; }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function">EventLoop *<span class="hljs-title">getNextLoop</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">private</span>:</span><br><span class="line">    EventLoop *baseLoop_;</span><br><span class="line">    <span class="hljs-type">bool</span> started_;</span><br><span class="line">    <span class="hljs-type">int</span> numThreads_;</span><br><span class="line">    <span class="hljs-type">int</span> next_;  <span class="hljs-comment">// always in loop thread</span></span><br><span class="line">    boost::ptr_vector&lt;EventLoopThread&gt; threads_;</span><br><span class="line">    std::vector&lt;EventLoop *&gt; loops_;</span><br><span class="line">};</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+
+<p>TcpServer每次新建一个TcpConnection就会调用getNextLoop()来取得一个Event-Loop。</p>
+<h1 id="使用io-uring的改写"><a href="#使用io-uring的改写" class="headerlink" title="使用io_uring的改写"></a>使用io_uring的改写</h1><p>muduo原生支持epoll和poll两种poller，都是为Poller基类派生出来，现在派生出一种新的Poller，叫UringPoller如下，包含了uring需要的资源，如sqe,cqe， 然添加新的接口：</p>
+<ul>
+<li>add_accept</li>
+<li>add_socket</li>
+<li>add_socket_write</li>
+<li>add_provide_buf</li>
+</ul>
+<p>都是向sqe队列中添加读写事件，等待内核完成后返回给cqe队列。</p>
+<h2 id="基于iouring实现新的Poller"><a href="#基于iouring实现新的Poller" class="headerlink" title="基于iouring实现新的Poller"></a>基于iouring实现新的Poller</h2><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">UringPoller</span> : <span class="hljs-keyword">public</span> Poller</span><br><span class="line">{</span><br><span class="line"><span class="hljs-keyword">public</span>:</span><br><span class="line">    <span class="hljs-built_in">UringPoller</span>(EventLoop *loop);</span><br><span class="line">    ~<span class="hljs-built_in">UringPoller</span>() <span class="hljs-keyword">override</span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function">TimeStamp <span class="hljs-title">poll</span><span class="hljs-params">(<span class="hljs-type">int</span> timeout, ChannelList *active_channels)</span> <span class="hljs-keyword">override</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">update_channel</span><span class="hljs-params">(Channel *channel)</span></span>;</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">remove_channel</span><span class="hljs-params">(Channel *channel)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-comment">//填写活跃的链接</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fill_active_channels</span><span class="hljs-params">(<span class="hljs-type">int</span> events_num, ChannelList *active_channels)</span> </span>;</span><br><span class="line">    <span class="hljs-comment">//更新channel，调用epoll_ctl</span></span><br><span class="line">    <span class="hljs-comment">//void update(int operation, Channel *channel);</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add_accept</span><span class="hljs-params">(Channel* channel, <span class="hljs-keyword">struct</span> sockaddr *client_addr, <span class="hljs-type">socklen_t</span> *client_len, <span class="hljs-type">unsigned</span> flags)</span></span>; <span class="hljs-comment">//新链接</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add_socket_read</span><span class="hljs-params">(Channel* channel, <span class="hljs-type">unsigned</span> gid, <span class="hljs-type">size_t</span> message_size, <span class="hljs-type">unsigned</span> flags)</span></span>;</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add_socket_write</span><span class="hljs-params">(Channel* channel, <span class="hljs-type">unsigned</span> flags, <span class="hljs-type">const</span> string &amp;buf)</span></span>;</span><br><span class="line">    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add_provide_buf</span><span class="hljs-params">(__u16 bid, <span class="hljs-type">unsigned</span> gid)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> k_init_eventList_size_ = <span class="hljs-number">16</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">    conn_info* conns;</span><br><span class="line">    <span class="hljs-type">char</span> bufs_[BUFFERS_COUNT][MAX_MESSAGE_LEN] = {<span class="hljs-number">0</span>};</span><br><span class="line">    <span class="hljs-type">int</span> group_id_ = <span class="hljs-number">1337</span>;</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring_params</span> params_;</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring</span> ring_;</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring_sqe</span> *sqe_;</span><br><span class="line">    <span class="hljs-type">unsigned</span> count;</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring_cqe</span> *cqes_[BACKLOG];</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="使用UringPoller"><a href="#使用UringPoller" class="headerlink" title="使用UringPoller"></a>使用UringPoller</h2><p>以add_socket_read为例：<br>当一个新的连接到来，main reactor会用轮询的方式选择一个sub reactor，然后创建TcpConnection，这个新的连接就由选择出来的sub reactor所属的eventloop负责，然后建立连接的回调函数就会在这个eventloop的poller里添加负责管理这个新fd的channel的事件监听。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">TcpConnection::establish_connect</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    <span class="hljs-built_in">set_state</span>(k_connected);</span><br><span class="line">    channel_-&gt;<span class="hljs-built_in">tie</span>(<span class="hljs-built_in">shared_from_this</span>());</span><br><span class="line">    channel_-&gt;<span class="hljs-built_in">enable_reading</span>(); <span class="hljs-comment">//向poller注册channel的epollin事件</span></span><br><span class="line">    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"get fd from channel fd = %d\n"</span>,channel_-&gt;<span class="hljs-built_in">get_fd</span>());</span><br><span class="line">    loop_-&gt;poller_-&gt;<span class="hljs-built_in">add_socket_read</span>(channel_.<span class="hljs-built_in">get</span>(), <span class="hljs-number">1337</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);</span><br><span class="line">    <span class="hljs-comment">//新连接建立</span></span><br><span class="line">    <span class="hljs-built_in">connection_callback_</span>(<span class="hljs-built_in">shared_from_this</span>());</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>这里自己定义了一个结构体conn_info，把这个结构体放在sqe的user_data域里，等内核处理完成后，返回的cqe队列也会有这个conn_info,这样就能知道那个channel发生了（完成了）事件。</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">typedef struct conn_info {</span><br><span class="line">    __u32 fd;</span><br><span class="line">    __u16 event;</span><br><span class="line">    __u16 bid;</span><br><span class="line">    Channel* channel;</span><br><span class="line">} conn_info;</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">UringPoller::add_socket_read</span><span class="hljs-params">(Channel* channel, <span class="hljs-type">unsigned</span> gid, <span class="hljs-type">size_t</span> message_size, <span class="hljs-type">unsigned</span> flags)</span> </span>{</span><br><span class="line">    <span class="hljs-type">int</span> fd = channel-&gt;<span class="hljs-built_in">get_fd</span>();</span><br><span class="line">    conn_info *conn_i = &amp;conns[fd];</span><br><span class="line">    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"add_socket_read:fd = %d\n"</span>,fd);</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring_sqe</span> *sqe = <span class="hljs-built_in">io_uring_get_sqe</span>(&amp;ring_);</span><br><span class="line">    <span class="hljs-built_in">io_uring_prep_recv</span>(sqe, fd, <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>); <span class="hljs-comment">//读0长度，只关注事件是否发生。</span></span><br><span class="line">    <span class="hljs-built_in">io_uring_sqe_set_flags</span>(sqe, flags);</span><br><span class="line">    sqe-&gt;buf_group = gid;</span><br><span class="line"></span><br><span class="line">    conn_i-&gt;fd = fd;</span><br><span class="line">	conn_i-&gt;event = READ;</span><br><span class="line">    conn_i-&gt;channel = channel;</span><br><span class="line">	<span class="hljs-built_in">io_uring_sqe_set_data</span>(sqe, conn_i);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="UringPoller的poll实现"><a href="#UringPoller的poll实现" class="headerlink" title="UringPoller的poll实现"></a>UringPoller的poll实现</h2><p>对于UringPoller，实现poll成员函数：</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">TimeStamp <span class="hljs-title">UringPoller::poll</span><span class="hljs-params">(<span class="hljs-type">int</span> timeout, ChannelList *active_channels)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">    count++;</span><br><span class="line">    <span class="hljs-type">int</span> ret = <span class="hljs-built_in">io_uring_submit_and_wait</span>(&amp;ring_, <span class="hljs-number">0</span>); <span class="hljs-comment">//提交sq的entry</span></span><br><span class="line">    <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) {</span><br><span class="line">        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Returned from io is %d\n"</span>, errno);</span><br><span class="line">        <span class="hljs-built_in">perror</span>(<span class="hljs-string">"Error io_uring_submit_and_wait\n"</span>);</span><br><span class="line">        <span class="hljs-built_in">LOG_ERROR</span>(<span class="hljs-string">"%s"</span>, <span class="hljs-string">"io_uring failure"</span>);</span><br><span class="line">        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-comment">//将准备好的队列填充到cqes中，并返回已准备好的数目，收割cqe</span></span><br><span class="line">    <span class="hljs-type">int</span> cqe_count = <span class="hljs-built_in">io_uring_peek_batch_cqe</span>(&amp;ring_, cqes_, <span class="hljs-built_in">sizeof</span>(cqes_) / <span class="hljs-built_in">sizeof</span>(cqes_[<span class="hljs-number">0</span>]));</span><br><span class="line">    <span class="hljs-function">TimeStamp <span class="hljs-title">now</span><span class="hljs-params">(TimeStamp::now())</span></span>;</span><br><span class="line">    <span class="hljs-keyword">if</span> (cqe_count &gt; <span class="hljs-number">0</span>)</span><br><span class="line">    {</span><br><span class="line">        <span class="hljs-built_in">LOG_INFO</span>(<span class="hljs-string">"%d events happened \n"</span>, cqe_count);</span><br><span class="line">        <span class="hljs-built_in">fill_active_channels</span>(cqe_count, active_channels);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-comment">//返回发生事件时间点</span></span><br><span class="line">    <span class="hljs-keyword">return</span> now;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/03/30/C-STL%E5%AE%B9%E5%99%A8%E5%AE%9E%E7%8E%B0/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">C++ STL容器实现</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/03/23/ml4sys%E7%AC%94%E8%AE%B0/">
+                <span class="level-item">ml4sys笔记</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#调用关系分析">
+        <span class="has-mr-6">1</span>
+        <span>调用关系分析</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Muduo自顶向下">
+        <span class="has-mr-6">1.1</span>
+        <span>Muduo自顶向下</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#创建自己的业务server">
+        <span class="has-mr-6">1.1.1</span>
+        <span>创建自己的业务server</span>
+        </a></li><li>
+        <a class="is-flex" href="#TcpServer的start">
+        <span class="has-mr-6">1.1.2</span>
+        <span>TcpServer的start</span>
+        </a></li><li>
+        <a class="is-flex" href="#线程池的start">
+        <span class="has-mr-6">1.1.3</span>
+        <span>线程池的start</span>
+        </a></li><li>
+        <a class="is-flex" href="#EventLoopThread的start-loop">
+        <span class="has-mr-6">1.1.4</span>
+        <span>EventLoopThread的start_loop</span>
+        </a></li><li>
+        <a class="is-flex" href="#Acceptor">
+        <span class="has-mr-6">1.1.5</span>
+        <span>Acceptor</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#模块分析">
+        <span class="has-mr-6">2</span>
+        <span>模块分析</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Reactor">
+        <span class="has-mr-6">2.1</span>
+        <span>Reactor</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#EventLoop">
+        <span class="has-mr-6">2.1.1</span>
+        <span>EventLoop</span>
+        </a></li><li>
+        <a class="is-flex" href="#Channel">
+        <span class="has-mr-6">2.1.2</span>
+        <span>Channel</span>
+        </a></li><li>
+        <a class="is-flex" href="#Poller">
+        <span class="has-mr-6">2.1.3</span>
+        <span>Poller</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#定时器">
+        <span class="has-mr-6">2.2</span>
+        <span>定时器</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#TimerQueue">
+        <span class="has-mr-6">2.2.1</span>
+        <span>TimerQueue</span>
+        </a></li><li>
+        <a class="is-flex" href="#EventLoop的改动">
+        <span class="has-mr-6">2.2.2</span>
+        <span>EventLoop的改动</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#EventLoop-runInLoop-函数">
+        <span class="has-mr-6">2.3</span>
+        <span>EventLoop::runInLoop()函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#TCP网络库">
+        <span class="has-mr-6">2.4</span>
+        <span>TCP网络库</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Acceptor-1">
+        <span class="has-mr-6">2.4.1</span>
+        <span>Acceptor</span>
+        </a></li><li>
+        <a class="is-flex" href="#TcpServer">
+        <span class="has-mr-6">2.4.2</span>
+        <span>TcpServer</span>
+        </a></li><li>
+        <a class="is-flex" href="#TcpConnetction">
+        <span class="has-mr-6">2.4.3</span>
+        <span>TcpConnetction</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Buffer">
+        <span class="has-mr-6">2.5</span>
+        <span>Buffer</span>
+        </a></li><li>
+        <a class="is-flex" href="#多线程TcpServer">
+        <span class="has-mr-6">2.6</span>
+        <span>多线程TcpServer</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#EventLoopThreadPool">
+        <span class="has-mr-6">2.6.1</span>
+        <span>EventLoopThreadPool</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#使用io-uring的改写">
+        <span class="has-mr-6">3</span>
+        <span>使用io_uring的改写</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#基于iouring实现新的Poller">
+        <span class="has-mr-6">3.1</span>
+        <span>基于iouring实现新的Poller</span>
+        </a></li><li>
+        <a class="is-flex" href="#使用UringPoller">
+        <span class="has-mr-6">3.2</span>
+        <span>使用UringPoller</span>
+        </a></li><li>
+        <a class="is-flex" href="#UringPoller的poll实现">
+        <span class="has-mr-6">3.3</span>
+        <span>UringPoller的poll实现</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="muduo学习笔记" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

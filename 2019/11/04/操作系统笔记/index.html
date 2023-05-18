@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>操作系统笔记—内存管理 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="操作系统之内存管理复习记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统笔记—内存管理">
+<meta property="og:url" content="http://yoursite.com/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="操作系统之内存管理复习记录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-11-04T12:34:49.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.455Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="操作系统笔记—内存管理" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-11-04T12:34:49.000Z">2019-11-04</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    15 分钟 读完 (大约 2319 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                操作系统笔记—内存管理
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>操作系统之内存管理复习记录。</p>
+<span id="more"></span>
+
+<h2 id="第三章：内存管理"><a href="#第三章：内存管理" class="headerlink" title="第三章：内存管理"></a>第三章：内存管理</h2><h3 id="程序的装入与链接（了解）"><a href="#程序的装入与链接（了解）" class="headerlink" title="程序的装入与链接（了解）"></a>程序的装入与链接（了解）</h3><h4 id="高级语言转化为源代码的步骤"><a href="#高级语言转化为源代码的步骤" class="headerlink" title="高级语言转化为源代码的步骤"></a>高级语言转化为源代码的步骤</h4><ul>
+<li>编译</li>
+<li>链接</li>
+<li>加载（装入）：将可加载模块装入内存、逻辑地址转化为物理地址（地址重定位）</li>
+</ul>
+<h4 id="加载方式"><a href="#加载方式" class="headerlink" title="加载方式"></a>加载方式</h4><ul>
+<li>绝对加载 （编译时执行，如果将来开始地址发生变化，就必须重新编译代码）</li>
+<li>可重定位加载（静态重定位，加载时执行，不允许程序在内存中移动）</li>
+<li>运行时加载（动态重定位，执行时执行，支持执行时进程在内存中移动）</li>
+</ul>
+<h4 id="链接含义"><a href="#链接含义" class="headerlink" title="链接含义"></a>链接含义</h4><p>源程序编译得到一组目标模块，链接程序将这组模块连接，形成加载模块。</p>
+<h4 id="链接方式"><a href="#链接方式" class="headerlink" title="链接方式"></a>链接方式</h4><ul>
+<li>静态链接</li>
+<li>加载时动态链接</li>
+<li>运行时动态链接</li>
+</ul>
+<h3 id="内存管理的需求"><a href="#内存管理的需求" class="headerlink" title="内存管理的需求"></a>内存管理的需求</h3><h4 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h4><ul>
+<li>重定位：逻辑地址转化为物理地址</li>
+<li>保护 ：进程对内存的使用权限</li>
+<li>共享：多个进程正在执行同一程序时，允许每个进程访问该程序的同一个副本</li>
+<li>逻辑组织</li>
+<li>物理组织</li>
+</ul>
+<h3 id="内存分区"><a href="#内存分区" class="headerlink" title="内存分区"></a>内存分区</h3><ul>
+<li>固定分区：分区数量一定，每个分区装入一个进程，但是分区的大小不一定相等。</li>
+<li>动态分区：（首次匹配、下次/循环匹配、最佳匹配、最差匹配）<ul>
+<li>首次匹配：从头开始扫描，选择大小足够的第一个块。</li>
+<li>下次匹配/循环匹配：从上一次放置的位置开始扫描内存，找到一个可用的块</li>
+<li>最佳匹配：选择大小最相近的块</li>
+<li>最坏匹配：选择满足要求的最大块</li>
+</ul>
+</li>
+<li>简单分页</li>
+<li>简单分段</li>
+<li>虚存分页</li>
+<li>虚存分段</li>
+</ul>
+<p>固定分区和动态分区的折中方案：伙伴系统</p>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577083462384.png" alt="伙伴系统"></p>
+<h3 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h3><h4 id="页和页框"><a href="#页和页框" class="headerlink" title="页和页框"></a>页和页框</h4><p>页：进程中的块</p>
+<p>页框：内存中的块</p>
+<p>进程的页装入内存的页框</p>
+<p>一个页框的长度和一个页的长度是一样的</p>
+<h4 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h4><ul>
+<li>每个进程都由一个页表</li>
+<li>含有每个页对应的页框位置</li>
+<li>CPU使用页表生成物理地址</li>
+<li>存放在内存</li>
+<li>PCB中存有页表的起始地址</li>
+<li>页表寄存器存有当前运行进程的页表起始地址</li>
+</ul>
+<h4 id="分页的逻辑地址到物理地址转换"><a href="#分页的逻辑地址到物理地址转换" class="headerlink" title="分页的逻辑地址到物理地址转换"></a>分页的逻辑地址到物理地址转换</h4><p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577084455290.png" alt="1577084455290"></p>
+<ul>
+<li>物理地址 = 页框号拼接页内偏移</li>
+</ul>
+<h3 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h3><h4 id="分段的逻辑地址到物理地址的转换"><a href="#分段的逻辑地址到物理地址的转换" class="headerlink" title="分段的逻辑地址到物理地址的转换"></a>分段的逻辑地址到物理地址的转换</h4><p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577085132410.png" alt="1577085132410"></p>
+<ul>
+<li>段长可变</li>
+<li>物理地址 = 段基址+偏移量（数值相加）</li>
+</ul>
+<h4 id="分页和分段比较"><a href="#分页和分段比较" class="headerlink" title="分页和分段比较"></a>分页和分段比较</h4><ul>
+<li><p>页时物理单位，段时逻辑单位</p>
+</li>
+<li><p>页大小固定、段不固定</p>
+</li>
+<li><p>分页的地址空间时一维的，分段的地址空间是二维的，理解参考：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yangkuiwu/article/details/53493458">https://blog.csdn.net/yangkuiwu/article/details/53493458</a></p>
+<p>就是说编译的时候，虽然分页了但是地址是连续的，而分段情况下，不同的段地址是不连续的。</p>
+</li>
+<li><p>分页不易实现贡共享和运行时的动态链接，而分段可以。</p>
+</li>
+<li><p>进程的内存访问都是逻辑地址，会在运行时动态的转换为物理地址</p>
+</li>
+<li><p>进程分块（页或段）后，不需要连续的位于内存，也不用全部都在内存</p>
+</li>
+<li><p>分页有内部碎片，分段有外部碎片</p>
+</li>
+</ul>
+<h3 id="虚拟内存管理"><a href="#虚拟内存管理" class="headerlink" title="虚拟内存管理"></a>虚拟内存管理</h3><h4 id="虚拟存储器"><a href="#虚拟存储器" class="headerlink" title="虚拟存储器"></a>虚拟存储器</h4><h4 id="相关术语"><a href="#相关术语" class="headerlink" title="相关术语"></a>相关术语</h4><ul>
+<li>驻留集：任意时刻，进程驻留在内存的部分。</li>
+<li>内存失效：访问不在内存的逻辑地址（会产生中断）</li>
+<li>抖动：内存空间几乎占满时，页面被频繁的换入换出</li>
+<li>局部性原理：存储器的访问呈簇性，很短时间内，CPU只与固定的簇打交道。说明虚存可行。快表和虚存的依据都是局部性原理。</li>
+</ul>
+<h4 id="虚拟分页"><a href="#虚拟分页" class="headerlink" title="虚拟分页"></a>虚拟分页</h4><p>存在位P：表明对应的页是否在内存<br>页框号：若页在内存，则有对应的页框号<br>修改为M：表明相应页上次装入内存到现在是否修改过（决定换出要不要更新）</p>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577102312134.png" alt="1577102312134"></p>
+<h4 id="虚拟分段"><a href="#虚拟分段" class="headerlink" title="虚拟分段"></a>虚拟分段</h4><p>每个进程一个段表，每个段表项包括：</p>
+<ul>
+<li>存在位P，标识相应的段是否位于内存</li>
+<li>修改位M，标识相应的段是否已被修改</li>
+<li>其他控制位，如用于保护和共享</li>
+<li>段基址：相应段在内存中的起始地址</li>
+<li>段长度</li>
+</ul>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577102506608.png" alt="1577102506608"></p>
+<h4 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h4><table>
+<thead>
+<tr>
+<th><strong>页表页号（页目录号）</strong></th>
+<th><strong>页号</strong></th>
+<th><strong>页内偏移地址</strong></th>
+</tr>
+</thead>
+</table>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577088982619.png" alt="1577088982619"></p>
+<h4 id="倒置页表（倒排页表）"><a href="#倒置页表（倒排页表）" class="headerlink" title="倒置页表（倒排页表）"></a>倒置页表（倒排页表）</h4><p>使用页框号而非页号来索引表项</p>
+<h4 id="转换检测缓冲区TLB（快表）"><a href="#转换检测缓冲区TLB（快表）" class="headerlink" title="转换检测缓冲区TLB（快表）"></a>转换检测缓冲区TLB（快表）</h4><p>TLB包含了最近用过的页表项，位于高速缓存cache中。</p>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577089406823.png" alt="1577089406823"></p>
+<p>一次内存访问可能产生两次缺页中断：读取所需页表，读取进程页</p>
+<p>在快表里一定在内存里</p>
+<h4 id="缺页率与页尺寸和分配页框数的关系"><a href="#缺页率与页尺寸和分配页框数的关系" class="headerlink" title="缺页率与页尺寸和分配页框数的关系"></a>缺页率与页尺寸和分配页框数的关系</h4><p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577089886427.png" alt="1577089886427"></p>
+<h4 id="段页式"><a href="#段页式" class="headerlink" title="段页式"></a>段页式</h4><p>用户的地址空间被程序员划分为许多段，每段划分为许多大小的页。</p>
+<p>每个进程一个段表</p>
+<p>每个段一个页表</p>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1577090189584.png" alt="1577090189584"></p>
+<p>为了获得一条指令或数据，最少访问三次内存。段表、页表、相应存储单元。</p>
+<h4 id="分段有利于保护和共享"><a href="#分段有利于保护和共享" class="headerlink" title="分段有利于保护和共享"></a>分段有利于保护和共享</h4><p>保护：每个段都有一个长度和基地址，可以控制非法访问</p>
+<p>共享：一个段可以在多个进程的段表中被引用，实现共享</p>
+<h3 id="相关算法"><a href="#相关算法" class="headerlink" title="相关算法"></a>相关算法</h3><h4 id="读取策略"><a href="#读取策略" class="headerlink" title="读取策略"></a>读取策略</h4><p>决定页何时进入内存：请求调页、预调页</p>
+<h4 id="放置策略"><a href="#放置策略" class="headerlink" title="放置策略"></a>放置策略</h4><p>决定进程驻留在内存中的位置：首次匹配、循环匹配等</p>
+<h4 id="置换策略"><a href="#置换策略" class="headerlink" title="置换策略"></a>置换策略</h4><p>淘汰哪个页面用以置换：最佳、最近最少用、先进先出、时钟</p>
+<ul>
+<li>最佳置换：置换下次访问时间最长的页面</li>
+<li>LRU最近最少用（Least recent use）：内存中最长时间未引用的页面（难实施，开销大）,建立链表，替换的是链表尾部的数据，命中放到链表头部。所以<strong>不用计数</strong>。</li>
+<li>先进先出：置换驻留时间最长的页面</li>
+<li>时钟：首次载入内存或被引用使用位 = 1，产生缺页中断时，如果使用位为0，置换，指针前移；为1，置零，指针前移。命中时指针不移动。(开销小)</li>
+<li>改进CLOCK：引入访问位、修改位</li>
+</ul>
+<p>评价指标：缺页率，OPT&lt;LRU&lt;CLOCK&lt;FIFO</p>
+<h5 id="页缓冲"><a href="#页缓冲" class="headerlink" title="页缓冲"></a>页缓冲</h5><p>未修改的，替换到空闲页链表；修改的，替换到修改页链表，成批写回磁盘。</p>
+<h4 id="抖动"><a href="#抖动" class="headerlink" title="抖动"></a>抖动</h4><p>系统把即将用到的块换出，又很快要使用，造成页面频繁的换入换出，缺页率增大。</p>
+<h3 id="驻留集管理"><a href="#驻留集管理" class="headerlink" title="驻留集管理"></a>驻留集管理</h3><ul>
+<li>页框分配：一个活动分配几个页框，可变可固定</li>
+<li>置换范围：局部置换（仅产生缺页中断的驻留页）、全局置换</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>局部置换</strong></th>
+<th><strong>全局置换</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>固定分配</strong></td>
+<td>分配给进程的页框数固定、从分配给该进程的页框中选择被置换的页</td>
+<td>无此方案</td>
+</tr>
+<tr>
+<td><strong>可变分配</strong></td>
+<td>为了保存进程的工作集，分配给进程的页框数不时变化、从分配给该进程的页框中选择被置换的页</td>
+<td>从内存中所有可用页框中选择被置换的页、这将导致进程驻留集大小不断变化</td>
+</tr>
+</tbody></table>
+<h4 id="工作集"><a href="#工作集" class="headerlink" title="工作集"></a>工作集</h4><p>进程在虚拟时间t的参数为Δ的工作集W（t, Δ ），表示该进程在过去的Δ个虚拟时间单位被访问到的页集合。</p>
+<h4 id="清除策略"><a href="#清除策略" class="headerlink" title="清除策略"></a>清除策略</h4><p>何时将修改过的页写回辅存。结合页缓冲</p>
+<h4 id="加载控制"><a href="#加载控制" class="headerlink" title="加载控制"></a>加载控制</h4><p>决定驻留在内存中的进程数量。</p>
+<h5 id="L-S准则"><a href="#L-S准则" class="headerlink" title="L=S准则"></a>L=S准则</h5><p>发生缺页的平均时间L等于处理缺页故障的平均时间S，此时处理器的利用率最大。</p>
+<h2 id="BIOS"><a href="#BIOS" class="headerlink" title="BIOS"></a>BIOS</h2><ul>
+<li>BIOS：基本IO处理系统，开机后计算机系统开始检测各种外设，然后才能加载相应软件执行，BIOS加载bootloader,bootloader加载os</li>
+<li>Bootloader:一个程序,放在硬盘第一个扇区，加载OS，从硬盘到内存</li>
+</ul>
+<h2 id="系统调用、异常、中断"><a href="#系统调用、异常、中断" class="headerlink" title="系统调用、异常、中断"></a>系统调用、异常、中断</h2><ul>
+<li><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1572871461982.png" alt=""></li>
+<li><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1572871879383.png" alt=""></li>
+</ul>
+<p><img src="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/1572872126241.png" alt=""></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/11/10/%E5%8D%B7%E7%A7%AF%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">卷积网络中的一些操作</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/02/%E5%86%B3%E7%AD%96%E6%A0%91ID3%E7%AE%97%E6%B3%95Python%E5%AE%9E%E7%8E%B0/">
+                <span class="level-item">决策树ID3算法Python实现</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#第三章：内存管理">
+        <span class="has-mr-6">1</span>
+        <span>第三章：内存管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#程序的装入与链接（了解）">
+        <span class="has-mr-6">1.1</span>
+        <span>程序的装入与链接（了解）</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#高级语言转化为源代码的步骤">
+        <span class="has-mr-6">1.1.1</span>
+        <span>高级语言转化为源代码的步骤</span>
+        </a></li><li>
+        <a class="is-flex" href="#加载方式">
+        <span class="has-mr-6">1.1.2</span>
+        <span>加载方式</span>
+        </a></li><li>
+        <a class="is-flex" href="#链接含义">
+        <span class="has-mr-6">1.1.3</span>
+        <span>链接含义</span>
+        </a></li><li>
+        <a class="is-flex" href="#链接方式">
+        <span class="has-mr-6">1.1.4</span>
+        <span>链接方式</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#内存管理的需求">
+        <span class="has-mr-6">1.2</span>
+        <span>内存管理的需求</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#内容">
+        <span class="has-mr-6">1.2.1</span>
+        <span>内容</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#内存分区">
+        <span class="has-mr-6">1.3</span>
+        <span>内存分区</span>
+        </a></li><li>
+        <a class="is-flex" href="#分页">
+        <span class="has-mr-6">1.4</span>
+        <span>分页</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#页和页框">
+        <span class="has-mr-6">1.4.1</span>
+        <span>页和页框</span>
+        </a></li><li>
+        <a class="is-flex" href="#页表">
+        <span class="has-mr-6">1.4.2</span>
+        <span>页表</span>
+        </a></li><li>
+        <a class="is-flex" href="#分页的逻辑地址到物理地址转换">
+        <span class="has-mr-6">1.4.3</span>
+        <span>分页的逻辑地址到物理地址转换</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#分段">
+        <span class="has-mr-6">1.5</span>
+        <span>分段</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#分段的逻辑地址到物理地址的转换">
+        <span class="has-mr-6">1.5.1</span>
+        <span>分段的逻辑地址到物理地址的转换</span>
+        </a></li><li>
+        <a class="is-flex" href="#分页和分段比较">
+        <span class="has-mr-6">1.5.2</span>
+        <span>分页和分段比较</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#虚拟内存管理">
+        <span class="has-mr-6">1.6</span>
+        <span>虚拟内存管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#虚拟存储器">
+        <span class="has-mr-6">1.6.1</span>
+        <span>虚拟存储器</span>
+        </a></li><li>
+        <a class="is-flex" href="#相关术语">
+        <span class="has-mr-6">1.6.2</span>
+        <span>相关术语</span>
+        </a></li><li>
+        <a class="is-flex" href="#虚拟分页">
+        <span class="has-mr-6">1.6.3</span>
+        <span>虚拟分页</span>
+        </a></li><li>
+        <a class="is-flex" href="#虚拟分段">
+        <span class="has-mr-6">1.6.4</span>
+        <span>虚拟分段</span>
+        </a></li><li>
+        <a class="is-flex" href="#多级页表">
+        <span class="has-mr-6">1.6.5</span>
+        <span>多级页表</span>
+        </a></li><li>
+        <a class="is-flex" href="#倒置页表（倒排页表）">
+        <span class="has-mr-6">1.6.6</span>
+        <span>倒置页表（倒排页表）</span>
+        </a></li><li>
+        <a class="is-flex" href="#转换检测缓冲区TLB（快表）">
+        <span class="has-mr-6">1.6.7</span>
+        <span>转换检测缓冲区TLB（快表）</span>
+        </a></li><li>
+        <a class="is-flex" href="#缺页率与页尺寸和分配页框数的关系">
+        <span class="has-mr-6">1.6.8</span>
+        <span>缺页率与页尺寸和分配页框数的关系</span>
+        </a></li><li>
+        <a class="is-flex" href="#段页式">
+        <span class="has-mr-6">1.6.9</span>
+        <span>段页式</span>
+        </a></li><li>
+        <a class="is-flex" href="#分段有利于保护和共享">
+        <span class="has-mr-6">1.6.10</span>
+        <span>分段有利于保护和共享</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#相关算法">
+        <span class="has-mr-6">1.7</span>
+        <span>相关算法</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#读取策略">
+        <span class="has-mr-6">1.7.1</span>
+        <span>读取策略</span>
+        </a></li><li>
+        <a class="is-flex" href="#放置策略">
+        <span class="has-mr-6">1.7.2</span>
+        <span>放置策略</span>
+        </a></li><li>
+        <a class="is-flex" href="#置换策略">
+        <span class="has-mr-6">1.7.3</span>
+        <span>置换策略</span>
+        </a></li><li>
+        <a class="is-flex" href="#抖动">
+        <span class="has-mr-6">1.7.4</span>
+        <span>抖动</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#驻留集管理">
+        <span class="has-mr-6">1.8</span>
+        <span>驻留集管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#工作集">
+        <span class="has-mr-6">1.8.1</span>
+        <span>工作集</span>
+        </a></li><li>
+        <a class="is-flex" href="#清除策略">
+        <span class="has-mr-6">1.8.2</span>
+        <span>清除策略</span>
+        </a></li><li>
+        <a class="is-flex" href="#加载控制">
+        <span class="has-mr-6">1.8.3</span>
+        <span>加载控制</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#BIOS">
+        <span class="has-mr-6">2</span>
+        <span>BIOS</span>
+        </a></li><li>
+        <a class="is-flex" href="#系统调用、异常、中断">
+        <span class="has-mr-6">3</span>
+        <span>系统调用、异常、中断</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="操作系统笔记—内存管理" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

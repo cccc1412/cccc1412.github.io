@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>操作系统笔记—IO管理与磁盘调度 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="操作系统之I&#x2F;O管理与磁盘调度复习记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统笔记—IO管理与磁盘调度">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="操作系统之I&#x2F;O管理与磁盘调度复习记录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-12-23T12:14:01.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.463Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="操作系统笔记—IO管理与磁盘调度" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-23T12:14:01.000Z">2019-12-23</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    8 分钟 读完 (大约 1178 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                操作系统笔记—IO管理与磁盘调度
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>操作系统之I/O管理与磁盘调度复习记录。</p>
+<span id="more"></span>
+
+<h2 id="I-O设备分类"><a href="#I-O设备分类" class="headerlink" title="I/O设备分类"></a>I/O设备分类</h2><ul>
+<li>人可读（打印机、鼠标、键盘）</li>
+<li>机器可读（磁盘驱动器、USB密钥、传感器）</li>
+<li>通信（网卡、调制解调器）</li>
+</ul>
+<h2 id="I-O控制方式"><a href="#I-O控制方式" class="headerlink" title="I/O控制方式"></a>I/O控制方式</h2><h3 id="程序I-O方式"><a href="#程序I-O方式" class="headerlink" title="程序I/O方式"></a>程序I/O方式</h3><p>cpu代表进程给I/O模块发送I/O命令，程序进入忙等，等待操作完成，才能继续执行。</p>
+<h3 id="中断驱动I-O方式"><a href="#中断驱动I-O方式" class="headerlink" title="中断驱动I/O方式"></a>中断驱动I/O方式</h3><p>CPU代表进程给I/O模块发送I/O命令</p>
+<ul>
+<li>如果I/O指令是非阻塞的，则继续执行后续指令</li>
+<li>如果I/O指令是阻塞的，当前进程阻塞，调度其他进程。</li>
+<li>每次传输一个数据即产生中断</li>
+</ul>
+<h3 id="直接存储器访问（DMA）方式"><a href="#直接存储器访问（DMA）方式" class="headerlink" title="直接存储器访问（DMA）方式"></a>直接存储器访问（DMA）方式</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577104197553.png" alt="1577104197553"></p>
+<h4 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h4><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/image-20191228132205413.png" alt="image-20191228132205413"></p>
+<h3 id="DMA与中断驱动I-O方式对比"><a href="#DMA与中断驱动I-O方式对比" class="headerlink" title="DMA与中断驱动I/O方式对比"></a>DMA与中断驱动I/O方式对比</h3><ul>
+<li>中断频率：<ul>
+<li>中断驱动I/O：每次传输一个数据产生中断</li>
+<li>DMA：一块数据全部传送结束中断</li>
+</ul>
+</li>
+<li>数据传输：<ul>
+<li>中断驱动I/O：数据传送在中断处理时由CPU完成</li>
+<li>DMA：由DMA控制器完成</li>
+</ul>
+</li>
+<li>应用：<ul>
+<li>中断驱动I/O：键盘鼠标</li>
+<li>DMA：磁盘</li>
+</ul>
+</li>
+</ul>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577105127351.png" alt="1577105127351"></p>
+<h2 id="I-O设计"><a href="#I-O设计" class="headerlink" title="I/O设计"></a>I/O设计</h2><h3 id="I-O功能组织模型（层次化设计）"><a href="#I-O功能组织模型（层次化设计）" class="headerlink" title="I/O功能组织模型（层次化设计）"></a>I/O功能组织模型（层次化设计）</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577105834117.png" alt="1577105834117"></p>
+<h3 id="I-O软件层次"><a href="#I-O软件层次" class="headerlink" title="I/O软件层次"></a>I/O软件层次</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/image-20191227130432564.png" alt="image-20191227130432564"></p>
+<h3 id="设备独立性"><a href="#设备独立性" class="headerlink" title="设备独立性"></a>设备独立性</h3><p>应用程序独立于具体使用的物理设备</p>
+<p><strong>逻辑I/O模块</strong>允许应用程序使用<strong>设备标识符</strong>及简单的命令与设备打交道。</p>
+<p><strong>逻辑设备表</strong>：逻辑设备名、物理设备名、驱动程序入口地址</p>
+<p><strong>设备I/O模块</strong>将<strong>逻辑I</strong>/O请求和操作转化为响应的<strong>物理</strong>设备的I/O访问控制。</p>
+<h2 id="I-O缓冲"><a href="#I-O缓冲" class="headerlink" title="I/O缓冲"></a>I/O缓冲</h2><p>输入请求发出前开始输入传送</p>
+<p>输出请求发出后一段时间才输出传送</p>
+<p>缓冲区在内存</p>
+<h3 id="单缓冲"><a href="#单缓冲" class="headerlink" title="单缓冲"></a>单缓冲</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577107100732.png" alt="1577107100732"></p>
+<h3 id="双缓冲"><a href="#双缓冲" class="headerlink" title="双缓冲"></a>双缓冲</h3><p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577107268208.png" alt="1577107268208"></p>
+<h3 id="循环缓冲"><a href="#循环缓冲" class="headerlink" title="循环缓冲"></a>循环缓冲</h3><p>使用两个或多个缓冲区，构成循环缓冲</p>
+<h3 id="缓冲作用"><a href="#缓冲作用" class="headerlink" title="缓冲作用"></a>缓冲作用</h3><ul>
+<li>缓解I/O设备速度与CPU速度不匹配的矛盾</li>
+<li>多道程序环境中，缓冲可以提高操作系统的效率，提高单个进程的性能。</li>
+</ul>
+<h3 id="Spooling技术（磁盘中的缓冲）"><a href="#Spooling技术（磁盘中的缓冲）" class="headerlink" title="Spooling技术（磁盘中的缓冲）"></a>Spooling技术（磁盘中的缓冲）</h3><ul>
+<li><p>在磁盘中建立I/O缓冲区，缓和CPU高速和I/O设备低速间的矛盾。</p>
+</li>
+<li><p>将一台独占物理I/O设备虚拟化为多台逻辑I/O设备。从而允许多个用户共享一台物理I/O设备。</p>
+</li>
+</ul>
+<h2 id="磁盘调度"><a href="#磁盘调度" class="headerlink" title="磁盘调度"></a>磁盘调度</h2><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577158826618.png" alt="1577158826618" style="zoom:50%;">
+
+<img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577158848560.png" alt="1577158848560" style="zoom:50%;">
+
+<h3 id="磁盘性能参数"><a href="#磁盘性能参数" class="headerlink" title="磁盘性能参数"></a>磁盘性能参数</h3><p>寻道时间Ts</p>
+<p>旋转延迟Tr = 1/2r    r为磁盘的转速</p>
+<p>传输时间Tt = (b/N)/r</p>
+<h3 id="磁盘调度策略"><a href="#磁盘调度策略" class="headerlink" title="磁盘调度策略"></a>磁盘调度策略</h3><ul>
+<li>FIFO：先到的请求先访问</li>
+<li>优先级PRI</li>
+<li>LIFO 后进先出 ：优先处理新到请求</li>
+<li>最短服务时间优先/最短寻道时间优先SSTF：选择磁道距离最近的</li>
+<li>电梯算法（SCAN）：磁头折返移动，满足途中的请求，改进：若前方无请求，可提前掉头。特点：偏爱最里和最外的磁道请求</li>
+<li>C-SCAN：限定一个方向扫描</li>
+</ul>
+<h3 id="黏着现象"><a href="#黏着现象" class="headerlink" title="黏着现象"></a>黏着现象</h3><p>进程对同一磁道有较高的访问速度时，磁头臂黏在响应的磁道上不移动。</p>
+<p>N-step-SCAN：将请求分为若干子队列，每次使用SCAN处理一个队列，N = 1,FIFO;N很大，SCAN。</p>
+<p>FSCAN：使用两个队列，扫描开始前，请求都在一个队列中，扫描过程中，新到的请求加入另一个队列，一个队列处理完才会处理另一个。</p>
+<h2 id="磁盘高速缓存"><a href="#磁盘高速缓存" class="headerlink" title="磁盘高速缓存"></a>磁盘高速缓存</h2><p>位于内存的缓冲区，包含磁盘某些扇区的副本。</p>
+<p><img src="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/1577161453015.png" alt="1577161453015"></p>
+<h3 id="置换算法"><a href="#置换算法" class="headerlink" title="置换算法"></a>置换算法</h3><ul>
+<li>LRU最近最少用（无计数，常用）</li>
+<li>LFU最不长使用（有计数，不常用，存在问题，前期频繁访问但后期不在使用的块不会被置换出来）</li>
+</ul>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">操作系统笔记—文件系统</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/12/23/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E8%AE%BE%E8%AE%A1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C/">
+                <span class="level-item">进程与资源管理设计-操作系统实验</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#I-O设备分类">
+        <span class="has-mr-6">1</span>
+        <span>I/O设备分类</span>
+        </a></li><li>
+        <a class="is-flex" href="#I-O控制方式">
+        <span class="has-mr-6">2</span>
+        <span>I/O控制方式</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#程序I-O方式">
+        <span class="has-mr-6">2.1</span>
+        <span>程序I/O方式</span>
+        </a></li><li>
+        <a class="is-flex" href="#中断驱动I-O方式">
+        <span class="has-mr-6">2.2</span>
+        <span>中断驱动I/O方式</span>
+        </a></li><li>
+        <a class="is-flex" href="#直接存储器访问（DMA）方式">
+        <span class="has-mr-6">2.3</span>
+        <span>直接存储器访问（DMA）方式</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#工作流程">
+        <span class="has-mr-6">2.3.1</span>
+        <span>工作流程</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#DMA与中断驱动I-O方式对比">
+        <span class="has-mr-6">2.4</span>
+        <span>DMA与中断驱动I/O方式对比</span>
+        </a></li><li>
+        <a class="is-flex" href="#小结">
+        <span class="has-mr-6">2.5</span>
+        <span>小结</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#I-O设计">
+        <span class="has-mr-6">3</span>
+        <span>I/O设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#I-O功能组织模型（层次化设计）">
+        <span class="has-mr-6">3.1</span>
+        <span>I/O功能组织模型（层次化设计）</span>
+        </a></li><li>
+        <a class="is-flex" href="#I-O软件层次">
+        <span class="has-mr-6">3.2</span>
+        <span>I/O软件层次</span>
+        </a></li><li>
+        <a class="is-flex" href="#设备独立性">
+        <span class="has-mr-6">3.3</span>
+        <span>设备独立性</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#I-O缓冲">
+        <span class="has-mr-6">4</span>
+        <span>I/O缓冲</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#单缓冲">
+        <span class="has-mr-6">4.1</span>
+        <span>单缓冲</span>
+        </a></li><li>
+        <a class="is-flex" href="#双缓冲">
+        <span class="has-mr-6">4.2</span>
+        <span>双缓冲</span>
+        </a></li><li>
+        <a class="is-flex" href="#循环缓冲">
+        <span class="has-mr-6">4.3</span>
+        <span>循环缓冲</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓冲作用">
+        <span class="has-mr-6">4.4</span>
+        <span>缓冲作用</span>
+        </a></li><li>
+        <a class="is-flex" href="#Spooling技术（磁盘中的缓冲）">
+        <span class="has-mr-6">4.5</span>
+        <span>Spooling技术（磁盘中的缓冲）</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#磁盘调度">
+        <span class="has-mr-6">5</span>
+        <span>磁盘调度</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#磁盘性能参数">
+        <span class="has-mr-6">5.1</span>
+        <span>磁盘性能参数</span>
+        </a></li><li>
+        <a class="is-flex" href="#磁盘调度策略">
+        <span class="has-mr-6">5.2</span>
+        <span>磁盘调度策略</span>
+        </a></li><li>
+        <a class="is-flex" href="#黏着现象">
+        <span class="has-mr-6">5.3</span>
+        <span>黏着现象</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#磁盘高速缓存">
+        <span class="has-mr-6">6</span>
+        <span>磁盘高速缓存</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#置换算法">
+        <span class="has-mr-6">6.1</span>
+        <span>置换算法</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="操作系统笔记—IO管理与磁盘调度" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

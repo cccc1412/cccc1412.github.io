@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>性能分析 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="利用时间戳、perf工具分析程序性能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="性能分析">
+<meta property="og:url" content="http://yoursite.com/2022/07/14/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="利用时间戳、perf工具分析程序性能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-07-14T06:38:03.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.439Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="性能分析" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-07-14T06:38:03.000Z">2022-07-14</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    4 分钟 读完 (大约 635 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                性能分析
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>利用时间戳、perf工具分析程序性能</p>
+<span id="more"></span>
+<h2 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h2><ul>
+<li>time</li>
+<li>gettimeofday</li>
+<li>clock_gettime</li>
+<li>rdtsc: <a target="_blank" rel="noopener" href="https://github.com/MengRao/tscns">https://github.com/MengRao/tscns</a><br>三者性能差不多，都是走的vdso，time是对gettimeofday的封装，vdso就理解成内核会定期”推送”共享内存区域到用户态，用户在调用这些glibc函数时候，并不真正执行系统调用，直接从用户态拿就可以了。rdtsc最快。</li>
+</ul>
+<p><img src="/2022/07/14/%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/2022-07-19-17-07-29.png" alt=""><br>测试代码：</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">"tscns.h"</span></span></span><br><span class="line"></span><br><span class="line">using namespace <span class="hljs-built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">uint64_t</span> <span class="title function_">now</span><span class="hljs-params">()</span> {</span><br><span class="line">  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timeval</span> <span class="hljs-title">tv</span>;</span></span><br><span class="line">  gettimeofday(&amp;tv, <span class="hljs-literal">NULL</span>);</span><br><span class="line">  <span class="hljs-keyword">return</span> tv.tv_sec * <span class="hljs-number">1000000</span> + tv.tv_usec;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span>* <span class="title function_">func_gettimeofday</span><span class="hljs-params">(<span class="hljs-type">void</span>* p)</span> {</span><br><span class="line">  <span class="hljs-type">int32_t</span> c = *(<span class="hljs-type">int32_t</span>*)p;</span><br><span class="line">  <span class="hljs-type">uint64_t</span> start = now();</span><br><span class="line">  <span class="hljs-type">uint64_t</span> us = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-keyword">while</span> (i++ &lt; c) {</span><br><span class="line">    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timeval</span> <span class="hljs-title">tv</span>;</span></span><br><span class="line">    gettimeofday(&amp;tv, <span class="hljs-literal">NULL</span>);</span><br><span class="line">    us += tv.tv_usec;  <span class="hljs-comment">// avoid optimize</span></span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"gettimeofday("</span> &lt;&lt; us &lt;&lt; <span class="hljs-string">") , times : "</span> &lt;&lt; c &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"thread "</span> &lt;&lt; pthread_self() &lt;&lt; <span class="hljs-string">" consume "</span> &lt;&lt; now() - start &lt;&lt; <span class="hljs-string">" us"</span></span><br><span class="line">       &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span>* <span class="title function_">func_clockgettime</span><span class="hljs-params">(<span class="hljs-type">void</span>* p)</span> {</span><br><span class="line">  <span class="hljs-type">int32_t</span> c = *(<span class="hljs-type">int32_t</span>*)p;</span><br><span class="line">  <span class="hljs-type">uint64_t</span> start = now();</span><br><span class="line">  <span class="hljs-type">uint64_t</span> us = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-keyword">while</span> (i++ &lt; c) {</span><br><span class="line">    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timespec</span> <span class="hljs-title">tp</span>;</span></span><br><span class="line">    clock_gettime(CLOCK_REALTIME, &amp;tp);</span><br><span class="line">    us += tp.tv_nsec;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"clock_gettime("</span> &lt;&lt; us &lt;&lt; <span class="hljs-string">") , times : "</span> &lt;&lt; c &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"thread "</span> &lt;&lt; pthread_self() &lt;&lt; <span class="hljs-string">" consume "</span> &lt;&lt; now() - start &lt;&lt; <span class="hljs-string">" us"</span></span><br><span class="line">       &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span>* <span class="title function_">func_tscns</span><span class="hljs-params">(<span class="hljs-type">void</span>* p)</span> {</span><br><span class="line">  <span class="hljs-type">int32_t</span> c = *(<span class="hljs-type">int32_t</span>*)p;</span><br><span class="line">  TSCNS tscns;</span><br><span class="line">  tscns.init();</span><br><span class="line">  <span class="hljs-type">uint64_t</span> start = now();</span><br><span class="line">  <span class="hljs-type">uint64_t</span> temp = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-keyword">while</span> (i++ &lt; c) {</span><br><span class="line">    <span class="hljs-type">int64_t</span> tsc = tscns.rdtsc();</span><br><span class="line">    temp += tsc;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"tscns("</span> &lt;&lt; temp &lt;&lt; <span class="hljs-string">") , times : "</span> &lt;&lt; c &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line">  <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"thread "</span> &lt;&lt; pthread_self() &lt;&lt; <span class="hljs-string">" consume "</span> &lt;&lt; now() - start &lt;&lt; <span class="hljs-string">" us"</span></span><br><span class="line">       &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">int</span> <span class="title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span> {</span><br><span class="line">  <span class="hljs-keyword">if</span> (argc != <span class="hljs-number">4</span>) {</span><br><span class="line">    <span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">" [gettimeofday/clock_gettime] thread_number loop_count"</span> &lt;&lt; <span class="hljs-built_in">endl</span>;</span><br><span class="line">    <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-built_in">string</span> mode = <span class="hljs-built_in">string</span>(argv[<span class="hljs-number">1</span>]);</span><br><span class="line">  <span class="hljs-type">int</span> n = atoi(argv[<span class="hljs-number">2</span>]);</span><br><span class="line">  <span class="hljs-type">int</span> loop = atoi(argv[<span class="hljs-number">3</span>]);</span><br><span class="line">  <span class="hljs-type">pthread_t</span>* ts = new <span class="hljs-type">pthread_t</span>[n];</span><br><span class="line">  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (mode == <span class="hljs-string">"gettimeofday"</span>) {</span><br><span class="line">      pthread_create(ts + i, <span class="hljs-literal">NULL</span>, func_gettimeofday, &amp;loop);</span><br><span class="line"></span><br><span class="line">    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (mode == <span class="hljs-string">"clock_gettime"</span>) {</span><br><span class="line">      pthread_create(ts + i, <span class="hljs-literal">NULL</span>, func_clockgettime, &amp;loop);</span><br><span class="line"></span><br><span class="line">    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (mode == <span class="hljs-string">"tscns"</span>) {</span><br><span class="line">      pthread_create(ts + i, <span class="hljs-literal">NULL</span>, func_tscns, &amp;loop);</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++) {</span><br><span class="line">    pthread_join(ts[i], <span class="hljs-literal">NULL</span>);</span><br><span class="line">  }</span><br><span class="line">  delete[] ts;</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+<p>获取时间戳</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="hljs-type">uint64_t</span> <span class="title function_">get_system_time_nsec</span><span class="hljs-params">()</span> {</span><br><span class="line">    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timespec</span> <span class="hljs-title">time</span> =</span> {<span class="hljs-number">0</span>, <span class="hljs-number">0</span>};</span><br><span class="line">    clock_gettime(CLOCK_REALTIME, &amp;time);</span><br><span class="line">    <span class="hljs-keyword">return</span> time.tv_sec * <span class="hljs-number">1000000000</span> + time.tv_nsec;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="perf使用"><a href="#perf使用" class="headerlink" title="perf使用"></a>perf使用</h2><p>按频率采样，会生成一个perf.data文件</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">perf record -F 99 -g ./program</span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">-F: 采样频率</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">-g: 记录调用栈</span></span><br></pre></td></tr></tbody></table></figure>
+<p>生成预览报告</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perf record -n</span><br></pre></td></tr></tbody></table></figure>
+<p>绘制火焰图<br>下载FlameGraph</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/brendangregg/FlameGraph.git</span><br></pre></td></tr></tbody></table></figure>
+<p>将 stackcollapse-perf.pl、flamegraph.pl两个文件拷贝到/usr/local/bin目录。<br>添加文件perf2svg.sh，也放到/usr/local/bin目录下。</p>
+<p>使用perf2svg ./a.out绘制svg</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">!/bin/bash</span></span><br><span class="line"></span><br><span class="line">exit_func() {</span><br><span class="line">    if  [ -d $dir_tmp ]; then</span><br><span class="line">        rm -rf $dir_tmp </span><br><span class="line">    fi</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">dir_tmp=./.perf_tmp_</span><br><span class="line">if [ ! -d $dir_tmp ]; then</span><br><span class="line">    mkdir $dir_tmp</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">if [ $# -eq 0 ]; then</span><br><span class="line">    echo "usage: $0 command"</span><br><span class="line">    exit_func</span><br><span class="line">    exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">perf record -o $dir_tmp/perf.data -F 200 -g $@</span><br><span class="line">perf script -i $dir_tmp/perf.data &gt; $dir_tmp/out.perf</span><br><span class="line">stackcollapse-perf.pl $dir_tmp/out.perf &gt; $dir_tmp/out.folded</span><br><span class="line">flamegraph.pl $dir_tmp/out.folded &gt; perf.svg</span><br><span class="line"></span><br><span class="line">exit_func</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43778179/article/details/104574043?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-5-104574043-blog-8876283.pc_relevant_aa&amp;spm=1001.2101.3001.4242.4&amp;utm_relevant_index=8">https://blog.csdn.net/weixin_43778179/article/details/104574043?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-5-104574043-blog-8876283.pc_relevant_aa&amp;spm=1001.2101.3001.4242.4&amp;utm_relevant_index=8</a></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/07/19/%E5%AF%B9%E8%B1%A1%E6%B1%A0%E4%B8%8Eoperator%E9%87%8D%E8%BD%BD/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">对象池与operator重载</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/05/26/cpu%E4%BA%B2%E5%92%8C%E6%80%A7/">
+                <span class="level-item">cpu亲和性</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#时间戳">
+        <span class="has-mr-6">1</span>
+        <span>时间戳</span>
+        </a></li><li>
+        <a class="is-flex" href="#perf使用">
+        <span class="has-mr-6">2</span>
+        <span>perf使用</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">3</span>
+        <span>参考</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="性能分析" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

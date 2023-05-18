@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX操作系统设计-文件的内部表示 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="《UNIX操作系统设计》第四章">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX操作系统设计-文件的内部表示">
+<meta property="og:url" content="http://yoursite.com/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="《UNIX操作系统设计》第四章">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-10-15T02:50:55.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.063Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="UNIX">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX操作系统设计-文件的内部表示" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-10-15T02:50:55.000Z">2020-10-15</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/UNIX/">UNIX</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    17 分钟 读完 (大约 2489 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX操作系统设计-文件的内部表示
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>《UNIX操作系统设计》第四章</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/image-20201021193957396.png" alt="image-20201021193957396"></p>
+<span id="more"></span>
+
+<p>UNIX系统中每个文件都有一个唯一的索引节点，记录了进程存取文件所必须的信息，如文件所有者、存取权限、文件长度、文件数据在文件系统中的位置。</p>
+<p>每个路径名唯一指明一个文件，内核把路径名转换成文件的索引节点。</p>
+<p>本章算法层次在高速缓冲算法之上。</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019091026952.png" alt="image-20201019091026952"></p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iget</td>
+<td>返回一个先前标识了的索引节点，可能是由高速缓冲从磁盘上读出的</td>
+</tr>
+<tr>
+<td>iput</td>
+<td>释放索引节点</td>
+</tr>
+<tr>
+<td>bmap</td>
+<td>存取一个文件设置内核参数</td>
+</tr>
+<tr>
+<td>namei</td>
+<td>使用iget、iput、bmap把一个用户级路径名转换成一个索引节点</td>
+</tr>
+<tr>
+<td>alloc、free</td>
+<td>为文件分配及释放磁盘块</td>
+</tr>
+<tr>
+<td>ialloc、ifree</td>
+<td>为文件分配及释放索引节点</td>
+</tr>
+</tbody></table>
+<h2 id="索引节点"><a href="#索引节点" class="headerlink" title="索引节点"></a>索引节点</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>索引节点有两份，在磁盘上和内存上，在内存上缓冲是便于内核操作，提高效率，这里的缓冲采用的第三章高速缓冲。</p>
+<p>索引节点以静态形式存在于磁盘上，核心把它们读进内存索引节点表中以操纵它们，索引节点字段组成：</p>
+<ul>
+<li>文件所有者标识号</li>
+<li>文件类型：正规类型、目录类型、字符设备类型、块设备类型、管道类型</li>
+<li>文件存取许可权：chmod，Linux/Unix 的文件调用权限分为三级 : 文件所有者（Owner）、用户组（Group）、其它用户（Other Users）。<img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019100132902.png" alt="image-20201019100132902"></li>
+<li>文件存取时间</li>
+<li>文件联结数目：本目录树中有多少文件名指向该文件</li>
+<li>文件数据的磁盘地址明细表</li>
+<li>文件大小</li>
+</ul>
+<p>并不标明该文件的路径名</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019094125168.png" alt="image-20201019094125168"></p>
+<p>内存中的索引节点除了磁盘索引节点那些字段外，还包含：</p>
+<ul>
+<li>内存索引节点状态：是否上锁，是否有进程在等它变为开锁等等</li>
+<li>含有该文件系统的逻辑设备号</li>
+<li>索引节点号：索引节点存储在磁盘上的线性数组中，内核需要用下标来标识这个节点号。</li>
+<li>指向其他内存索引节点的指针：内核也会把索引节点链接到散列队列和空闲表上。</li>
+<li>引用数：该文件的活跃实例数目（如open），仅当索引节点的引用计数为0时才位于空闲表上，标识内核可以把这个内存索引节点重新分配给另一个磁盘索引节点。</li>
+</ul>
+<h3 id="对索引节点的存取-iget"><a href="#对索引节点的存取-iget" class="headerlink" title="对索引节点的存取 iget"></a>对索引节点的存取 iget</h3><p>iget分配一个索引节点的内存拷贝，与getblk算法几乎时完全相同的。内核把设备号和索引节点号映射到一个散列队列上，便于搜索找到索引节点。如果找不到，就从空闲表分配，并上锁。</p>
+<p>然后就在磁盘中找对应的磁盘块号，块号 = （int（索引节点号-1）/每块的索引节点数目）+ 索引节点表的起始块号</p>
+<p>知道块号后，利用bread从缓冲区读块，计算索引节点在块中的字节偏移量：((索引节点号-1) mod (每块的索引节点数目))*磁盘索引节点大小。</p>
+<p>找到后，拷贝到内存索引节点表中，放到正确的散列队列，引用计数设置为1</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019110737720.png" alt="image-20201019110737720"></p>
+<h3 id="释放索引节点-iput"><a href="#释放索引节点-iput" class="headerlink" title="释放索引节点 iput"></a>释放索引节点 iput</h3><p>当内核释放一个索引节点时（iput）,将他的索引节点引用计数减1，当减为0，且内存拷贝和磁盘不同，则内核需要往磁盘写入。内核还会把该索引节点放到空闲索引节点表中，当再次需要时，可以高效把该节点加入高速缓冲。如果联结数减为0，则释放与该文件有关的数据块，并将索引节点变为空闲。</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019142247971.png" alt="image-20201019142247971"></p>
+<h2 id="正规文件的结构"><a href="#正规文件的结构" class="headerlink" title="正规文件的结构"></a>正规文件的结构</h2><p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019142506334.png" alt="image-20201019142506334"></p>
+<h3 id="把文件字节流的字节偏移量到物理磁盘块号的转换-bmap"><a href="#把文件字节流的字节偏移量到物理磁盘块号的转换-bmap" class="headerlink" title="把文件字节流的字节偏移量到物理磁盘块号的转换 bmap"></a>把文件字节流的字节偏移量到物理磁盘块号的转换 bmap</h3><p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019142918866.png" alt="image-20201019142918866"></p>
+<p>例子：</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019144125823.png" alt="image-20201019144125823"></p>
+<p>两个发展：</p>
+<ul>
+<li>允许使用大磁盘块，一个磁盘块可以包含若干个文件的分段</li>
+<li>把文件数据存储到索引节点中。</li>
+</ul>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><p>目录是文件，记录了一系列目录表项，每个表项由一个<strong>索引节点号</strong>和一个包含在这个目录中的<strong>文件名</strong>组成。</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019162206579.png" alt="image-20201019162206579"></p>
+<h2 id="路径名到索引节点的转换-namei"><a href="#路径名到索引节点的转换-namei" class="headerlink" title="路径名到索引节点的转换 namei"></a>路径名到索引节点的转换 namei</h2><p>如何根据路径名搜索索引节点</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201019162830268.png" alt="image-20201019162830268"></p>
+<h2 id="超级块"><a href="#超级块" class="headerlink" title="超级块"></a>超级块</h2><p>描述文件系统的状态，有多大，能存多少文件等等。</p>
+<p>超级块字段组成：</p>
+<ul>
+<li>文件系统的规模</li>
+<li>文件系统中空闲块的数目</li>
+<li>在文件系统上可用的空闲块表</li>
+<li>空闲块表中下一个空闲块的下标</li>
+<li>索引节点表的大小</li>
+<li>文件系统中空闲索引节点数目</li>
+<li>文件系统中空闲索引节点表</li>
+<li>空闲索引节点表中下一个空闲索引节点的下标</li>
+<li>空闲块表的锁字段和空闲索引节点表的锁字段</li>
+<li>用来指示出超级块已经被修改了的标志</li>
+</ul>
+<h2 id="索引节点的分配"><a href="#索引节点的分配" class="headerlink" title="索引节点的分配"></a>索引节点的分配</h2><p>文件系统包含一个<strong>索引节点线性表</strong>，类型字段为0，说明这个<strong>索引节点是空闲</strong>的。当一个进程需要一个新的索引节点，如果内核搜索索引节点表，以寻找一个空闲节点，但这样代价太高了，至少对每个索引节点都需要一个读操作（可能从磁盘）。为了改善性能，文件系统超级块包含一个数组，以便把文件系统从空闲的索引节点号缓存起来。</p>
+<h3 id="分配索引节点ialloc"><a href="#分配索引节点ialloc" class="headerlink" title="分配索引节点ialloc"></a>分配索引节点ialloc</h3><p>把一个磁盘索引节点号分配给一个新建立的文件</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201020093630285.png" alt="image-20201020093630285"></p>
+<p>铭记的索引节点：如果超级块中没有空闲，即去磁盘搜索，当搜索到超级块装不下时停止搜索，此时记录下最高序号的索引节点，即下次搜索时从铭记索引节点开始。</p>
+<h3 id="ifree-释放索引节点"><a href="#ifree-释放索引节点" class="headerlink" title="ifree 释放索引节点"></a>ifree 释放索引节点</h3><p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201020100016726.png" alt="image-20201020100016726"></p>
+<h2 id="磁盘块的分配"><a href="#磁盘块的分配" class="headerlink" title="磁盘块的分配"></a>磁盘块的分配</h2><p>文件系统的<strong>超级块包含</strong>一个用来<strong>把</strong>文件系统中的<strong>空闲磁盘块号</strong>高速<strong>缓冲起来的数组</strong>。</p>
+<p>mkfs把一个文件系统的数据块组织到一张链表中，表中<strong>每个链是一个磁盘块大小</strong>，块中包含的是一个数组，数组的分量给是<strong>空闲磁盘块号</strong>，一个分量是<strong>下一个链表的块号</strong>。</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201020102158835.png" alt="image-20201020102158835"></p>
+<h3 id="文件系统块分配-alloc"><a href="#文件系统块分配-alloc" class="headerlink" title="文件系统块分配 alloc"></a>文件系统块分配 alloc</h3><p>功能：把超级块空闲磁盘块号表中下一个可用的块分配出去。</p>
+<p>当分配的是超级块高速缓冲中的最后一个可用块时，内核把他指向的块读出，填充到这个链表里，再加入一条新链，示例d。</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201020102503183.png" alt="image-20201020102503183"></p>
+<h3 id="释放磁盘块free"><a href="#释放磁盘块free" class="headerlink" title="释放磁盘块free"></a>释放磁盘块free</h3><p>与分配磁盘块算法相反。</p>
+<p>如果超级块未满，新释放的块的块号就被放到超级块表中。</p>
+<p>如果超级块表满了，则新释放的块就变成一个链接块，内核把超级块表写到这个块上，然后把这个块写到磁盘上，然后把新释放的块的块号放到超级块表中作为下一个链表的指针，块号就成了表中唯一成员。</p>
+<p>例子：</p>
+<p><img src="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA%5Cimage-20201020111602825.png" alt="image-20201020111602825"></p>
+<h3 id="索引节点和磁盘块"><a href="#索引节点和磁盘块" class="headerlink" title="索引节点和磁盘块"></a>索引节点和磁盘块</h3><p>两者的分配和释放算法类似，内核都使用超级块作为高速缓冲</p>
+<p>内核维护的有一个块号链接表，文件系统中的每个空闲块号都作为其中的元素。</p>
+<p>对索引节点不存在这样的链表，原因：</p>
+<ul>
+<li>内核观察到文件类型字段被清除，则索引节点空闲。</li>
+<li>一个磁盘块可以很容易容纳大的空闲块号表。</li>
+<li>用户消耗磁盘块资源比消耗索引节点要快，所以快速得到空闲磁盘块更重要。</li>
+</ul>
+<h2 id="其他文件类型"><a href="#其他文件类型" class="headerlink" title="其他文件类型"></a>其他文件类型</h2><p>管道文件、特殊文件</p>
+<p>管道文件的数据时短暂的，先进先出，下一章介绍</p>
+<p>特殊文件包括：块设备特殊文件、字符设备特殊文件，第10章介绍</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/UNIX/" rel="tag">UNIX</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">UNIX操作系统设计-文件系统的系统调用</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/">
+                <span class="level-item">UNIX操作系统设计-数据缓冲区高速缓冲</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#索引节点">
+        <span class="has-mr-6">1</span>
+        <span>索引节点</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#定义">
+        <span class="has-mr-6">1.1</span>
+        <span>定义</span>
+        </a></li><li>
+        <a class="is-flex" href="#对索引节点的存取-iget">
+        <span class="has-mr-6">1.2</span>
+        <span>对索引节点的存取 iget</span>
+        </a></li><li>
+        <a class="is-flex" href="#释放索引节点-iput">
+        <span class="has-mr-6">1.3</span>
+        <span>释放索引节点 iput</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#正规文件的结构">
+        <span class="has-mr-6">2</span>
+        <span>正规文件的结构</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#把文件字节流的字节偏移量到物理磁盘块号的转换-bmap">
+        <span class="has-mr-6">2.1</span>
+        <span>把文件字节流的字节偏移量到物理磁盘块号的转换 bmap</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#目录">
+        <span class="has-mr-6">3</span>
+        <span>目录</span>
+        </a></li><li>
+        <a class="is-flex" href="#路径名到索引节点的转换-namei">
+        <span class="has-mr-6">4</span>
+        <span>路径名到索引节点的转换 namei</span>
+        </a></li><li>
+        <a class="is-flex" href="#超级块">
+        <span class="has-mr-6">5</span>
+        <span>超级块</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引节点的分配">
+        <span class="has-mr-6">6</span>
+        <span>索引节点的分配</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#分配索引节点ialloc">
+        <span class="has-mr-6">6.1</span>
+        <span>分配索引节点ialloc</span>
+        </a></li><li>
+        <a class="is-flex" href="#ifree-释放索引节点">
+        <span class="has-mr-6">6.2</span>
+        <span>ifree 释放索引节点</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#磁盘块的分配">
+        <span class="has-mr-6">7</span>
+        <span>磁盘块的分配</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#文件系统块分配-alloc">
+        <span class="has-mr-6">7.1</span>
+        <span>文件系统块分配 alloc</span>
+        </a></li><li>
+        <a class="is-flex" href="#释放磁盘块free">
+        <span class="has-mr-6">7.2</span>
+        <span>释放磁盘块free</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引节点和磁盘块">
+        <span class="has-mr-6">7.3</span>
+        <span>索引节点和磁盘块</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#其他文件类型">
+        <span class="has-mr-6">8</span>
+        <span>其他文件类型</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX操作系统设计-文件的内部表示" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

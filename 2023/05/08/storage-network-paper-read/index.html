@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>storage-network paper read - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="存储网络论文：  From Luna to Solar: The Evolutions of the Compute-to-Storage Networks in Alibaba Cloud When Cloud Storage Meets RDMA X-RDMA: Effective RDMA Middleware in Large-scale Production Environments">
+<meta property="og:type" content="article">
+<meta property="og:title" content="storage-network paper read">
+<meta property="og:url" content="http://yoursite.com/2023/05/08/storage-network-paper-read/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="存储网络论文：  From Luna to Solar: The Evolutions of the Compute-to-Storage Networks in Alibaba Cloud When Cloud Storage Meets RDMA X-RDMA: Effective RDMA Middleware in Large-scale Production Environments">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2023-05-08T07:45:02.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.291Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="storage-network paper read" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2023-05-08T07:45:02.000Z">2023-05-08</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    35 分钟 读完 (大约 5290 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                storage-network paper read
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>存储网络论文：</p>
+<ol>
+<li>From Luna to Solar: The Evolutions of the Compute-to-Storage Networks in Alibaba Cloud</li>
+<li>When Cloud Storage Meets RDMA</li>
+<li>X-RDMA: Effective RDMA Middleware in Large-scale Production Environments</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="From-Luna-to-Solar"><a href="#From-Luna-to-Solar" class="headerlink" title="From Luna to Solar"></a>From Luna to Solar</h2><p><img src="/2023/05/08/storage-network-paper-read/image-20230508154816682.png" alt="image-20230508154816682"></p>
+<h2 id="When-Cloud-Storage-Meets-RDMA"><a href="#When-Cloud-Storage-Meets-RDMA" class="headerlink" title="When Cloud Storage Meets RDMA"></a>When Cloud Storage Meets RDMA</h2><blockquote>
+<p>这篇论文介绍了将RDMA引入盘古存储网络的相关经验。就是存储节点之间的网络通信。（NSDI 2021）</p>
+</blockquote>
+<h3 id="pangu"><a href="#pangu" class="headerlink" title="pangu"></a>pangu</h3><p><img src="/2023/05/08/storage-network-paper-read/image-20230508160823668.png" alt="image-20230508160823668"></p>
+<p>以块存储为例介绍了盘古的框架。</p>
+<ul>
+<li><p>计算节点： client node，将数据组织成固定大小（32GB）的段。</p>
+</li>
+<li><p>存储节点：BlockServer和ChunkServer</p>
+</li>
+</ul>
+<p>计算节点中的每个段都和BlockServer对齐来进行IO处理。</p>
+<p>在BlockServer上，一个segment被分成块并复制到ChunkServer上，ChunkServer负责块的存储和设备管理。</p>
+<ul>
+<li>Master节点：</li>
+</ul>
+<p>BlockMaster：管理元数据，例如段和其所在的BlockServer之间的映射以及BlockServer的状态。</p>
+<p>PanguMaster：管理ChunkServer的状态。</p>
+<p>Master节点之间通过Raft协议进行同步。</p>
+<img src="/2023/05/08/storage-network-paper-read/image-20230508162902119.png" alt="image-20230508162902119" style="zoom: 150%;">
+
+
+
+<h3 id="Motivation"><a href="#Motivation" class="headerlink" title="Motivation"></a>Motivation</h3><p>存储介质的快速发展使得网络成为云存储的瓶颈。具体来说是nvme的快速发展。</p>
+<p>Non-Volatile Memory Express (NVMe) ：</p>
+<ul>
+<li><p>延迟：us级</p>
+</li>
+<li><p>带宽：100Gbps</p>
+<p>传统网络协议栈：</p>
+</li>
+</ul>
+<ul>
+<li>延迟：ms级</li>
+<li>带宽：几十Gbps</li>
+</ul>
+<p>RDMA：在主机nic上实现整个协议栈，代替传统网络协议栈。</p>
+<ul>
+<li>延迟：us级</li>
+<li>带宽：100Gbps</li>
+<li>而且cpu开销几乎为0</li>
+</ul>
+<h3 id="挑战"><a href="#挑战" class="headerlink" title="挑战"></a>挑战</h3><p>可用性、SLA（server level agreement）、未知的PFC 风暴源</p>
+<h3 id="RDMA部署"><a href="#RDMA部署" class="headerlink" title="RDMA部署"></a>RDMA部署</h3><h4 id="考虑因素"><a href="#考虑因素" class="headerlink" title="考虑因素"></a>考虑因素</h4><p>存储容量与需求匹配、控制硬件成本、优化性能、最小化可用性和SLA风险。最终的结果是在所有这些因素之间进行权衡。</p>
+<h4 id="盘古的部署"><a href="#盘古的部署" class="headerlink" title="盘古的部署"></a>盘古的部署</h4><p><strong>可用性优先原则</strong></p>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230508165013563.png" alt="image-20230508165013563"></p>
+<h5 id="网络拓扑结构"><a href="#网络拓扑结构" class="headerlink" title="网络拓扑结构"></a>网络拓扑结构</h5><p>基于Clos的网络拓扑结构，与常见的<strong>dual-home</strong>做法相一致，署了Mellanox CX系列双端口RNIC，用两个不同的ToR交换机连接主机。</p>
+<p>特别是，两个物理端口绑定到一个IP地址。网络连接（例如，RDMA中的QPs）在两个端口上以循环方式进行平衡。当一个端口down时，此端口上的连接可以迁移到另一个端口。</p>
+<h5 id="RDMA范围"><a href="#RDMA范围" class="headerlink" title="RDMA范围"></a>RDMA范围</h5><p>为了最小化故障域，<strong>只在每个podset内部和存储节点之间启用RDMA通信</strong>。<strong>计算节点和存储节点之间</strong>的通信通过<strong>user space TCP</strong>协议。这是由于计算节点的硬件配置复杂，更新速度快。因此，TCP可以有效地作为一种独立于硬件的传输协议来应用。内核TCP由于其通用性而被选择用于跨podset通信。</p>
+<h3 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h3><p>优化目标：最大化吞吐量的同时最小化延迟。</p>
+<h4 id="目前的障碍"><a href="#目前的障碍" class="headerlink" title="目前的障碍"></a>目前的障碍</h4><h5 id="存储设计"><a href="#存储设计" class="headerlink" title="存储设计"></a>存储设计</h5><p>将RDMA协议栈集成在存储后端。</p>
+<p>USSOS（用户空间存储操作系统），基于用户空间技术（如DPDK和SPDK），在盘古上使得cpu效率提高了五倍以上。</p>
+<p>USSFS是USSOS的核心部分之一，是为ssd设计的高性能用户态文件系统。USSOS将磁盘划分为chunks，ChunkServer有对应的api来管理这些chunks，并通过轮询来感知完成事件。USSFS能比而ext4文件系统调高4-10倍的iops。</p>
+<p><strong>run-to-completion模型</strong>被认为是RDMA网络堆栈与存储堆栈集成的最佳方法。然而，这些研究是在2017年将RDMA引入盘古之后发表的。Reflex和i10侧重于远程直接I/O，而盘古的ChunkServer则作为本地存储引擎用于分布式存储。</p>
+<h5 id="内存瓶颈"><a href="#内存瓶颈" class="headerlink" title="内存瓶颈"></a>内存瓶颈</h5><p>随着网络速度的提高，内存吞吐量成为系统瓶颈。</p>
+<p>使用Intel memory Latency Checker（MLC）工具测试内存吞吐量，在测试中，最大可实现内存带宽为61GB/s，读写比为1:1。但是，盘古的平均内存吞吐量已经是29GB/s + 28GB/s = 57GB/s。这表明内存是瓶颈，而不是网络。</p>
+<p>需要优化的是验证和数据复制的过程。目前，RDMA收到的数据分成4KB的块，每个块上会加入4B的crc和44B的间隔。在写磁盘时，还会发生数据复制。</p>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230509142519246.png" alt="image-20230509142519246"></p>
+<h5 id="大量QPs"><a href="#大量QPs" class="headerlink" title="大量QPs"></a>大量QPs</h5><p><img src="/2023/05/08/storage-network-paper-read/image-20230509145324230.png" alt="image-20230509145324230"></p>
+<p>我们曾经在盘古中的运行线程之间采用全网状链接模式，以最大化吞吐量并最小化延迟。假设每个ChunkServer有14个线程，每个BlockServer有8个线程，并且每个节点都包含ChunkServer和BlockServer。对于由100个存储节点组成的集群中的全网格模式，每个节点中可能有14×8×2×99 = 2,2176个QP。由于高速缓存未命中，对于大量QP，RNIC的性能急剧下降。尤其是RX pause（即接收到的PFC暂停帧）的数量非常多。<br>为了解决这个问题，FaSST（一篇文章） 在线程之间共享QP，由于线程之间QP的锁争用，随后降低了CPU效率和性能。另一种启发式方法是包括专用的代理线程，该线程管理所有的接收和发送请求。但是，切换到专用代理线程或从专用代理线程切换会增加延迟。此外，很难用单个线程饱和整个网络带宽。此外，代理解决方案对基础RDMA库不透明。</p>
+<h4 id="design"><a href="#design" class="headerlink" title="design"></a>design</h4><p>最小化性能开销为设计原则。</p>
+<h5 id="storge-RDMA-unified-Run-to-Completion-stack"><a href="#storge-RDMA-unified-Run-to-Completion-stack" class="headerlink" title="storge-RDMA unified Run-to-Completion stack"></a>storge-RDMA unified Run-to-Completion stack</h5><p>存储和网络都采用了Run-to-Completion的线程模型来实现低延迟。下图展示了请求处理的过程：</p>
+<ul>
+<li>节点收到写RPC</li>
+<li>RNIC通过DMA将其发送到用户空间</li>
+<li>RPC框架通过轮询获得请求，并将其交给ChunkServer处理。</li>
+<li>ChunkServer通知ussfs为请求分配一个chunk资源。</li>
+<li>用户空间驱动程序与nvme ssd交互以存储数据。</li>
+</ul>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230509150902783.png" alt="image-20230509150902783"></p>
+<p>以上操作在单个服务器线程中执行，无需线程切换。</p>
+<p>大的IO请求会被拆分成较小的请求，确保了对IO信号的快速响应。</p>
+<p>附属工作，比如formatting和crc计算会交给非IO线程。</p>
+<p>数据格式统一为IO vector，不需要序列化，使用scatter-gather DMA通过单个RDMA verb传输I/O vector。</p>
+<p>不需要序列化是RDMA的语义决定的。</p>
+<p>scatter-gather DMA可以通过单个中断传输不连续的数据。</p>
+<h5 id="零拷贝和CRC-offloading"><a href="#零拷贝和CRC-offloading" class="headerlink" title="零拷贝和CRC offloading"></a>零拷贝和CRC offloading</h5><p><strong>在盘古，数据必须在I/O路径上复制一次，因为每个4KB数据块都经过验证并附有CRC footer。</strong></p>
+<p>利用<strong>RNICs的用户模式内存注册（UMR）</strong>特性来<strong>避免这种数据复制。</strong></p>
+<p>UMR可以通过定义适当的内存键（memory keys）将RDMA数据分散到远程端。UMR将来自发送方的连续数据重新映射到接收方的I/O缓冲区，其中每个单元包含4KB数据、4B页脚和44B的间隙。在CRC计算之后，填充的I/O缓冲区可以直接用于磁盘写入。此外，CRC计算能够被卸载到有能力的RNICs。</p>
+<h5 id="shared-link-mode"><a href="#shared-link-mode" class="headerlink" title="shared-link mode"></a>shared-link mode</h5><p>这是减少盘古QP数量的关键。，shared-link在应用程序中实现，不涉及RDMA库。</p>
+<h3 id="可用性保证"><a href="#可用性保证" class="headerlink" title="可用性保证"></a>可用性保证</h3><h4 id="PFC-风暴"><a href="#PFC-风暴" class="headerlink" title="PFC 风暴"></a>PFC 风暴</h4><h5 id="之前的研究"><a href="#之前的研究" class="headerlink" title="之前的研究"></a>之前的研究</h5><p><img src="/2023/05/08/storage-network-paper-read/image-20230509164055984.png" alt="image-20230509164055984"></p>
+<p>以前的一些研究中，PFC风暴来自于NICs，receiving pipeline存在bug，如上图(a)描述：</p>
+<ul>
+<li>bug减慢了NIC接收，缓冲区很快被填满</li>
+<li>为了防止丢包，NIC将PFC pause发送到其ToR交换机</li>
+<li>ToR交换机暂停传输</li>
+<li>ToR交换机的缓冲区满，并且开始发送PFC pause</li>
+<li>受害者的端口暂停，无法传输</li>
+</ul>
+<h5 id="盘古中的PFC风暴"><a href="#盘古中的PFC风暴" class="headerlink" title="盘古中的PFC风暴"></a>盘古中的PFC风暴</h5><p>盘古在使用RDMA时，遇到了不同类型的PFC风暴，根本原因是特定供应商的交换机硬件存在bug，上图（b）中描述：</p>
+<p>假设bug发生在ToR交换机的下行端口，the bug  reduces the switching rate of the lossless priority queues to a very low rate.</p>
+<ul>
+<li>由于传输速率低，交换机的缓冲区已满</li>
+<li>交换机将PFC pause发送到连接的端口</li>
+<li>附加交换机和NIC停止传输</li>
+<li>连接到这个ToR交换机的leaf交换机和NIC收到连续的pause frame，造成了风暴。</li>
+</ul>
+<h5 id="之前的解决方案"><a href="#之前的解决方案" class="headerlink" title="之前的解决方案"></a>之前的解决方案</h5><p>Guo et al.构建了一个基于NIC的看门狗来持续监控传输的暂停帧，必要时禁用PFC机制。该方案不能完全解决开关产生的PFC风暴问题。特别是，网卡上的TX pause看门狗将不工作，因为<strong>NIC只接收来自交换机的PFC风暴</strong>。</p>
+<p>这种新型的PFC风暴使Guo等人的解决方案失效，该方案的重点是隔离PFC暂停源，以防止风暴扩散。当源是ToR交换机时，此方法失败，因为ToR中的所有主机都被风暴暂停。</p>
+<h5 id="盘古的解决方案"><a href="#盘古的解决方案" class="headerlink" title="盘古的解决方案"></a>盘古的解决方案</h5><p>我们处理PFC风暴的设计原则是escape as far as possible。</p>
+<p>在盘古，每个网卡监控接收到的PFC暂停帧。对于连续暂停帧，NIC确定是否存在PFC风暴。在PFC风暴的情况下，管理员可以使用两种解决方案。</p>
+<p>解决方法1：shutdown。关闭受PFC风暴影响的网卡端口数秒。dual-home拓扑为PFC风暴提供了一个紧急逃生通道，从而QP将断开连接并通过另一个端口再次连接。 此方法与优化一起使用，以减少QP超时的时间。 尽管此解决方案简单有效，但由于带宽损失了一半，因此不够理想。</p>
+<p>解决方法2：RDMA/TCP切换。在这个解决方案中，PFC风暴中受影响的RDMA链路被切换到TCP链路。与关机解决方案相比，它会折中了一个更复杂的过程，但它能够保持可用带宽。我们检测PFC风暴中受影响的RDMA链路。在每 T ms，每个工作线程选择一个服务器，并通过RDMA和TCP链接分别ping它的所有线程。如果RDMA ping失败并且TCP ping成功超过F次，则此RDMA链路上的流量将切换到TCP链路。一旦RDMA ping成功超过S次，交换的TCP链路上的流量将切换回RDMA链路。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Sylvia_Wu51/article/details/117325150">https://blog.csdn.net/Sylvia_Wu51/article/details/117325150</a></p>
+<h2 id="X-RDMA"><a href="#X-RDMA" class="headerlink" title="X-RDMA"></a>X-RDMA</h2><blockquote>
+<p>介绍了X-RDMA中间件，轻量，但功能齐全。RDMA的特点：超低延迟（2us）,高吞吐量，支持零拷贝和kernel bypass，减少传统协议栈的开销，例如上下文切换、协议处理和数据复制。</p>
+</blockquote>
+<h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><h4 id="RDMA编程模型"><a href="#RDMA编程模型" class="headerlink" title="RDMA编程模型"></a>RDMA编程模型</h4><p>RDMA支持两种常用的模式：可靠连接（RC）和不可靠数据报（UD）。</p>
+<p> RDMA 有两种通信范式：</p>
+<p>内存语义（单向）： Write/Read/Atomic 以访问远程内存而无需对等方 CPU 参与。</p>
+<p>类似传统以太网（双向）：Send/Recv 。 </p>
+<p>RDMA中的抽象结构：Queue Pair (QP) 代表一对完成队列（CQ）：发送队列（SQ）和接收队列（RQ）。</p>
+<ul>
+<li><p>在建立连接之前，节点应该创建一个受保护域（PD），然后使用这个 PD 注册一个或多个内存区域MR（memory region）和一个唯一的远程密（rkey）。 仅当 rkey 正确时，才允许访问受 MR 保护的内存。</p>
+</li>
+<li><p>每个 RDMA 操作都需要向相应的 CQ 发布工作请求 WR（work request），每个 CQ能容纳的WR有一个深度上限。</p>
+</li>
+<li><p>在双向模式下，接收方应预先将 WR 发送到其 RQ，然后发送方发送请求并指示有效负载的缓冲区地址。</p>
+</li>
+<li><p>最后，接收方应轮询此 RQ 以确保数据包到达。</p>
+</li>
+<li><p>在完成一个 RDMA 操作后，会生成一个完成队列条目 (CQE)。 </p>
+</li>
+<li><p>在单边模式下，只有发送方需要发布一个WR。 </p>
+</li>
+<li><p>单侧 RDMA 操作总是比双侧 RDMA 操作具有更好的性能</p>
+</li>
+<li><p>RDMA Write 和 Send 都支持额外的即时数据，可以立即用 uint_32 数据通知接收方。</p>
+</li>
+<li><p>总之：RDMA 程序需要一个复杂的仪式：初始化上下文、注册内存、建立连接、交换元数据、创建 QP、修改 QP 以“准备发送/接收”，最后发送/轮询 WR/CQE。</p>
+</li>
+</ul>
+<h4 id="Alibaba中的网络部署"><a href="#Alibaba中的网络部署" class="headerlink" title="Alibaba中的网络部署"></a>Alibaba中的网络部署</h4><p><img src="/2023/05/08/storage-network-paper-read/image-20230510150510724.png" alt="image-20230510150510724"></p>
+<p>Top of Rack (ToR)</p>
+<p>一个典型的数据中心包含三层： the spine layer, the leaf layer, and the ToR layer。</p>
+<p>通常的配置是：四十个节点连接到一个 ToR 交换机。 ToR 交换机连接到leaf交换机，leaf交换机连接到spine交换机。</p>
+<h4 id="RDMA-use-case"><a href="#RDMA-use-case" class="headerlink" title="RDMA use case"></a>RDMA use case</h4><p>阿里巴巴数据中心的三个代表应用：增强型固态硬盘 (ESSD)、X-DB 和 PolarDB。</p>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230510151252125.png" alt="image-20230510151252125"></p>
+<p>盘古的每台服务器上有两个关键组件：chunkserver和blockserver</p>
+<p>每个block server从前端（例如ESSD中的虚拟机）中接收数据，然后通过全网状（full-mesh）RDMA通信将二或三个副本分发到不同的chunkserver上。</p>
+<p>目前阿里巴巴有两个核心产品使用了盘古：ESSD和X-DB。</p>
+<p>ESSD 的一半 I/O 路径是从具有 QEMU/KVM 虚拟化的虚拟机到盘古。 X-DB 是一个分布式数据库，它为交易系统（例如在线购物网站）提供高可用性、强 ACID 和水平可扩展性。 X-DB的前端是Docker中的MySQL实例，使用RDMA连接盘古。 PolarDB则不同，它的实现有两种模式：一种是针对自己的后端，另一种是针对盘古。 两种模式都使用RDMA。</p>
+<h3 id="大规模部署的问题"><a href="#大规模部署的问题" class="headerlink" title="大规模部署的问题"></a>大规模部署的问题</h3><h4 id="编程模式复杂"><a href="#编程模式复杂" class="headerlink" title="编程模式复杂"></a>编程模式复杂</h4><p>原生 RDMA 库（即 libverbs）比传统的套接字编程更复杂。 需要对RDMA库API进行适当的简化和分类。</p>
+<h4 id="扩展性挑战"><a href="#扩展性挑战" class="headerlink" title="扩展性挑战"></a>扩展性挑战</h4><ul>
+<li><strong>RDMA资源占用会随着集群规模的扩大而迅速增加</strong>。RDMA最大的优势之一是零拷贝，但单边模式需要按需分配内存，即在每个连接开始任何传输之前就预留更多的内存。 相反，在 TCP/IP 中，内核可以自动管理缓冲区。</li>
+<li><strong>大规模 RDMA 网络中普遍存在拥塞和大量 incast</strong> 。我们生产服务器中的典型场景是盘古或 ESSD 等分布式存储，并且始终遵循 incast 流量模式 。此外，类似于 Facebook 中的部署 ，网络工作负载总是在饱和和不饱和之间切换，它很容易使 RNIC 因拥塞而过载。另一方面，拥塞也会导致抖动。尽管有微调的 DCQCN，但由于大 - 大小消息阻塞 RNIC 处理 ，在较大的集群中观察到一些严重的抖动情况。在生产环境中，严重的抖动会导致 70% 的吞吐量下降（从 3.4 GBps 到 1.1 GBps）和 2×∼15× 的延迟。</li>
+<li><strong>连接建立速度慢</strong>会延迟恢复并增加集群返回稳定状态的时间。使用 RDMA_CM的 RDMA 的连接建立时间约为 <strong>4 毫秒</strong>，而 TCP 几乎为 <strong>100 微秒</strong>。</li>
+</ul>
+<h4 id="鲁棒性低"><a href="#鲁棒性低" class="headerlink" title="鲁棒性低"></a>鲁棒性低</h4><ul>
+<li>发送方很难通过RDMA单方面操作了解接收方应用程序的处理进度, 发送方不知道进度并继续发送，导致RNR 错误，增加重传率，从而浪费网络带宽和 CPU 周期。</li>
+<li>原生 RDMA 库和 RNIC 无法确保对等端始终处于活动状态。</li>
+</ul>
+<h4 id="bug和性能干扰"><a href="#bug和性能干扰" class="headerlink" title="bug和性能干扰"></a>bug和性能干扰</h4><p>需要做一些运维工具</p>
+<h4 id="Conditional-Performance-Maximization"><a href="#Conditional-Performance-Maximization" class="headerlink" title="Conditional Performance Maximization"></a>Conditional Performance Maximization</h4><p>满足需求的同时最大化性能。也是设计X-RDMA的原则</p>
+<h3 id="X-RDMA设计"><a href="#X-RDMA设计" class="headerlink" title="X-RDMA设计"></a>X-RDMA设计</h3><h4 id="overall-architecture"><a href="#overall-architecture" class="headerlink" title="overall architecture"></a>overall architecture</h4><p>三层，16个主要组件：</p>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230510161801434.png" alt="image-20230510161801434"></p>
+<p><strong>最上层</strong></p>
+<p>提供了三个抽象的数据结构：context, channel, and msg.</p>
+<p>八个主要api：</p>
+<p><img src="/2023/05/08/storage-network-paper-read/image-20230510162248619.png" alt="image-20230510162248619"></p>
+<p><strong>中间层</strong></p>
+<p>X-RDMA 实现了<strong>可靠协议扩展</strong>、<strong>资源管理</strong>、<strong>流量控制</strong>和<strong>性能分析</strong>组件。</p>
+<p><strong>底层</strong></p>
+<p>timer、fd、task这些是X-RDMA的底层。</p>
+<p>总的来说，这些组件分为四个独立的系统，为不同的开发者带来了便利，牺牲了不常用的功能，以避免复杂的编程抽象陷阱。</p>
+<h4 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h4><p>由于使用现代 RNIC 的延迟可以低至纳秒级，因此即使在最坏的情况下，数据平面上的所有操作也可以在恒定时间 (O(1)) 内完成，以匹配较低的网络延迟。</p>
+<p>X-RDMA 采用lock -free、atomic-free 和 no-syscall 策略，以减少用户空间和内核空间之间总线锁定和上下文切换的开销。避免使用任何锁，只允许非关键路径上的原子操作和系统调用。</p>
+<p>X-RDMA的线程模型设计原则一般是run-to-complete。高层资源，如context、channel、memCache、QP cache等，都是在per thread级别进行操作，避免线程间同步。这些资源 将在每个上下文中仅初始化一次。X-RDMA 使用混合轮询方式，其中一个线程首先使用 epoll，然后在触发消息或定时器事件时切换到忙轮询，类似于 Linux 内核中的 NAPI。X-RDMA向per-thread timer注册一些事件，包括keepAlive、statistic等。在空闲时间，轮询模式可根据应用程序的方案进行配置。</p>
+<h4 id="消息模型"><a href="#消息模型" class="headerlink" title="消息模型"></a>消息模型</h4><p>多进程之间采用请求-响应的方式进行通信。</p>
+<p>X-RDMA 采用混合消息策略，包括两种模式：用于最大化性能的小消息模式和用于减少内存占用的大消息模式。荷载有个阈值S（默认4KB），小于S视为小消息。</p>
+<p>区分两种模式的原因：buffer预分配阶段带来的较大的开销。</p>
+<p><strong>Small Messages v.s.Large Messages</strong></p>
+<p>对于小消息，发送方直接向接收方发送数据，从而触发接收WR。每次数据传输只需要一次RDMA操作。但是，接收方需要预先分配足够的缓冲区。 因此，小消息的payload size不能太大，否则会消耗更多的缓冲区，从而导致内存消耗高。</p>
+<p>对于大消息，发送方会先发送一个RDMA Send WR来唤醒接收方。接收方准备 RDMA enabled buffers on demand。我们称这个阶段为buffer preparation phase。之后，实际的数据传输依赖于发送端的RDMA写/读。在这种模式下，每次数据传输至少需要两次RDMA操作。 在生产环境中，小消息比通常传输时间较长的大消息对高延迟更敏感。在某种程度上，大消息可以通过准备好的缓冲区来容忍延迟的一点点降低。</p>
+<p><strong>Read Replace Write</strong></p>
+<p>X-RDMA 支持内置 RPC。在大多数 RPC 实现中，接收方将响应发回给发送方。大尺寸响应是禁止处理的。由于发送方不知道响应的有效负载大小，发送方 端应该为接收端保留“超大”缓冲区，以便通过 RDMA Write 将响应写回。更糟糕的是，在 RPC 场景中，RDMA 出站操作（Write）总是比入站操作（Read）慢 接收方。<strong>为了解决这个问题，X-RDMA 允许发送方直接处理响应。接收方应该让发送方知道响应的大小和地址，发送方将通过 RDMA Read 被动获取响应 。</strong></p>
+<h4 id="Work-Flow"><a href="#Work-Flow" class="headerlink" title="Work Flow"></a>Work Flow</h4><p><img src="/2023/05/08/storage-network-paper-read/image-20230510163952060.png" alt="image-20230510163952060"></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2023/05/08/DPDK-f-stack/">
+                <span class="level-item">DPDK &amp; f-stack</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#From-Luna-to-Solar">
+        <span class="has-mr-6">1</span>
+        <span>From Luna to Solar</span>
+        </a></li><li>
+        <a class="is-flex" href="#When-Cloud-Storage-Meets-RDMA">
+        <span class="has-mr-6">2</span>
+        <span>When Cloud Storage Meets RDMA</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#pangu">
+        <span class="has-mr-6">2.1</span>
+        <span>pangu</span>
+        </a></li><li>
+        <a class="is-flex" href="#Motivation">
+        <span class="has-mr-6">2.2</span>
+        <span>Motivation</span>
+        </a></li><li>
+        <a class="is-flex" href="#挑战">
+        <span class="has-mr-6">2.3</span>
+        <span>挑战</span>
+        </a></li><li>
+        <a class="is-flex" href="#RDMA部署">
+        <span class="has-mr-6">2.4</span>
+        <span>RDMA部署</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#考虑因素">
+        <span class="has-mr-6">2.4.1</span>
+        <span>考虑因素</span>
+        </a></li><li>
+        <a class="is-flex" href="#盘古的部署">
+        <span class="has-mr-6">2.4.2</span>
+        <span>盘古的部署</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#性能优化">
+        <span class="has-mr-6">2.5</span>
+        <span>性能优化</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#目前的障碍">
+        <span class="has-mr-6">2.5.1</span>
+        <span>目前的障碍</span>
+        </a></li><li>
+        <a class="is-flex" href="#design">
+        <span class="has-mr-6">2.5.2</span>
+        <span>design</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#可用性保证">
+        <span class="has-mr-6">2.6</span>
+        <span>可用性保证</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#PFC-风暴">
+        <span class="has-mr-6">2.6.1</span>
+        <span>PFC 风暴</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">2.7</span>
+        <span>参考</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#X-RDMA">
+        <span class="has-mr-6">3</span>
+        <span>X-RDMA</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#背景">
+        <span class="has-mr-6">3.1</span>
+        <span>背景</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#RDMA编程模型">
+        <span class="has-mr-6">3.1.1</span>
+        <span>RDMA编程模型</span>
+        </a></li><li>
+        <a class="is-flex" href="#Alibaba中的网络部署">
+        <span class="has-mr-6">3.1.2</span>
+        <span>Alibaba中的网络部署</span>
+        </a></li><li>
+        <a class="is-flex" href="#RDMA-use-case">
+        <span class="has-mr-6">3.1.3</span>
+        <span>RDMA use case</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#大规模部署的问题">
+        <span class="has-mr-6">3.2</span>
+        <span>大规模部署的问题</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#编程模式复杂">
+        <span class="has-mr-6">3.2.1</span>
+        <span>编程模式复杂</span>
+        </a></li><li>
+        <a class="is-flex" href="#扩展性挑战">
+        <span class="has-mr-6">3.2.2</span>
+        <span>扩展性挑战</span>
+        </a></li><li>
+        <a class="is-flex" href="#鲁棒性低">
+        <span class="has-mr-6">3.2.3</span>
+        <span>鲁棒性低</span>
+        </a></li><li>
+        <a class="is-flex" href="#bug和性能干扰">
+        <span class="has-mr-6">3.2.4</span>
+        <span>bug和性能干扰</span>
+        </a></li><li>
+        <a class="is-flex" href="#Conditional-Performance-Maximization">
+        <span class="has-mr-6">3.2.5</span>
+        <span>Conditional Performance Maximization</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#X-RDMA设计">
+        <span class="has-mr-6">3.3</span>
+        <span>X-RDMA设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#overall-architecture">
+        <span class="has-mr-6">3.3.1</span>
+        <span>overall architecture</span>
+        </a></li><li>
+        <a class="is-flex" href="#线程模型">
+        <span class="has-mr-6">3.3.2</span>
+        <span>线程模型</span>
+        </a></li><li>
+        <a class="is-flex" href="#消息模型">
+        <span class="has-mr-6">3.3.3</span>
+        <span>消息模型</span>
+        </a></li><li>
+        <a class="is-flex" href="#Work-Flow">
+        <span class="has-mr-6">3.3.4</span>
+        <span>Work Flow</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="storage-network paper read" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

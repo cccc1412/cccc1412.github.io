@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>操作系统笔记—文件系统 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="操作系统之文件系统复习记录。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统笔记—文件系统">
+<meta property="og:url" content="http://yoursite.com/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="操作系统之文件系统复习记录。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-12-24T04:31:47.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.483Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="操作系统笔记—文件系统" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-24T04:31:47.000Z">2019-12-24</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    13 分钟 读完 (大约 1946 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                操作系统笔记—文件系统
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>操作系统之文件系统复习记录。</p>
+<span id="more"></span>
+
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h3><ul>
+<li>域：基本数据单元、包含一个值、定长或变长</li>
+<li>记录：一组域的集合，视为应用程序的一个单元、定长或变长</li>
+<li>文件：一组相似记录的集合、实体、通过名字访问、访问控制的实施级</li>
+<li>数据库：数据的集合、一种多种文件组成、数据元素间关系明确、供不同应用程序使用</li>
+</ul>
+<h2 id="文件的逻辑结构"><a href="#文件的逻辑结构" class="headerlink" title="文件的逻辑结构"></a>文件的逻辑结构</h2><p><strong>堆文件、顺序文件、索引顺序文件、索引文件、HASH文件</strong></p>
+<h3 id="堆文件"><a href="#堆文件" class="headerlink" title="堆文件"></a>堆文件</h3><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224134030076.png" alt="image-20191224134030076">
+
+<ul>
+<li>最简单</li>
+<li>按时间先后顺序收集数据</li>
+<li>每条记录由一串数据组成</li>
+<li>目的是积累大量数据并保存</li>
+<li>穷举查找方式检索</li>
+<li>变长记录、可变域集</li>
+</ul>
+<h3 id="顺序文件"><a href="#顺序文件" class="headerlink" title="顺序文件"></a>顺序文件</h3><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224134335558.png" alt="image-20191224134335558">
+
+<ul>
+<li>最常见</li>
+<li>记录固定格式</li>
+<li>记录长度相同，域的位置、长度相同</li>
+<li>每个记录一个关键域，唯一标识了记录</li>
+<li>记录按照关键域存储排序</li>
+<li>用于批处理应用</li>
+<li>在磁盘或磁带上易存储</li>
+</ul>
+<h3 id="索引顺序文件"><a href="#索引顺序文件" class="headerlink" title="索引顺序文件"></a>索引顺序文件</h3><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224134522469.png" alt="image-20191224134522469"></p>
+<p>利用关键字找到该记录组中第一个记录的表项，然后顺序查找所要求的记录</p>
+<p>增加了支持随机访问的索引和移除文件</p>
+<h3 id="索引文件"><a href="#索引文件" class="headerlink" title="索引文件"></a>索引文件</h3><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224140550035.png" alt="image-20191224140550035"></p>
+<ul>
+<li>通过索引访问记录</li>
+<li>变长记录</li>
+<li>完全索引：主文件中每条记录的索引项</li>
+<li>部分索引：感兴趣域记录的索引项</li>
+<li>用于及时性要求高，对数据处理少的应用程序（订票系统，商品库存控制系统）</li>
+</ul>
+<h3 id="直接文件或散列文件（HASH文件）"><a href="#直接文件或散列文件（HASH文件）" class="headerlink" title="直接文件或散列文件（HASH文件）"></a>直接文件或散列文件（HASH文件）</h3><ul>
+<li>直接访问磁盘上任意地址已知的数据块</li>
+<li>基于关键字的散列</li>
+</ul>
+<h2 id="文件目录"><a href="#文件目录" class="headerlink" title="文件目录"></a>文件目录</h2><p>文件目录是指：为实现“按名存取”，必须建立文件名与辅存空间中物理地址的对应关系，体现这种对应关系的数据结构称为文件目录。</p>
+<h3 id="对目录的操作"><a href="#对目录的操作" class="headerlink" title="对目录的操作"></a>对目录的操作</h3><p>查找、创建、删除、修改、显示</p>
+<h3 id="目录单元的内容"><a href="#目录单元的内容" class="headerlink" title="目录单元的内容"></a>目录单元的内容</h3><p>基本信息、地址信息、访问控制信息、使用信息</p>
+<table>
+<thead>
+<tr>
+<th>基本信息</th>
+<th>地址信息</th>
+<th>访问控制信息</th>
+<th>使用信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文件名、文件类型、文件组织</td>
+<td>卷、起始地址、使用大小、分配大小</td>
+<td>所有者、访问信息、权限信息</td>
+<td>数据创建时间、创建者、最近访问日期、当前文件活动信息等</td>
+</tr>
+</tbody></table>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><p>单级结构、两级结构、层次结构（树状结构、无循环图结构）</p>
+<h4 id="单级结构"><a href="#单级结构" class="headerlink" title="单级结构"></a>单级结构</h4><p>整个文件系统建立一张目录表，每个目录项对应一个文件</p>
+<h4 id="两级结构"><a href="#两级结构" class="headerlink" title="两级结构"></a>两级结构</h4><p>主目录：每个用户一个目录项，提供地址和访问控制信息</p>
+<p>用户目录：用户文件的简单列表，文件名唯一</p>
+<p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224143323184.png" alt="image-20191224143323184"></p>
+<h4 id="树状结构"><a href="#树状结构" class="headerlink" title="树状结构"></a>树状结构</h4><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224143402919.png" alt="image-20191224143402919"></p>
+<p>路径定位、文件可重名，路径唯一</p>
+<p>绝对路径：从根目录开始指定的目录</p>
+<p>相对路径：从工作目录开始</p>
+<h4 id="无循环图结构"><a href="#无循环图结构" class="headerlink" title="无循环图结构"></a>无循环图结构</h4><p>允许多个目录项指向同一个数据或目录文件，实现目录或数据文件的共享（Unix使用）</p>
+<p>目录项的删除：存在多个引用时，只删除引用；所有引用都被删除后才删除文件。</p>
+<p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224144338366.png" alt="image-20191224144338366"></p>
+<h2 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h2><p>一份物理存储，多个别名。</p>
+<p>在Unix中，通过链接实现文件共享（软链接、硬链接）</p>
+<h3 id="硬链接"><a href="#硬链接" class="headerlink" title="硬链接"></a>硬链接</h3><ul>
+<li>只允许文件链接，同一文件系统下</li>
+<li>维护链接计数，减至0，文件被删除</li>
+<li>若有文件链接到此文件，则该文件不能删除</li>
+</ul>
+<h3 id="软链接"><a href="#软链接" class="headerlink" title="软链接"></a>软链接</h3><ul>
+<li>链接的是目录或文件路径</li>
+<li>建立符合链接文件（快捷方式）</li>
+<li>可跨文件系统，跨计算机</li>
+<li>访问速度相对慢，但灵活性大</li>
+</ul>
+<h2 id="辅存管理"><a href="#辅存管理" class="headerlink" title="辅存管理"></a>辅存管理</h2><h3 id="文件分配"><a href="#文件分配" class="headerlink" title="文件分配"></a>文件分配</h3><p>辅存中，文件由许多块组成</p>
+<p>操作系统或文件管理程序为文件分配块</p>
+<h4 id="分配方式"><a href="#分配方式" class="headerlink" title="分配方式"></a>分配方式</h4><ul>
+<li><p>预分配：要求文件创建是声明文件的最大尺寸，但是程序的大仙难以估计，用户或程序往往估大文件的尺寸，</p>
+</li>
+<li><p>动态分配：只有在需要时才给文件分配空间</p>
+</li>
+</ul>
+<h4 id="分区大小"><a href="#分区大小" class="headerlink" title="分区大小"></a>分区大小</h4><ul>
+<li>大小可变的大规模连续分区</li>
+<li>块（大小固定）</li>
+</ul>
+<h3 id="文件的物理结构（文件的分配方法）"><a href="#文件的物理结构（文件的分配方法）" class="headerlink" title="文件的物理结构（文件的分配方法）"></a>文件的物理结构（文件的分配方法）</h3><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224160020206.png" alt="image-20191224160020206"></p>
+<h4 id="连续结构（连续分配）"><a href="#连续结构（连续分配）" class="headerlink" title="连续结构（连续分配）"></a>连续结构（连续分配）</h4><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224160444406.png" alt="image-20191224160444406"></p>
+<p>采用预分配，在创建文件时，分配一组连续的块。适合顺序文件，检索容易。存在外部碎片。</p>
+<h4 id="链式结构（链式分配）"><a href="#链式结构（链式分配）" class="headerlink" title="链式结构（链式分配）"></a>链式结构（链式分配）</h4><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224181115295.png" alt="image-20191224181115295"></p>
+<p>存在问题：多个块离散分配，使得局部性原理不再适用，若要一次读入多个块，要访问磁盘的不同部分。</p>
+<h4 id="索引结构（索引分配）"><a href="#索引结构（索引分配）" class="headerlink" title="索引结构（索引分配）"></a>索引结构（索引分配）</h4><h5 id="基于块的索引分配"><a href="#基于块的索引分配" class="headerlink" title="基于块的索引分配"></a>基于块的索引分配</h5><ul>
+<li>索引作为单独的块保存</li>
+<li>文件分配表的表项指向索引块</li>
+</ul>
+<p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224182623617.png" alt="image-20191224182623617"></p>
+<h5 id="基于长度可变分区的索引分配"><a href="#基于长度可变分区的索引分配" class="headerlink" title="基于长度可变分区的索引分配"></a>基于长度可变分区的索引分配</h5><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224182708466.png" alt="image-20191224182708466"></p>
+<p>每个分区有一个表项，提高局部性，经过整理可以减少索引数量，基于块的索引分配不行</p>
+<h3 id="空闲空间管理"><a href="#空闲空间管理" class="headerlink" title="空闲空间管理"></a>空闲空间管理</h3><ul>
+<li><p>位示图：001100111….向量表示磁盘每一个块的使用情况，1表示已用。</p>
+</li>
+<li><p>链接空闲分区：使用指向每个空闲区的指针和长度值，链接空闲区</p>
+</li>
+<li><p>索引：将空闲区视为文件，使用索引表，基于大小可变的分区</p>
+</li>
+<li><p>空闲块列表：每个块指定一个序号，所有空闲块的序号保存下来。</p>
+</li>
+</ul>
+<h3 id="卷"><a href="#卷" class="headerlink" title="卷"></a>卷</h3><p>逻辑磁盘，一组扇区的集合，物理上可不连续，对OS或应用程序来说连续</p>
+<h2 id="UNIX文件管理"><a href="#UNIX文件管理" class="headerlink" title="UNIX文件管理"></a>UNIX文件管理</h2><h3 id="6种文件类型"><a href="#6种文件类型" class="headerlink" title="6种文件类型"></a>6种文件类型</h3><ul>
+<li>普通文件</li>
+<li>目录文件：包含文件名列表和指向索引节点的指针</li>
+<li>特殊文件：不含数据，提供物理设备映射到文件名的机制</li>
+<li>命名管道：进程间通信的基础设施</li>
+<li>链接文件：一个文件的别名</li>
+<li>符号链接：一个数据文件，包含链接文件的文件名</li>
+</ul>
+<p>OS通过索引节点（Inode）管理所有文件</p>
+<h3 id="索引节点"><a href="#索引节点" class="headerlink" title="索引节点"></a>索引节点</h3><p><img src="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/image-20191224185835819.png" alt="image-20191224185835819"></p>
+<p>文件的分配以块为基础、动态分配，索引节点包含n个直接指针和三个间接指针，每个指针指向一个块，块可能是数据，也可能是一组指针。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><ul>
+<li>源程序、可执行文件、库函数等所采用的都是无结构的文件形式，即流式文件。其文件的长度是以字节为单位的。</li>
+</ul>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/12/24/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94%E6%A6%82%E8%AE%BA/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">操作系统笔记—概论</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/">
+                <span class="level-item">操作系统笔记—IO管理与磁盘调度</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#概述">
+        <span class="has-mr-6">1</span>
+        <span>概述</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#术语">
+        <span class="has-mr-6">1.1</span>
+        <span>术语</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件的逻辑结构">
+        <span class="has-mr-6">2</span>
+        <span>文件的逻辑结构</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#堆文件">
+        <span class="has-mr-6">2.1</span>
+        <span>堆文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#顺序文件">
+        <span class="has-mr-6">2.2</span>
+        <span>顺序文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引顺序文件">
+        <span class="has-mr-6">2.3</span>
+        <span>索引顺序文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引文件">
+        <span class="has-mr-6">2.4</span>
+        <span>索引文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#直接文件或散列文件（HASH文件）">
+        <span class="has-mr-6">2.5</span>
+        <span>直接文件或散列文件（HASH文件）</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件目录">
+        <span class="has-mr-6">3</span>
+        <span>文件目录</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#对目录的操作">
+        <span class="has-mr-6">3.1</span>
+        <span>对目录的操作</span>
+        </a></li><li>
+        <a class="is-flex" href="#目录单元的内容">
+        <span class="has-mr-6">3.2</span>
+        <span>目录单元的内容</span>
+        </a></li><li>
+        <a class="is-flex" href="#目录结构">
+        <span class="has-mr-6">3.3</span>
+        <span>目录结构</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#单级结构">
+        <span class="has-mr-6">3.3.1</span>
+        <span>单级结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#两级结构">
+        <span class="has-mr-6">3.3.2</span>
+        <span>两级结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#树状结构">
+        <span class="has-mr-6">3.3.3</span>
+        <span>树状结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#无循环图结构">
+        <span class="has-mr-6">3.3.4</span>
+        <span>无循环图结构</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#文件共享">
+        <span class="has-mr-6">4</span>
+        <span>文件共享</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#硬链接">
+        <span class="has-mr-6">4.1</span>
+        <span>硬链接</span>
+        </a></li><li>
+        <a class="is-flex" href="#软链接">
+        <span class="has-mr-6">4.2</span>
+        <span>软链接</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#辅存管理">
+        <span class="has-mr-6">5</span>
+        <span>辅存管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#文件分配">
+        <span class="has-mr-6">5.1</span>
+        <span>文件分配</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#分配方式">
+        <span class="has-mr-6">5.1.1</span>
+        <span>分配方式</span>
+        </a></li><li>
+        <a class="is-flex" href="#分区大小">
+        <span class="has-mr-6">5.1.2</span>
+        <span>分区大小</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件的物理结构（文件的分配方法）">
+        <span class="has-mr-6">5.2</span>
+        <span>文件的物理结构（文件的分配方法）</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#连续结构（连续分配）">
+        <span class="has-mr-6">5.2.1</span>
+        <span>连续结构（连续分配）</span>
+        </a></li><li>
+        <a class="is-flex" href="#链式结构（链式分配）">
+        <span class="has-mr-6">5.2.2</span>
+        <span>链式结构（链式分配）</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引结构（索引分配）">
+        <span class="has-mr-6">5.2.3</span>
+        <span>索引结构（索引分配）</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#空闲空间管理">
+        <span class="has-mr-6">5.3</span>
+        <span>空闲空间管理</span>
+        </a></li><li>
+        <a class="is-flex" href="#卷">
+        <span class="has-mr-6">5.4</span>
+        <span>卷</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#UNIX文件管理">
+        <span class="has-mr-6">6</span>
+        <span>UNIX文件管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#6种文件类型">
+        <span class="has-mr-6">6.1</span>
+        <span>6种文件类型</span>
+        </a></li><li>
+        <a class="is-flex" href="#索引节点">
+        <span class="has-mr-6">6.2</span>
+        <span>索引节点</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#补充">
+        <span class="has-mr-6">7</span>
+        <span>补充</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="操作系统笔记—文件系统" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

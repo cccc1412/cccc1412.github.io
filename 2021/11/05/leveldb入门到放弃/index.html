@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>leveldb入门到放弃 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="leveldb是LSM（Log Structured-Merge Tree）树的经典实现，除去测试部分，代码量大概1.5W行，遵循google c++代码规范。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leveldb入门到放弃">
+<meta property="og:url" content="http://yoursite.com/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="leveldb是LSM（Log Structured-Merge Tree）树的经典实现，除去测试部分，代码量大概1.5W行，遵循google c++代码规范。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-11-05T11:02:42.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.247Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="leveldb入门到放弃" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-11-05T11:02:42.000Z">2021-11-05</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    18 分钟 读完 (大约 2727 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                leveldb入门到放弃
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>leveldb是LSM（Log Structured-Merge Tree）树的经典实现，除去测试部分，代码量大概1.5W行，遵循google c++代码规范。</p>
+<span id="more"></span>
+
+<h2 id="调试环境搭建"><a href="#调试环境搭建" class="headerlink" title="调试环境搭建"></a>调试环境搭建</h2><figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">先git <span class="hljs-built_in">clone</span></span></span><br><span class="line">mkdir -p build &amp;&amp; cd build</span><br><span class="line">cmake -DCMAKE_BUILD_TYPE=Debug .. &amp;&amp; cmake --build .</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">回到根目录</span></span><br><span class="line">sudo cp -R include/leveldb /usr/local/include</span><br><span class="line">sudo cp ./build/libleveldb.a ./test</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="LSM-tree"><a href="#LSM-tree" class="headerlink" title="LSM-tree"></a>LSM-tree</h2><blockquote>
+<p>设计LSM tree的目的是为了实现高效写入操作。</p>
+</blockquote>
+<p>为什么要提出LSM-Tree，因为原有的B+树的写操作太慢了，根本原因是磁盘的随机操作满，顺序读写快。</p>
+<p>以此磁盘I/O的时间 = 寻道时间 + 旋转时间 + 数据传输时间</p>
+<p>其中寻道是磁头移动到正确的磁道，旋转是讲扇区移动到磁头下，这两个都是机械操作，磁头寻址耗时造成随机操作耗时。</p>
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211115223259188.png" alt="image-20211115223259188"></p>
+<p>磁盘的顺序读写要远快于随机读写，而且快了三个数量级。</p>
+<h3 id="LSM-tree-的通用结构"><a href="#LSM-tree-的通用结构" class="headerlink" title="LSM-tree 的通用结构"></a>LSM-tree 的通用结构</h3><p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211111141545840.png" alt="image-20211111141545840"></p>
+<p>LSMtree由内存驻留组件和磁盘驻留组件组成。</p>
+<h2 id="整体设计"><a href="#整体设计" class="headerlink" title="整体设计"></a>整体设计</h2><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211105194134294.png" alt="image-20211105194134294">
+
+<h3 id="memtable"><a href="#memtable" class="headerlink" title="memtable"></a>memtable</h3><p>一次leveldb的写入过程并不是直接将数据持久化到磁盘文件中，而是先写将操作写到日志文件中，然后将写操作应用到memtable。</p>
+<p>memtable是在<strong>内存中</strong>维护的一个<strong>跳表</strong>的数据结构。系统运行过程中，如果memtable中的数据占用达到指定值（write buffer size），memtabe 会转化为immutabel，然后自动生成新的memtable。immutable 被新的线程dump到磁盘中，dump结束后immutable就可以被释放了。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">MemTable</span> {<span class="hljs-comment">//是一个接口类，核心的数据结构是里面的skipList，定义在memtable.h里</span></span><br><span class="line"> <span class="hljs-keyword">public</span>:</span><br><span class="line">  ...</span><br><span class="line">  <span class="hljs-comment">// 引用计数</span></span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Ref</span><span class="hljs-params">()</span> </span>{ ++refs_; }</span><br><span class="line">  <span class="hljs-comment">//自身引用为0，则析构</span></span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Unref</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">    --refs_;</span><br><span class="line">    <span class="hljs-built_in">assert</span>(refs_ &gt;= <span class="hljs-number">0</span>);</span><br><span class="line">    <span class="hljs-keyword">if</span> (refs_ &lt;= <span class="hljs-number">0</span>) {</span><br><span class="line">      <span class="hljs-keyword">delete</span> <span class="hljs-keyword">this</span>;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-comment">//跳表的一个迭代器，可以用来便利table的内部数据，很好的设计思路，可以用来隐藏table的内部实现</span></span><br><span class="line">  <span class="hljs-function">Iterator* <span class="hljs-title">NewIterator</span><span class="hljs-params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">//添加和删除数据的接口，注意到这里没有Delete的接口，是因为memtable的delete是插入一条type为delete的记录</span></span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Add</span><span class="hljs-params">(SequenceNumber seq, ValueType type, <span class="hljs-type">const</span> Slice&amp; key,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">           <span class="hljs-type">const</span> Slice&amp; value)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Get</span><span class="hljs-params">(<span class="hljs-type">const</span> LookupKey&amp; key, std::string* value, Status* s)</span></span>;</span><br><span class="line"></span><br><span class="line"> <span class="hljs-keyword">private</span>:</span><br><span class="line">	...</span><br><span class="line">  <span class="hljs-keyword">typedef</span> SkipList&lt;<span class="hljs-type">const</span> <span class="hljs-type">char</span>*, KeyComparator&gt; Table; </span><br><span class="line">  	...</span><br><span class="line">  <span class="hljs-type">int</span> refs_;</span><br><span class="line">  Table table_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>跳表中KV的存储格式为：</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| Internal Key size | internal key | value len |value|</span><br><span class="line">其中</span><br><span class="line">internal key = |user key |sequence number |type |</span><br><span class="line">Internal key size = key size + 8</span><br></pre></td></tr></tbody></table></figure>
+
+<p>跳表的排序基于：</p>
+<ul>
+<li>首先根据user key按升序排列</li>
+<li>然后根据sequence number按降序排列</li>
+<li>最后根据value type按降序排列</li>
+</ul>
+<h4 id="跳表"><a href="#跳表" class="headerlink" title="跳表"></a>跳表</h4><blockquote>
+<p>一种支持二分查找的有序链表</p>
+</blockquote>
+<p>就是在原始的链表上加了多级索引</p>
+<h3 id="SStable"><a href="#SStable" class="headerlink" title="SStable"></a>SStable</h3><blockquote>
+<p>数据最终在磁盘上的物理存储，sorted string table.</p>
+</blockquote>
+<p>一个sstable就是一个文件，作者在<code>doc/table_format.md</code>描述了文件的逻辑结构</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;beginning_of_file&gt;</span><br><span class="line">[data block 1]</span><br><span class="line">[data block 2]</span><br><span class="line">...</span><br><span class="line">[data block N]</span><br><span class="line">[meta block 1]</span><br><span class="line">...</span><br><span class="line">[meta block K]</span><br><span class="line">[metaindex block]</span><br><span class="line">[index block]</span><br><span class="line">[Footer]        (fixed size; starts at file_size - sizeof(Footer))</span><br><span class="line">&lt;end_of_file&gt;</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211116142952036.png" alt="image-20211116142952036"></p>
+<ul>
+<li>Data Block：存储KV对，有序</li>
+<li>Meta Block：每一个DataBlock对应一个Meta Block，存储的是布隆过滤器，可以快速定位key是否在data block中</li>
+<li>Meta Index Block：对meta block的索引，&lt;过滤器名字，offset，size&gt;</li>
+<li>Index Block：是对Data Block的索引，&lt;该块最大key值，该块在sstabl中的偏移量，块大小&gt;</li>
+</ul>
+<img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211116211427107.png" alt="image-20211116211427107" style="zoom:67%;">
+
+<ul>
+<li>Footer：可以理解成文件头</li>
+</ul>
+<h3 id="查找key步骤"><a href="#查找key步骤" class="headerlink" title="查找key步骤"></a>查找key步骤</h3><ul>
+<li>找文件：找到可能包含key的sstable</li>
+<li>加载IB和FB：把sstable中的index block和filter block加载到内存</li>
+<li>查找IB：二分查找index block找到可能包含key的data block</li>
+<li>查找FB：通过过滤器判断key是否在data block中</li>
+<li>加载DB：如果过滤器判断在，则加载data block</li>
+<li>查找DB：二分查找data block</li>
+<li>读数据</li>
+<li>如果fliter判断不存在或者查找不存在，则在下一个搜索候选文件。</li>
+</ul>
+<h4 id="Block-存储格式"><a href="#Block-存储格式" class="headerlink" title="Block 存储格式"></a>Block 存储格式</h4><p>块是sstable的组成单位，一个块约4kb大小，块大不是定长而是一个阈值，为了。</p>
+<blockquote>
+<p>Block有三部分组成：block data, type, crc32，默认每个块大小为4kb。 其中type是压缩方式：none或则snappy。</p>
+</blockquote>
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211111171354120.png" alt="image-20211111171354120"></p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">BlockHandle</span> {</span><br><span class="line"><span class="hljs-keyword">private</span>:</span><br><span class="line">  <span class="hljs-type">uint64_t</span> offset_;</span><br><span class="line">  <span class="hljs-type">uint64_t</span> size_;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="布隆过滤器"><a href="#布隆过滤器" class="headerlink" title="布隆过滤器"></a>布隆过滤器</h4><blockquote>
+<p>布隆过滤器是未来在大量数据中查询某个字符串是否存在</p>
+</blockquote>
+<p>比如：</p>
+<ul>
+<li>word如何判断某个单词是否拼写正确</li>
+<li>网络爬虫中如何不去爬相同的页面</li>
+</ul>
+<h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>布隆过滤器是一种概率型的数据结构，特点是高效的插入和查询，能返回某个字符串<strong>一定不存在</strong>或者<strong>可能存在</strong>，相比传统的数据结构，如hash表，set，map更加高效，占用的空间更小，代价是返回的结果是概率存在，同时不支持删除操作。</p>
+<h5 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h5><ul>
+<li>bitmap + n个hash函数</li>
+</ul>
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211113170128616.png" alt="image-20211113170128616"></p>
+<h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><ul>
+<li>添加：利用n个hash函数将这个元素映射到位图里的n个点，置为1</li>
+<li>查找：用n个hash函数检测位图中的k个点是否都为1，如果有不为1的点，就认为不存在，全部为1，则可能存在（hash冲突）</li>
+</ul>
+<h3 id="SSTable的合并"><a href="#SSTable的合并" class="headerlink" title="SSTable的合并"></a>SSTable的合并</h3><blockquote>
+<p>合并分两类：minor compaction和major compaction</p>
+</blockquote>
+<h4 id="minjor-compaction"><a href="#minjor-compaction" class="headerlink" title="minjor compaction"></a>minjor compaction</h4><p>immutable memtable持久化成sstable的过程，优先级高，完成内存数据的持久化</p>
+<p>注意到level 0层的sstable文件数据是可能存在overlap的，所以需要往下合并，去重，提高查找效率。</p>
+<h4 id="major-compaction"><a href="#major-compaction" class="headerlink" title="major compaction"></a>major compaction</h4><h5 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h5><ul>
+<li>0层文件超过上限（4个）</li>
+<li>level i层文件总大小超过（10^i）MB</li>
+<li>某个文件无效读取次数过多</li>
+</ul>
+<h5 id="合并流程"><a href="#合并流程" class="headerlink" title="合并流程"></a>合并流程</h5><ul>
+<li>寻找第一个输入文件：不同触发条件的输入文件不同</li>
+<li>根据key的重叠情况扩大输入文件集合</li>
+</ul>
+<img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211117143926522.png" alt="image-20211117143926522" style="zoom:70%;">
+
+<ul>
+<li>多路合并：i和i+1层文件中的数据项合并，冗余数据清理，保留最新数据，输出到i+1层</li>
+</ul>
+<h2 id="缓存系统"><a href="#缓存系统" class="headerlink" title="缓存系统"></a>缓存系统</h2><blockquote>
+<p>缓存的是sstable中的文件对象和相关元数据，如果以此读操作都会发生一次磁盘IO，那么整体效率会非常低下，所以需要把热数据加入cache。</p>
+</blockquote>
+<h3 id="TableCache"><a href="#TableCache" class="headerlink" title="TableCache"></a>TableCache</h3><p>查找数据时，现在memtable和immutable 中查找，如果都查找不到，那么就要打开sst文件，解析文件中的index block，然后根据index block 找到对应的data block中进行查找，如果对于每次sst查询都经历上述步骤，效率很低。因此引入了table cache来缓存sst文件和对应的index block。</p>
+<h4 id="table-cache创建"><a href="#table-cache创建" class="headerlink" title="table cache创建"></a>table cache创建</h4><p><code>/db_impl.cc</code>文件中的的DB构造函数中创建了table_cache_</p>
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211113162321324.png" alt="image-20211113162321324"></p>
+<p>table_cache_是TableCache的一个实例化对象，然后跳转到TableCache的构造函数里看：</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TableCache::<span class="hljs-built_in">TableCache</span>(<span class="hljs-type">const</span> std::string&amp; dbname, <span class="hljs-type">const</span> Options&amp; options,</span><br><span class="line">                       <span class="hljs-type">int</span> entries)</span><br><span class="line">    : <span class="hljs-built_in">env_</span>(options.env),</span><br><span class="line">      <span class="hljs-built_in">dbname_</span>(dbname),</span><br><span class="line">      <span class="hljs-built_in">options_</span>(options),</span><br><span class="line">      <span class="hljs-built_in">cache_</span>(<span class="hljs-built_in">NewLRUCache</span>(entries)) {}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>发现TableCache的成员对象cache_是由NewLRUCache函数初始化的，再跳转到NewLRUCache:</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">Cache* <span class="hljs-title">NewLRUCache</span><span class="hljs-params">(<span class="hljs-type">size_t</span> capacity)</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">ShardedLRUCache</span>(capacity); }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>发现cache_实际是<code>ShardedLRUCache</code>对象的一个实例。</p>
+<h4 id="ShardedLRUCache"><a href="#ShardedLRUCache" class="headerlink" title="ShardedLRUCache"></a>ShardedLRUCache</h4><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">ShardedLRUCache</span> : <span class="hljs-keyword">public</span> Cache {</span><br><span class="line"> <span class="hljs-keyword">private</span>:</span><br><span class="line">  LRUCache shard_[kNumShards];</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line"> <span class="hljs-keyword">public</span>:</span><br><span class="line">  <span class="hljs-function"><span class="hljs-keyword">explicit</span> <span class="hljs-title">ShardedLRUCache</span><span class="hljs-params">(<span class="hljs-type">size_t</span> capacity)</span> : last_id_(<span class="hljs-number">0</span>) {</span></span><br><span class="line">    <span class="hljs-type">const</span> <span class="hljs-type">size_t</span> per_shard = (capacity + (kNumShards - <span class="hljs-number">1</span>)) / kNumShards;</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> s = <span class="hljs-number">0</span>; s &lt; kNumShards; s++) {</span><br><span class="line">      shard_[s].<span class="hljs-built_in">SetCapacity</span>(per_shard);</span><br><span class="line">    }</span><br><span class="line">  }</span><br></pre></td></tr></tbody></table></figure>
+
+<p>可以看出ShardedLRUCache里面维护了一个LRUCache数组。</p>
+<p>这样设计的目的是为了减少多线程访问加锁时的竞争，查找key的时候，先计算属于哪一个LRUCache，然后只对一个LRUCache进行加锁，而不是整个cache一把锁。分区是一个减少竞争的策略，比如ptmalloc在管理堆内存的时候也引入了arena分配区的概念，malloc和free时先查找要在哪个分配区上进行操作，只对一个分配区加锁。都是为了减少竞争。</p>
+<p>所以看LRUCache的实现就可以了。</p>
+<h4 id="LRUCache"><a href="#LRUCache" class="headerlink" title="LRUCache"></a>LRUCache</h4><p>在跳转到LRUCache:</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">LRUCache</span> {</span><br><span class="line"> <span class="hljs-keyword">public</span>:</span><br><span class="line">  ...</span><br><span class="line">  <span class="hljs-function">Cache::Handle* <span class="hljs-title">Insert</span><span class="hljs-params">(<span class="hljs-type">const</span> Slice&amp; key, <span class="hljs-type">uint32_t</span> hash, <span class="hljs-type">void</span>* value,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                        <span class="hljs-type">size_t</span> charge,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                        <span class="hljs-type">void</span> (*deleter)(<span class="hljs-type">const</span> Slice&amp; key, <span class="hljs-type">void</span>* value))</span></span>;</span><br><span class="line">  <span class="hljs-function">Cache::Handle* <span class="hljs-title">Lookup</span><span class="hljs-params">(<span class="hljs-type">const</span> Slice&amp; key, <span class="hljs-type">uint32_t</span> hash)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Release</span><span class="hljs-params">(Cache::Handle* handle)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Erase</span><span class="hljs-params">(<span class="hljs-type">const</span> Slice&amp; key, <span class="hljs-type">uint32_t</span> hash)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Prune</span><span class="hljs-params">()</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">TotalCharge</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>{</span><br><span class="line">    <span class="hljs-function">MutexLock <span class="hljs-title">l</span><span class="hljs-params">(&amp;mutex_)</span></span>;</span><br><span class="line">    <span class="hljs-keyword">return</span> usage_;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line"> <span class="hljs-keyword">private</span>:</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LRU_Remove</span><span class="hljs-params">(LRUHandle* e)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">LRU_Append</span><span class="hljs-params">(LRUHandle* list, LRUHandle* e)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Ref</span><span class="hljs-params">(LRUHandle* e)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Unref</span><span class="hljs-params">(LRUHandle* e)</span></span>;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">FinishErase</span><span class="hljs-params">(LRUHandle* e)</span> <span class="hljs-title">EXCLUSIVE_LOCKS_REQUIRED</span><span class="hljs-params">(mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">// Initialized before use.</span></span><br><span class="line">  <span class="hljs-type">size_t</span> capacity_;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">// mutex_ protects the following state.</span></span><br><span class="line">  <span class="hljs-keyword">mutable</span> port::Mutex mutex_;</span><br><span class="line">  <span class="hljs-function"><span class="hljs-type">size_t</span> usage_ <span class="hljs-title">GUARDED_BY</span><span class="hljs-params">(mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">// Dummy head of LRU list.</span></span><br><span class="line">  <span class="hljs-comment">// lru.prev is newest entry, lru.next is oldest entry.</span></span><br><span class="line">  <span class="hljs-comment">// Entries have refs==1 and in_cache==true.</span></span><br><span class="line">  <span class="hljs-function">LRUHandle lru_ <span class="hljs-title">GUARDED_BY</span><span class="hljs-params">(mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">// Dummy head of in-use list.</span></span><br><span class="line">  <span class="hljs-comment">// Entries are in use by clients, and have refs &gt;= 2 and in_cache==true.</span></span><br><span class="line">  <span class="hljs-function">LRUHandle in_use_ <span class="hljs-title">GUARDED_BY</span><span class="hljs-params">(mutex_)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-function">HandleTable table_ <span class="hljs-title">GUARDED_BY</span><span class="hljs-params">(mutex_)</span></span>;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="缓存失效问题"><a href="#缓存失效问题" class="headerlink" title="缓存失效问题"></a>缓存失效问题</h4><p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211117152608705.png" alt="image-20211117152608705"></p>
+<p>开始时，M1将immutable memtable刷盘，R2请求285，失效。M2产生了compaction，L1的一个块和L2的两个块合并，新产生的块放在L3，这时R5访问155，155所在的块已经被修改，cache失效，R7访问205，同样失效。</p>
+<h2 id="版本控制"><a href="#版本控制" class="headerlink" title="版本控制"></a>版本控制</h2><h3 id="什么时候产生新的版本"><a href="#什么时候产生新的版本" class="headerlink" title="什么时候产生新的版本"></a>什么时候产生新的版本</h3><p>sstable的更替对leveldb来说是一个最小的操作单元，具有原子性，<strong>leveldb每次生成或者删除sstable</strong>，就会产生新的版本。</p>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="Get"><a href="#Get" class="headerlink" title="Get"></a>Get</h3><p><code>status = db-&gt;Get(leveldb::ReadOptions(),key, &amp;value);</code></p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">Status <span class="hljs-title">DBImpl::Get</span><span class="hljs-params">(<span class="hljs-type">const</span> ReadOptions&amp; options, <span class="hljs-type">const</span> Slice&amp; key,</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">                   std::string* value)</span> </span>{</span><br><span class="line">  Status s;</span><br><span class="line">  <span class="hljs-function">MutexLock <span class="hljs-title">l</span><span class="hljs-params">(&amp;mutex_)</span></span>;</span><br><span class="line">  SequenceNumber snapshot;</span><br><span class="line">  <span class="hljs-keyword">if</span> (options.snapshot != <span class="hljs-literal">nullptr</span>) {</span><br><span class="line">    snapshot =</span><br><span class="line">        <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">const</span> SnapshotImpl*&gt;(options.snapshot)-&gt;<span class="hljs-built_in">sequence_number</span>();</span><br><span class="line">  } <span class="hljs-keyword">else</span> {</span><br><span class="line">    snapshot = versions_-&gt;<span class="hljs-built_in">LastSequence</span>();</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  MemTable* mem = mem_;</span><br><span class="line">  MemTable* imm = imm_;</span><br><span class="line">  Version* current = versions_-&gt;<span class="hljs-built_in">current</span>();</span><br><span class="line">  mem-&gt;<span class="hljs-built_in">Ref</span>();</span><br><span class="line">  <span class="hljs-keyword">if</span> (imm != <span class="hljs-literal">nullptr</span>) imm-&gt;<span class="hljs-built_in">Ref</span>();</span><br><span class="line">  current-&gt;<span class="hljs-built_in">Ref</span>();</span><br><span class="line"></span><br><span class="line">  <span class="hljs-type">bool</span> have_stat_update = <span class="hljs-literal">false</span>;</span><br><span class="line">  Version::GetStats stats;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">// Unlock while reading from files and memtables</span></span><br><span class="line">  {</span><br><span class="line">    mutex_.<span class="hljs-built_in">Unlock</span>();</span><br><span class="line">    <span class="hljs-comment">// First look in the memtable, then in the immutable memtable (if any).</span></span><br><span class="line">    <span class="hljs-function">LookupKey <span class="hljs-title">lkey</span><span class="hljs-params">(key, snapshot)</span></span>;</span><br><span class="line">    <span class="hljs-keyword">if</span> (mem-&gt;<span class="hljs-built_in">Get</span>(lkey, value, &amp;s)) {<span class="hljs-comment">//从memtable里查找</span></span><br><span class="line">      <span class="hljs-comment">// Done</span></span><br><span class="line">    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (imm != <span class="hljs-literal">nullptr</span> &amp;&amp; imm-&gt;<span class="hljs-built_in">Get</span>(lkey, value, &amp;s)) {<span class="hljs-comment">//immutable memtable里查找</span></span><br><span class="line">      <span class="hljs-comment">// Done</span></span><br><span class="line">    } <span class="hljs-keyword">else</span> {</span><br><span class="line">      s = current-&gt;<span class="hljs-built_in">Get</span>(options, lkey, value, &amp;stats);<span class="hljs-comment">//查cache和sstable</span></span><br><span class="line">      have_stat_update = <span class="hljs-literal">true</span>;</span><br><span class="line">    }</span><br><span class="line">    mutex_.<span class="hljs-built_in">Lock</span>();</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (have_stat_update &amp;&amp; current-&gt;<span class="hljs-built_in">UpdateStats</span>(stats)) {</span><br><span class="line">    <span class="hljs-built_in">MaybeScheduleCompaction</span>();</span><br><span class="line">  }</span><br><span class="line">  mem-&gt;<span class="hljs-built_in">Unref</span>();</span><br><span class="line">  <span class="hljs-keyword">if</span> (imm != <span class="hljs-literal">nullptr</span>) imm-&gt;<span class="hljs-built_in">Unref</span>();</span><br><span class="line">  current-&gt;<span class="hljs-built_in">Unref</span>();</span><br><span class="line">  <span class="hljs-keyword">return</span> s;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="列簇"><a href="#列簇" class="headerlink" title="列簇"></a>列簇</h2><blockquote>
+<p>列簇 column families是rocks db中的概念</p>
+</blockquote>
+<p>数据分片，将键值对按照不同的属性分配给不同的CF</p>
+<p><img src="/2021/11/05/leveldb%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/image-20211127230001927.png" alt="image-20211127230001927"></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>利用sstable中的index block进行快速的数据项位置定位，得到该数据项有可能存在的<strong>两个</strong>data block；？？为什么两个</li>
+<li>引用计数和锁</li>
+<li>compaction 为什么能平衡读写</li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>讲TableCache的：<a target="_blank" rel="noopener" href="https://axlgrep.github.io/tech/leveldb-tablecache.html">https://axlgrep.github.io/tech/leveldb-tablecache.html</a></li>
+<li>leveldb代码解析：<a target="_blank" rel="noopener" href="https://github.com/SmartKeyerror/reading-source-code-of-leveldb-1.23">https://github.com/SmartKeyerror/reading-source-code-of-leveldb-1.23</a></li>
+<li><a target="_blank" rel="noopener" href="https://wingsxdu.com/post/database/leveldb/">https://wingsxdu.com/post/database/leveldb/</a></li>
+</ul>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/11/05/WSL%E4%BD%BF%E7%94%A8%E4%B8%BB%E6%9C%BAshadowsocks%E4%BB%A3%E7%90%86/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">WSL使用主机shadowsocks代理</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/11/04/C-%E5%92%8CC%E6%B7%B7%E5%90%88%E7%BC%96%E8%AF%91externC/">
+                <span class="level-item">C++和C混合编译externC</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#调试环境搭建">
+        <span class="has-mr-6">1</span>
+        <span>调试环境搭建</span>
+        </a></li><li>
+        <a class="is-flex" href="#LSM-tree">
+        <span class="has-mr-6">2</span>
+        <span>LSM-tree</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#LSM-tree-的通用结构">
+        <span class="has-mr-6">2.1</span>
+        <span>LSM-tree 的通用结构</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#整体设计">
+        <span class="has-mr-6">3</span>
+        <span>整体设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#memtable">
+        <span class="has-mr-6">3.1</span>
+        <span>memtable</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#跳表">
+        <span class="has-mr-6">3.1.1</span>
+        <span>跳表</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#SStable">
+        <span class="has-mr-6">3.2</span>
+        <span>SStable</span>
+        </a></li><li>
+        <a class="is-flex" href="#查找key步骤">
+        <span class="has-mr-6">3.3</span>
+        <span>查找key步骤</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Block-存储格式">
+        <span class="has-mr-6">3.3.1</span>
+        <span>Block 存储格式</span>
+        </a></li><li>
+        <a class="is-flex" href="#布隆过滤器">
+        <span class="has-mr-6">3.3.2</span>
+        <span>布隆过滤器</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#SSTable的合并">
+        <span class="has-mr-6">3.4</span>
+        <span>SSTable的合并</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#minjor-compaction">
+        <span class="has-mr-6">3.4.1</span>
+        <span>minjor compaction</span>
+        </a></li><li>
+        <a class="is-flex" href="#major-compaction">
+        <span class="has-mr-6">3.4.2</span>
+        <span>major compaction</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#缓存系统">
+        <span class="has-mr-6">4</span>
+        <span>缓存系统</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#TableCache">
+        <span class="has-mr-6">4.1</span>
+        <span>TableCache</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#table-cache创建">
+        <span class="has-mr-6">4.1.1</span>
+        <span>table cache创建</span>
+        </a></li><li>
+        <a class="is-flex" href="#ShardedLRUCache">
+        <span class="has-mr-6">4.1.2</span>
+        <span>ShardedLRUCache</span>
+        </a></li><li>
+        <a class="is-flex" href="#LRUCache">
+        <span class="has-mr-6">4.1.3</span>
+        <span>LRUCache</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓存失效问题">
+        <span class="has-mr-6">4.1.4</span>
+        <span>缓存失效问题</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#版本控制">
+        <span class="has-mr-6">5</span>
+        <span>版本控制</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#什么时候产生新的版本">
+        <span class="has-mr-6">5.1</span>
+        <span>什么时候产生新的版本</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#代码分析">
+        <span class="has-mr-6">6</span>
+        <span>代码分析</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Get">
+        <span class="has-mr-6">6.1</span>
+        <span>Get</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#列簇">
+        <span class="has-mr-6">7</span>
+        <span>列簇</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题">
+        <span class="has-mr-6">8</span>
+        <span>问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考资料">
+        <span class="has-mr-6">9</span>
+        <span>参考资料</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="leveldb入门到放弃" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

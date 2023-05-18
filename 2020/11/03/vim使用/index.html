@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>vim使用 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="vim学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vim使用">
+<meta property="og:url" content="http://yoursite.com/2020/11/03/vim%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="vim学习">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-11-03T03:22:55.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.303Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="vim使用" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-11-03T03:22:55.000Z">2020-11-03</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    7 分钟 读完 (大约 1120 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                vim使用
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>vim学习</p>
+<span id="more"></span>
+
+<h2 id="Vim基础"><a href="#Vim基础" class="headerlink" title="Vim基础"></a>Vim基础</h2><h3 id="编辑模式"><a href="#编辑模式" class="headerlink" title="编辑模式"></a>编辑模式</h3><p>vim有五种操作模式</p>
+<ul>
+<li>正常模式：在文件中移动光标</li>
+<li>插入模式：插入文本</li>
+<li>替换模式：替换文本</li>
+<li>可视化模式（块模式）：选中文本</li>
+<li>命令模式：执行命令</li>
+</ul>
+<p>从正常模式进入其他模式：</p>
+<ul>
+<li>i 进入插入模式insert</li>
+<li>R（大写）替换模式</li>
+<li>v进入可视模式view  或者ctrl+v</li>
+<li>:进入命令模式</li>
+</ul>
+<p>esc键使用会很多，可以考虑键位重定义</p>
+<h3 id="缓存、标签页、窗口"><a href="#缓存、标签页、窗口" class="headerlink" title="缓存、标签页、窗口"></a>缓存、标签页、窗口</h3><p>vim维护的一系列打开的文件，称为缓存</p>
+<h3 id="命令行"><a href="#命令行" class="headerlink" title="命令行"></a>命令行</h3><ul>
+<li>:q 退出</li>
+<li>:w 保存（写）</li>
+<li>:wq 保存退出</li>
+<li>:e {文件名} 打开要编辑的文件</li>
+<li>:ls 显示打开的缓存</li>
+<li>:help {标题} 打开帮助文档</li>
+</ul>
+<h2 id="移动"><a href="#移动" class="headerlink" title="移动"></a>移动</h2><ul>
+<li>翻页：ctrl+u往上 ，ctrl+d往下</li>
+<li>词移动：w下一个词，b上一个词，e下一个词尾</li>
+<li>行：0移动到行初，^到行第一个非空格字符，$移动到行尾</li>
+<li>屏幕：H屏幕首行、M屏幕中间、L屏幕底部</li>
+<li>查找：f{字符}</li>
+<li>搜索：/{正则表达式}</li>
+</ul>
+<h2 id="编辑"><a href="#编辑" class="headerlink" title="编辑"></a>编辑</h2><ul>
+<li>O在上面插入行、o在下面插入行</li>
+<li>d{移动命令}，删除，dw删除词，d$删除到行尾</li>
+<li>c{移动命令}，改变</li>
+<li>x删除字符</li>
+<li>s替换字符</li>
+<li>可视化+操作 选中可以d或c</li>
+<li>u撤销</li>
+<li>y复制</li>
+<li>p粘贴</li>
+</ul>
+<h3 id="计数"><a href="#计数" class="headerlink" title="计数"></a>计数</h3><p>计数可以执行指定操作若干次，如：</p>
+<ul>
+<li><code>3w</code> 向前移动三个词</li>
+<li><code>5j</code> 向下移动5行</li>
+<li><code>7dw</code> 删除7个词</li>
+</ul>
+<h3 id="修饰语"><a href="#修饰语" class="headerlink" title="修饰语"></a>修饰语</h3><p>？？</p>
+<h3 id="自定义vim"><a href="#自定义vim" class="headerlink" title="自定义vim"></a>自定义vim</h3><p>来自：<a target="_blank" rel="noopener" href="https://missing-semester-cn.github.io/2020/editors/">https://missing-semester-cn.github.io/2020/editors/</a></p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">" Comments in Vimscript start with a `"`.</span><br><span class="line"></span><br><span class="line">" If you open this file in Vim, it'll be syntax highlighted for you.</span><br><span class="line"></span><br><span class="line">" Vim is based on Vi. Setting `nocompatible` switches from the default</span><br><span class="line">" Vi-compatibility mode and enables useful Vim functionality. This</span><br><span class="line">" configuration option turns out not to be necessary for the file named</span><br><span class="line">" '~/.vimrc', because Vim automatically enters nocompatible mode if that file</span><br><span class="line">" is present. But we're including it here just in case this config file is</span><br><span class="line">" loaded some other way (e.g. saved as `foo`, and then Vim started with</span><br><span class="line">" `vim -u foo`).</span><br><span class="line">set nocompatible</span><br><span class="line"></span><br><span class="line">" Turn on syntax highlighting.</span><br><span class="line">syntax on</span><br><span class="line"></span><br><span class="line">" Disable the default Vim startup message.</span><br><span class="line">set shortmess+=I</span><br><span class="line"></span><br><span class="line">" Show line numbers.</span><br><span class="line">set number</span><br><span class="line"></span><br><span class="line">" This enables relative line numbering mode. With both number and</span><br><span class="line">" relativenumber enabled, the current line shows the true line number, while</span><br><span class="line">" all other lines (above and below) are numbered relative to the current line.</span><br><span class="line">" This is useful because you can tell, at a glance, what count is needed to</span><br><span class="line">" jump up or down to a particular line, by {count}k to go up or {count}j to go</span><br><span class="line">" down.</span><br><span class="line">set relativenumber</span><br><span class="line"></span><br><span class="line">" Always show the status line at the bottom, even if you only have one window open.</span><br><span class="line">set laststatus=2</span><br><span class="line"></span><br><span class="line">" The backspace key has slightly unintuitive behavior by default. For example,</span><br><span class="line">" by default, you can't backspace before the insertion point set with 'i'.</span><br><span class="line">" This configuration makes backspace behave more reasonably, in that you can</span><br><span class="line">" backspace over anything.</span><br><span class="line">set backspace=indent,eol,start</span><br><span class="line"></span><br><span class="line">" By default, Vim doesn't let you hide a buffer (i.e. have a buffer that isn't</span><br><span class="line">" shown in any window) that has unsaved changes. This is to prevent you from "</span><br><span class="line">" forgetting about unsaved changes and then quitting e.g. via `:qa!`. We find</span><br><span class="line">" hidden buffers helpful enough to disable this protection. See `:help hidden`</span><br><span class="line">" for more information on this.</span><br><span class="line">set hidden</span><br><span class="line"></span><br><span class="line">" This setting makes search case-insensitive when all characters in the string</span><br><span class="line">" being searched are lowercase. However, the search becomes case-sensitive if</span><br><span class="line">" it contains any capital letters. This makes searching more convenient.</span><br><span class="line">set ignorecase</span><br><span class="line">set smartcase</span><br><span class="line"></span><br><span class="line">" Enable searching as you type, rather than waiting till you press enter.</span><br><span class="line">set incsearch</span><br><span class="line"></span><br><span class="line">" Unbind some useless/annoying default key bindings.</span><br><span class="line">nmap Q &lt;Nop&gt; " 'Q' in normal mode enters Ex mode. You almost never want this.</span><br><span class="line"></span><br><span class="line">" Disable audible bell because it's annoying.</span><br><span class="line">set noerrorbells visualbell t_vb=</span><br><span class="line"></span><br><span class="line">" Enable mouse support. You should avoid relying on this too much, but it can</span><br><span class="line">" sometimes be convenient.</span><br><span class="line">set mouse+=a</span><br><span class="line"></span><br><span class="line">" Try to prevent bad habits like using the arrow keys for movement. This is</span><br><span class="line">" not the only possible bad habit. For example, holding down the h/j/k/l keys</span><br><span class="line">" for movement, rather than using more efficient movement commands, is also a</span><br><span class="line">" bad habit. The former is enforceable through a .vimrc, while we don't know</span><br><span class="line">" how to prevent the latter.</span><br><span class="line">" Do this in normal mode...</span><br><span class="line">nnoremap &lt;Left&gt;  :echoe "Use h"&lt;CR&gt;</span><br><span class="line">nnoremap &lt;Right&gt; :echoe "Use l"&lt;CR&gt;</span><br><span class="line">nnoremap &lt;Up&gt;    :echoe "Use k"&lt;CR&gt;</span><br><span class="line">nnoremap &lt;Down&gt;  :echoe "Use j"&lt;CR&gt;</span><br><span class="line">" ...and in insert mode</span><br><span class="line">inoremap &lt;Left&gt;  &lt;ESC&gt;:echoe "Use h"&lt;CR&gt;</span><br><span class="line">inoremap &lt;Right&gt; &lt;ESC&gt;:echoe "Use l"&lt;CR&gt;</span><br><span class="line">inoremap &lt;Up&gt;    &lt;ESC&gt;:echoe "Use k"&lt;CR&gt;</span><br><span class="line">inoremap &lt;Down&gt;  &lt;ESC&gt;:echoe "Use j"&lt;CR&gt;</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="扩展vim"><a href="#扩展vim" class="headerlink" title="扩展vim"></a>扩展vim</h3><p>只需要创建一个 <code>~/.vim/pack/vendor/start/</code> 的文件夹， 然后把插件放到这里 （比如通过 <code>git clone</code>）。</p>
+<p>常用插件：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/ctrlpvim/ctrlp.vim">ctrlp.vim</a>: 模糊文件查找</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mileszs/ack.vim">ack.vim</a>: 代码搜索</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/scrooloose/nerdtree">nerdtree</a>: 文件浏览器</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/easymotion/vim-easymotion">vim-easymotion</a>: 魔术操作</li>
+</ul>
+<h2 id="打开目录树"><a href="#打开目录树" class="headerlink" title="打开目录树"></a>打开目录树</h2><figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">vim命令模式下</span></span><br><span class="line">:Explore #当前窗口下打开</span><br><span class="line">:Vexplore #竖直分割窗口打开</span><br><span class="line">:Sexplore #水平分割窗口打开</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">命令打开文件夹</span></span><br><span class="line">root@localhost：vim /etc</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><p>gg跳转到文件头</p>
+<p>shift+g跳转到文件尾</p>
+<p>:n跳转到第n行</p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">UNIX操作系统设计-进程控制</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/">
+                <span class="level-item">UNIX操作系统设计-进程结构</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#Vim基础">
+        <span class="has-mr-6">1</span>
+        <span>Vim基础</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#编辑模式">
+        <span class="has-mr-6">1.1</span>
+        <span>编辑模式</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓存、标签页、窗口">
+        <span class="has-mr-6">1.2</span>
+        <span>缓存、标签页、窗口</span>
+        </a></li><li>
+        <a class="is-flex" href="#命令行">
+        <span class="has-mr-6">1.3</span>
+        <span>命令行</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#移动">
+        <span class="has-mr-6">2</span>
+        <span>移动</span>
+        </a></li><li>
+        <a class="is-flex" href="#编辑">
+        <span class="has-mr-6">3</span>
+        <span>编辑</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#计数">
+        <span class="has-mr-6">3.1</span>
+        <span>计数</span>
+        </a></li><li>
+        <a class="is-flex" href="#修饰语">
+        <span class="has-mr-6">3.2</span>
+        <span>修饰语</span>
+        </a></li><li>
+        <a class="is-flex" href="#自定义vim">
+        <span class="has-mr-6">3.3</span>
+        <span>自定义vim</span>
+        </a></li><li>
+        <a class="is-flex" href="#扩展vim">
+        <span class="has-mr-6">3.4</span>
+        <span>扩展vim</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#打开目录树">
+        <span class="has-mr-6">4</span>
+        <span>打开目录树</span>
+        </a></li><li>
+        <a class="is-flex" href="#快捷键">
+        <span class="has-mr-6">5</span>
+        <span>快捷键</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="vim使用" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

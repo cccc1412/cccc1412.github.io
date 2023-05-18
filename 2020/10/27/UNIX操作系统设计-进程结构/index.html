@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX操作系统设计-进程结构 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="《UNIX操作系统设计》 第六章进程结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX操作系统设计-进程结构">
+<meta property="og:url" content="http://yoursite.com/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="《UNIX操作系统设计》 第六章进程结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-10-27T01:48:03.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.143Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="UNIX">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX操作系统设计-进程结构" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-10-27T01:48:03.000Z">2020-10-27</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/UNIX/">UNIX</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    24 分钟 读完 (大约 3584 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX操作系统设计-进程结构
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>《UNIX操作系统设计》 第六章进程结构</p>
+<span id="more"></span>
+
+<h2 id="进程状态"><a href="#进程状态" class="headerlink" title="进程状态"></a>进程状态</h2><p>九状态</p>
+<p>1、在用户态下执行</p>
+<p>2、在核心态下执行</p>
+<p>3、在内存中就绪</p>
+<p>4、在内存中睡眠</p>
+<p>5、就绪且换出</p>
+<p>6、睡眠且换出</p>
+<p>7、被抢先，进程正从核心态返回用户态</p>
+<p>8、刚被创建，是除进程0以为的所有进程的初始状态</p>
+<p>9、调用了exit，僵死，留下一个记录，由父进程收集，包含了出口码和一些计时统计信息，是进程的最后状态</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201027101912544.png" alt="image-20201027101912544"></p>
+<ul>
+<li>“被抢先”和“在内存中就绪”是等价的，分为两种是为了强调：在核心态运行的进程，只有在即将返回用户态时，才能被抢先。</li>
+<li>进程执行系统调用，从用户态进入内核态</li>
+<li>如果系统调用需要等待，比如磁盘请求操作需要等待输入输出完成，将进入在内存中睡眠</li>
+<li>输入输出完成，硬件中断cpu，中断处理程序唤醒进程，进入内存中就绪</li>
+</ul>
+<p>描述进程状态的内核数据结构：进程表项和U区。内核总是可以存取进程表，而U区只能由正在运行的进程存取</p>
+<p>进程表字段：进程状态字段、进程和其U区在内存或二级存储器中的位置、uid、pid、事件描述符字段、调度参数、软中断信号字段、各种计时字段</p>
+<p>U区字段，进一步刻画进程状态的特性：指向进程表的指针、计时器、软中断信号反应数组等等</p>
+<h2 id="系统存储方案"><a href="#系统存储方案" class="headerlink" title="系统存储方案"></a>系统存储方案</h2><p>UNIX上的进程由三个逻辑段组成：正文段、数据段、栈</p>
+<h3 id="区"><a href="#区" class="headerlink" title="区"></a>区</h3><p>区是进程虚拟地址空间的一段连续区域，被看作是可被共享和保护的独立实体。区可以共享，几个进程执行同一个程序，会共享一个正文区。</p>
+<p>内核中有一个区表，每个在系统中活动的区对应表中的一个表项。每个进程都有一个私有的本进程区表，称为pregion表，表项可以放在进程表、U区或独立分配的存储区域中，取决于实现。进程区表和区的结构类似与文件表和索引节点结构。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201028144326860.png" alt="image-20201028144326860"></p>
+<h3 id="页和页表"><a href="#页和页表" class="headerlink" title="页和页表"></a>页和页表</h3><p>页：由存储管理的硬件将物理存储器分成的一些大小相等的块。</p>
+<p>内核向区分配物理页，页不一定是连续的，分页的目的是为了增加灵活性，减少因为分割所造成的不可用空间，类似磁盘块分配给文件。</p>
+<h3 id="内核的安排"><a href="#内核的安排" class="headerlink" title="内核的安排"></a>内核的安排</h3><p>内核的页表类似于进程的页表，转化内核虚地址的方法也类似与转换用户虚地址采用的方法。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201028152501281.png" alt="image-20201028152501281"></p>
+<h3 id="U区"><a href="#U区" class="headerlink" title="U区"></a>U区</h3><p>每个进程都有一个U区，但是对于内核来说，好像只有一个，即正在运行的进程的U区。内核可以动态的改变U区的虚地址映射，使U区的地址映射到另一个物理地址上。</p>
+<p>进程在核心态运行时才能访问U区</p>
+<h3 id="进程的上下文"><a href="#进程的上下文" class="headerlink" title="进程的上下文"></a>进程的上下文</h3><p>进程上下文：用户地址空间的内容、硬件寄存器的内容、该进程有关的内核数据结构。分为用户级上下文、寄存器上下文、系统级上下文</p>
+<ul>
+<li>用户级上下文：进程的正文、数据、用户栈、共享存储区</li>
+<li>寄存器上下文：程序计数器、处理机状态寄存器、栈指针、通用寄存器</li>
+<li>系统级上下文由动态和静态两部分组成<ul>
+<li>静态：一个进程的进程表表项、一个进程u区、区表表项、区表、页表</li>
+<li>动态：内核栈帧、系统上下文层</li>
+</ul>
+</li>
+</ul>
+<p>内核压入上下文层，当中断发生、进程进行系统调用、进程切换上下文时。</p>
+<p>内核弹出上下文层，当从中断处理中返回、从系统调用中返回、上下文切换发生时</p>
+<h2 id="进程上下文的保存"><a href="#进程上下文的保存" class="headerlink" title="进程上下文的保存"></a>进程上下文的保存</h2><p>内核每压入一个新的系统上下文层，就要保存一个进程的上下文。当系统收到一个中断、一个进程执行系统调用、内核做上下文切换时，就要对进程的上下文进行保存。</p>
+<h3 id="中断和例外"><a href="#中断和例外" class="headerlink" title="中断和例外"></a>中断和例外</h3><p>内核处理中断的操作顺序：</p>
+<ul>
+<li>保存当前进程的寄存器上下文并压入一个新的上下文层</li>
+<li>识别中断类型，根据中断向量表。</li>
+<li>内核调用中断处理程序</li>
+<li>中断处理程序工作完毕前返回</li>
+</ul>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029093611838.png" alt="image-20201029093611838"></p>
+<h3 id="系统调用的接口-syscall"><a href="#系统调用的接口-syscall" class="headerlink" title="系统调用的接口 syscall"></a>系统调用的接口 syscall</h3><p>C编译程序采用一个预定义的函数库，解决了用户程序中请求系统调用的问题。这些库函数都执行一条指令，将进程的执行方式变为核心态，这个指令称为操作系统陷入（OS trap）。简单来讲，系统调用的接口是一个中断处理程序的特例。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029095600540.png" alt="image-20201029095600540"></p>
+<h3 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h3><p>发生在四种情况：</p>
+<ul>
+<li>进程使自己进入睡眠</li>
+<li>进程从一个系统调用返回用户态但不是最有资格运行的进程</li>
+<li>进程在内核完成中断处理后返回用户态，但不是最有资格运行的进程</li>
+<li>退出exit时。</li>
+</ul>
+<p>上下文切换和处理中断类似，不同的是，内核恢复的是一个不同进程的上下文层。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029105127150.png" alt="image-20201029105127150"></p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029111839223.png" alt="image-20201029111839223"></p>
+<h3 id="为废弃返回而保存上下文"><a href="#为废弃返回而保存上下文" class="headerlink" title="为废弃返回而保存上下文"></a>为废弃返回而保存上下文</h3><p>发生在内核必须种植他当前的执行顺序，立即从先前保存的上下文执行时</p>
+<h3 id="在系统和用户地址空间之间拷贝数据"><a href="#在系统和用户地址空间之间拷贝数据" class="headerlink" title="在系统和用户地址空间之间拷贝数据"></a>在系统和用户地址空间之间拷贝数据</h3><p>许多系统调用要在内核和用户空间之间传递数据</p>
+<h2 id="进程地址空间的管理"><a href="#进程地址空间的管理" class="headerlink" title="进程地址空间的管理"></a>进程地址空间的管理</h2><p>本节定义区数据结构和区上的操作</p>
+<p>区表表项描述一个区的必要信息，包含以下字段：</p>
+<ul>
+<li>指向文件的索引节点的指针</li>
+<li>区的类型（正文、共享存储区、私有数据和栈）</li>
+<li>区的大小</li>
+<li>区的物理存储器中的位置</li>
+<li>区的状态<ul>
+<li>锁住</li>
+<li>在请求中</li>
+<li>正在被装入内存的过程中</li>
+<li>有效，已被装入内存</li>
+</ul>
+</li>
+<li>引用数，引用该区的进程数</li>
+</ul>
+<p>管理区的操作：锁区、解锁区、分配区、将区附接attach到某个进程的存储空间、释放一个区、使区和一个进程的存储空间断接detach、复制区的内容。</p>
+<h3 id="区的上锁和解锁"><a href="#区的上锁和解锁" class="headerlink" title="区的上锁和解锁"></a>区的上锁和解锁</h3><p>上锁和解锁操作与分配和释放无关，内核能上锁和分配一个区，然后又解锁但不释放它</p>
+<h3 id="区的分配-allocreg"><a href="#区的分配-allocreg" class="headerlink" title="区的分配 allocreg"></a>区的分配 allocreg</h3><p>系统调用fork、exec、shmget期间，内核将分配一个新区（allocreg）。内核有一个区表，表项在一个自由链表或者一个活动链表中。内核要分配一个区表项时，就从自由链表中取出第一个可用表项，并放到活动表中，该区上锁并表示他的类型（共享或私有）。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029113422475.png" alt="image-20201029113422475"></p>
+<h3 id="区附接到进程-attachreg"><a href="#区附接到进程-attachreg" class="headerlink" title="区附接到进程 attachreg"></a>区附接到进程 attachreg</h3><p>在调用fork、exec、shmat期间，内核要使一个区和一个进程的地址空间联系起来名称为附接（attach）。附接的区可以使一个新分配的区，也可以是该进程要与其他进程共享的、已存在的区。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029145107954.png" alt="image-20201029145107954"></p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029150751767.png" alt="image-20201029150751767"></p>
+<h3 id="区大小的改变-growreg"><a href="#区大小的改变-growreg" class="headerlink" title="区大小的改变 growreg"></a>区大小的改变 growreg</h3><p>进程用系统调用sbrk来扩展或者压缩虚地址空间。内核在内部调用算法growreg来改变区的大小。growreg用于两种情况：用户栈的自动增长、系统调用sbrk用于一个进程的数据区。这两种区都是私有区，正文区和共享存储区在初始化以后不能再被扩展。</p>
+<p>内核通过扩展现存的页表来适应更大的区。如果进程要压缩区，内核只要简单的释放分配给该区的存储空间即可。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029152356406.png" alt="image-20201029152356406"></p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029152414361.png" alt="image-20201029152414361"></p>
+<h3 id="区的装入-loadreg"><a href="#区的装入-loadreg" class="headerlink" title="区的装入 loadreg"></a>区的装入 loadreg</h3><figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">对换系统：内存不够时，进程真个被写到swap上</span><br><span class="line">请求调页系统：内存不够时，把存储器的某些页写到兑换设备上</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在请求调页系统，内核在系统调用exec期间将一个文件映射到进程的地址空间，然后按要求安排读入每个物理页。</p>
+<p>在不支持请求调页的系统中，内核要将可执行文件拷贝到存储器中，将进程的区装到在可执行文件中指定的虚地址上。内核可以将区附接到一个虚地址上，这个地址不同于文件装入的实际地址，从而造成了页表中的间隙。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029165001455.png" alt="image-20201029165001455"></p>
+<p>例子：内核要把一个7K大小的正文装入一个区，这个区被附接到某个进程的虚地址0上，且内核要在该区的开头留1k字节的间隙。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029165626505.png" alt="image-20201029165626505"></p>
+<h3 id="区的释放-freereg"><a href="#区的释放-freereg" class="headerlink" title="区的释放 freereg"></a>区的释放 freereg</h3><p>一个区不在与任何进程相附接，内核便释放区并把它移动到自由链表</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029170426113.png" alt="image-20201029170426113"></p>
+<h3 id="区与进程的断接-detachreg"><a href="#区与进程的断接-detachreg" class="headerlink" title="区与进程的断接 detachreg"></a>区与进程的断接 detachreg</h3><p>系统调用exec、exit、shmdt中，内核使有关的区与进程相断接。它更新本进程区表表项，使有关的存储管理寄存器三元组无效，而从切断区与物理存储的联系。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029171440251.png" alt="image-20201029171440251"></p>
+<h3 id="区的复制"><a href="#区的复制" class="headerlink" title="区的复制"></a>区的复制</h3><p>fork系统调用，内核会复制进程的所有区，如果某个区是共享的（例如共享正文或共享存储区），内核只会增加该区的引用数，允许父进程和子进程共享该区。如果区不是共享的，内核就物理的拷贝该区，并为它分配新的区表表项、页表和该区的物理存储空间。</p>
+<p>例如A 创建B并复制自身的区</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029172107619.png" alt="image-20201029172107619"></p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201029172129387.png" alt="image-20201029172129387"></p>
+<h2 id="睡眠"><a href="#睡眠" class="headerlink" title="睡眠"></a>睡眠</h2><p>sleep将进程由”核心运行“变成”在内存中睡眠“，wakeup将进程状态由睡眠变成“在内存中就绪“或”就绪且换出“。</p>
+<p>进程在系统调用期间进入睡眠：操作系统陷入，等待资源，存取尚未物理地装入虚地址而导致页面错误。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201102162011604.png" alt="image-20201102162011604"></p>
+<h3 id="睡眠事件及其地址"><a href="#睡眠事件及其地址" class="headerlink" title="睡眠事件及其地址"></a>睡眠事件及其地址</h3><p>进程在一个事件上睡眠，实际上是将一组事件映射到内核虚地址上。这种实现不区别由多少进程在等待该事件。</p>
+<p>这样就产生了两种异常情况：多个进程在等待一个事件，当事件发生时，这些进程都被唤醒，可能同时竞争一个上锁的结构，因此这些进程就又回到了睡眠状态。</p>
+<p>另一种异常情况：若干个事件映射到同一个地址上。多个事件发生任何一个，所有进程都会被唤醒，因为他们在同一个地址上休眠。但实际情况，这种冲突发生很少。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201102164521124.png" alt="image-20201102164521124"></p>
+<h3 id="sleep和wakeup"><a href="#sleep和wakeup" class="headerlink" title="sleep和wakeup"></a>sleep和wakeup</h3><p>sleep：内核提高处理机优先级来屏蔽所有中断，保存旧处理机优先级，以便进程唤醒时可以恢复。睡眠地址和优先级保存在进程表中，并把进程放到睡眠进程的散列队列中。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201102164830597.png" alt="image-20201102164830597"></p>
+<p>wakeup不是立即使一个进程被调度，只是使该进程有资格被调度。</p>
+<p>对睡眠在输入地址上的每个进程，状态设置为就绪，从睡眠队列中移出，放到就绪队列。然后清除进程表中标志睡眠地址的字。如果进程被唤醒不在内存，则要换入内存（假设系统不支持请求调页）。</p>
+<p><img src="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/image-20201103144437492.png" alt="image-20201103144437492"></p>
+<p>进程有可能睡眠在一个不一定发生的事件，内核会通过给进程发送软中断信号来中断睡眠的进程。</p>
+<p>为了区别各种类型的睡眠，内核会设置睡眠优先级参数，然后用优先级值调用sleep，？？</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/UNIX/" rel="tag">UNIX</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/11/03/vim%E4%BD%BF%E7%94%A8/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">vim使用</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/">
+                <span class="level-item">UNIX操作系统设计-文件系统的系统调用</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#进程状态">
+        <span class="has-mr-6">1</span>
+        <span>进程状态</span>
+        </a></li><li>
+        <a class="is-flex" href="#系统存储方案">
+        <span class="has-mr-6">2</span>
+        <span>系统存储方案</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#区">
+        <span class="has-mr-6">2.1</span>
+        <span>区</span>
+        </a></li><li>
+        <a class="is-flex" href="#页和页表">
+        <span class="has-mr-6">2.2</span>
+        <span>页和页表</span>
+        </a></li><li>
+        <a class="is-flex" href="#内核的安排">
+        <span class="has-mr-6">2.3</span>
+        <span>内核的安排</span>
+        </a></li><li>
+        <a class="is-flex" href="#U区">
+        <span class="has-mr-6">2.4</span>
+        <span>U区</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程的上下文">
+        <span class="has-mr-6">2.5</span>
+        <span>进程的上下文</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程上下文的保存">
+        <span class="has-mr-6">3</span>
+        <span>进程上下文的保存</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#中断和例外">
+        <span class="has-mr-6">3.1</span>
+        <span>中断和例外</span>
+        </a></li><li>
+        <a class="is-flex" href="#系统调用的接口-syscall">
+        <span class="has-mr-6">3.2</span>
+        <span>系统调用的接口 syscall</span>
+        </a></li><li>
+        <a class="is-flex" href="#上下文切换">
+        <span class="has-mr-6">3.3</span>
+        <span>上下文切换</span>
+        </a></li><li>
+        <a class="is-flex" href="#为废弃返回而保存上下文">
+        <span class="has-mr-6">3.4</span>
+        <span>为废弃返回而保存上下文</span>
+        </a></li><li>
+        <a class="is-flex" href="#在系统和用户地址空间之间拷贝数据">
+        <span class="has-mr-6">3.5</span>
+        <span>在系统和用户地址空间之间拷贝数据</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程地址空间的管理">
+        <span class="has-mr-6">4</span>
+        <span>进程地址空间的管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#区的上锁和解锁">
+        <span class="has-mr-6">4.1</span>
+        <span>区的上锁和解锁</span>
+        </a></li><li>
+        <a class="is-flex" href="#区的分配-allocreg">
+        <span class="has-mr-6">4.2</span>
+        <span>区的分配 allocreg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区附接到进程-attachreg">
+        <span class="has-mr-6">4.3</span>
+        <span>区附接到进程 attachreg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区大小的改变-growreg">
+        <span class="has-mr-6">4.4</span>
+        <span>区大小的改变 growreg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区的装入-loadreg">
+        <span class="has-mr-6">4.5</span>
+        <span>区的装入 loadreg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区的释放-freereg">
+        <span class="has-mr-6">4.6</span>
+        <span>区的释放 freereg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区与进程的断接-detachreg">
+        <span class="has-mr-6">4.7</span>
+        <span>区与进程的断接 detachreg</span>
+        </a></li><li>
+        <a class="is-flex" href="#区的复制">
+        <span class="has-mr-6">4.8</span>
+        <span>区的复制</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#睡眠">
+        <span class="has-mr-6">5</span>
+        <span>睡眠</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#睡眠事件及其地址">
+        <span class="has-mr-6">5.1</span>
+        <span>睡眠事件及其地址</span>
+        </a></li><li>
+        <a class="is-flex" href="#sleep和wakeup">
+        <span class="has-mr-6">5.2</span>
+        <span>sleep和wakeup</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX操作系统设计-进程结构" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

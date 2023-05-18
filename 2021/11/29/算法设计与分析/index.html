@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>算法设计与分析 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="复习大纲">
+<meta property="og:type" content="article">
+<meta property="og:title" content="算法设计与分析">
+<meta property="og:url" content="http://yoursite.com/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="复习大纲">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-11-29T07:36:41.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.507Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="算法设计与分析" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-11-29T07:36:41.000Z">2021-11-29</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    28 分钟 读完 (大约 4256 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                算法设计与分析
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>复习大纲</p>
+<span id="more"></span>
+
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="引论"><a href="#引论" class="headerlink" title="引论"></a>引论</h3><h4 id="判断性问题和优化问题"><a href="#判断性问题和优化问题" class="headerlink" title="判断性问题和优化问题"></a>判断性问题和优化问题</h4><p>NPC问题一般是判定性问题</p>
+<h3 id="分治法"><a href="#分治法" class="headerlink" title="分治法"></a>分治法</h3><h4 id="逆序对"><a href="#逆序对" class="headerlink" title="逆序对"></a>逆序对</h4><p>一个数的序列中排在前面的数比排在后面的数要大的话则称为一对逆序，即$i &lt; j , a [ i ] &gt; a [ j ]$</p>
+<p>问下面这个序列中存在多少对逆序：5,4,8,10,2</p>
+<p>考虑，将序列L拆分成两半A、B，考虑现在逆序对存在与两个，A内部的，B内部的，AB之间的。先假设，可以通过递归的方式找到AB内部的逆序对，然后AB内部如何交换都不会影响AB间逆序对的结果。现在问题就是找AB之间的逆序对。</p>
+<p>如果AB是有序的，我们对于所有A中的元素$a_i$求出它在B数组所有插入的位置j，(j前面的就是数组B中比$a_i$小的数，也就是逆序)，然后对j求和即可。这个过程就是归并排序的规程。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;</span><br><span class="line"><span class="hljs-type">const</span> <span class="hljs-type">int</span> maxn = <span class="hljs-number">5e5</span>+<span class="hljs-number">10</span>;</span><br><span class="line"><span class="hljs-type">int</span> a[maxn], temp[maxn];</span><br><span class="line"><span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-number">0</span>;  <span class="hljs-comment">// 记录逆序对数目</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mergeSort</span><span class="hljs-params">(<span class="hljs-type">int</span> left, <span class="hljs-type">int</span> right)</span> </span>{</span><br><span class="line">    <span class="hljs-keyword">if</span>(left&lt;right) {</span><br><span class="line">        <span class="hljs-type">int</span> mid = (left+right)/<span class="hljs-number">2</span>;</span><br><span class="line">        <span class="hljs-built_in">mergeSort</span>(left, mid);</span><br><span class="line">        <span class="hljs-built_in">mergeSort</span>(mid+<span class="hljs-number">1</span>, right);</span><br><span class="line">        <span class="hljs-type">int</span> index = <span class="hljs-number">0</span>, i = left, j = mid+<span class="hljs-number">1</span>;</span><br><span class="line">        <span class="hljs-keyword">while</span>(i&lt;=mid &amp;&amp; j&lt;=right) {</span><br><span class="line">            <span class="hljs-keyword">if</span>(a[i]&lt;=a[j]) temp[index++] = a[i++];</span><br><span class="line">            <span class="hljs-keyword">else</span> {</span><br><span class="line">                temp[index++] = a[j++];</span><br><span class="line">                res += mid-i+<span class="hljs-number">1</span>; <span class="hljs-comment">// 当a[i]&gt;a[j]时形成逆序对，数目为左子序列长度减去i再加上1</span></span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">        <span class="hljs-keyword">while</span>(i&lt;=mid) temp[index++] = a[i++];</span><br><span class="line">        <span class="hljs-keyword">while</span>(j&lt;=right) temp[index++] = a[j++];</span><br><span class="line">        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; index; i++) a[left+i] = temp[i];</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">    <span class="hljs-type">int</span> n;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++) cin &gt;&gt; a[i];</span><br><span class="line">    <span class="hljs-built_in">mergeSort</span>(<span class="hljs-number">0</span>, n<span class="hljs-number">-1</span>);</span><br><span class="line">    cout &lt;&lt; res &lt;&lt; endl;</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="最近点对"><a href="#最近点对" class="headerlink" title="最近点对"></a>最近点对</h4><p>给定$n$个二维平面上的点，求一组欧几里得距离最近的点对。</p>
+<p>首先暴力就是枚举两两点间的距离，取最小值，复杂度$O(n^2)$</p>
+<p>对点集$S$进行拆分，分两部分求最近点对$L,R$，设L和R中最小点对距离为l,r，LR间最小距离为d,则归并需要求解min(l,r,d)</p>
+<p>如何合并两个集合找到最小点对距离</p>
+<p>设δ = min(l,r)，则点集合间最小点对只可能存在分界线附近范围内：</p>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211129165223542.png" alt="image-20211129165223542"></p>
+<p>对于L范围内的点p，只选取R范围内长为2δ，宽为δ的点进行计算</p>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211129165713203.png" alt="image-20211129165713203"></p>
+<h4 id="主方法求解递归关系式"><a href="#主方法求解递归关系式" class="headerlink" title="主方法求解递归关系式"></a>主方法求解递归关系式</h4><blockquote>
+<p><strong>定理4.1（主定理）</strong> 令 $a≥1$ 和 $b&gt;1$ 是常数，$f(n)$ 是一个函数，$T(n)$ 是定义在非负整数上的递归式：<br> $T(n) = aT(n/b) + f(n)$<br> 那么$T(n)$有如下渐进界：</p>
+</blockquote>
+<ol>
+<li>若对某个常数 $ε&gt;0$ 有$ f(n) = O(n^{log_ba}-ε)$，则$ T(n) = Θ(n^{log_ba})$ 。</li>
+<li>若 $f(n) = Θ(nlog_ba)$，则$ T(n) = Θ(nlog_ba lgn)$ 。</li>
+<li>若对某个常数$ ε&gt;0 $有 $f(n) = Ω(nlog_ba+ε)$，且对某个常数 $c&lt;1$ 和所有足够大的 $n$ 有 $af(n/b) ≤ cf(n)$，则 $T(n) = Θ(f(n))$ 。</li>
+</ol>
+<h3 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h3><h4 id="DP适合求解什么问题"><a href="#DP适合求解什么问题" class="headerlink" title="DP适合求解什么问题"></a>DP适合求解什么问题</h4><ul>
+<li>DP问题的一般形式是求最值，最长递增子序列，最小编辑距离</li>
+<li>可以通过穷举得到结果，但是存在最优子结构，子问题间相互独立</li>
+<li>最优子结构作为dp问题的必要条件，遇到最值问题，可以往DP想</li>
+</ul>
+<h4 id="最优子结构"><a href="#最优子结构" class="headerlink" title="最优子结构"></a>最优子结构</h4><p>从子问题的最优结果推出更大规模问题的最优结果</p>
+<p>找最优子结果的过程，其实就是证明状态转移方程正确性的过程。</p>
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><ul>
+<li>找<strong>状态</strong>和<strong>选择</strong></li>
+<li>明确dp数组的含义</li>
+<li>根据选择，中出状态转移的逻辑</li>
+</ul>
+<h4 id="DP数组的遍历方向"><a href="#DP数组的遍历方向" class="headerlink" title="DP数组的遍历方向"></a>DP数组的遍历方向</h4><ul>
+<li>遍历过程中，所需的状态必须是已经计算出来的</li>
+<li>遍历的重点是存储结果的位置</li>
+</ul>
+<h4 id="带权区间调度问题"><a href="#带权区间调度问题" class="headerlink" title="带权区间调度问题"></a>带权区间调度问题</h4><blockquote>
+<p>一系列工作，每个工作有自己的：开始时间、结束时间、权值，求一组工作子集，使得工作时间不重叠，且总的权值最大。</p>
+</blockquote>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211129170310477.png" alt="image-20211129170310477"></p>
+<p>$dp[i]$代表第i个区间的最大权重和，则$dp[i] = max(dp[i-1], interval[i].w+dp[interval[i].p]);$</p>
+<p>其中</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">Interval</span></span><br><span class="line">{</span><br><span class="line">	<span class="hljs-type">int</span> s, f, w;  <span class="hljs-comment">// 区间开始时间、结束时间和权重</span></span><br><span class="line">	<span class="hljs-type">int</span> id, p;  <span class="hljs-comment">// 区间编号和该区间前一个不冲突的区间.是[1,i-1]这i-1个区间内与i不冲突的结束时间最接近i开始时间的区间</span></span><br><span class="line">}interval[maxn];</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="最大子数组和"><a href="#最大子数组和" class="headerlink" title="最大子数组和"></a>最大子数组和</h4><p>给定一个整数数组 <code>nums</code> ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。</p>
+<p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/maximum-subarray/">https://leetcode-cn.com/problems/maximum-subarray/</a><br>$dp[i] = max(nums[i], nums[i] + dp[i - 1])$</p>
+<p>$dp[i]$代表以i结尾的最大连续子数组</p>
+<p>最后求完dp数组，还需要再遍历一次数组，找到最大值返回</p>
+<h4 id="最大子矩阵和"><a href="#最大子矩阵和" class="headerlink" title="最大子矩阵和"></a>最大子矩阵和</h4><h4 id="01背包"><a href="#01背包" class="headerlink" title="01背包"></a>01背包</h4><h4 id="找零钱"><a href="#找零钱" class="headerlink" title="找零钱"></a>找零钱</h4><p>给你一个整数数组 <code>coins</code> 表示不同面额的硬币，另给一个整数 <code>amount</code> 表示总金额。求凑硬币的组合数。</p>
+<p>每个物品数量无限，就是完全背包问题</p>
+<h5 id="状态、选择"><a href="#状态、选择" class="headerlink" title="状态、选择"></a>状态、选择</h5><p>状态：背包的容量、可选择的物品</p>
+<p>选择：装进背包、不装进背包</p>
+<h5 id="dp数组"><a href="#dp数组" class="headerlink" title="dp数组"></a>dp数组</h5><p>有两个状态，因此需要一个二维的dp数组</p>
+<p>定义dp[i][j]：只使用前i个物品，当背包容量为j时，可以装满背包的方法</p>
+<h5 id="状态转移逻辑"><a href="#状态转移逻辑" class="headerlink" title="状态转移逻辑"></a>状态转移逻辑</h5><ul>
+<li><p>不把第i个物品装入背包：$dp[i][j] = dp[i-1][j]$</p>
+</li>
+<li><p>把第i个物品装入了背包：$dp[i][j] = dp[i][j-coins[i-1]]$</p>
+</li>
+<li><p>因为要求方案数：$dp[i][j] = dp[i-1][j] + dp[i][j-coins[i-1]]$</p>
+</li>
+</ul>
+<h4 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h4><p>给你两个单词 word1 和 word2，计算出将 word1 转换成 word2 所使用的最少操作数 。(可以用来衡量两个串的相似度)</p>
+<p>可以对一个单词进行如下三种操作：</p>
+<p>插入一个字符<br>删除一个字符<br>替换一个字符</p>
+<p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/edit-distance/">https://leetcode-cn.com/problems/edit-distance/</a></p>
+<p>解决两个串的dp问题，一般都是用两个指针$i,j$分别指向两个字符串的最后，一步步往前走，缩小问题的规模。</p>
+<p>编辑距离中，不同操作代价可能不同，可以自己定义插入或删除一个字符的代价为$a$，替换一个字符的代价为$b$。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">minDistance</span><span class="hljs-params">(String s1, String s2)</span> </span>{</span><br><span class="line">    <span class="hljs-type">int</span> m = s1.<span class="hljs-built_in">length</span>(), n = s2.<span class="hljs-built_in">length</span>();</span><br><span class="line">    <span class="hljs-type">int</span>[][] dp = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[m + <span class="hljs-number">1</span>][n + <span class="hljs-number">1</span>];</span><br><span class="line">    <span class="hljs-comment">// base case </span></span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= m; i++)</span><br><span class="line">        dp[i][<span class="hljs-number">0</span>] = i;</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">1</span>; j &lt;= n; j++)</span><br><span class="line">        dp[<span class="hljs-number">0</span>][j] = j;</span><br><span class="line">    <span class="hljs-comment">// 自底向上求解</span></span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt;= m; i++)</span><br><span class="line">        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">1</span>; j &lt;= n; j++)</span><br><span class="line">            <span class="hljs-keyword">if</span> (s1.<span class="hljs-built_in">charAt</span>(i<span class="hljs-number">-1</span>) == s2.<span class="hljs-built_in">charAt</span>(j<span class="hljs-number">-1</span>))</span><br><span class="line">                dp[i][j] = dp[i - <span class="hljs-number">1</span>][j - <span class="hljs-number">1</span>];</span><br><span class="line">            <span class="hljs-keyword">else</span>               </span><br><span class="line">                dp[i][j] = <span class="hljs-built_in">min</span>(</span><br><span class="line">                    dp[i - <span class="hljs-number">1</span>][j] + <span class="hljs-number">1</span>,<span class="hljs-comment">//插入</span></span><br><span class="line">                    dp[i][j - <span class="hljs-number">1</span>] + <span class="hljs-number">1</span>,<span class="hljs-comment">//删除</span></span><br><span class="line">                    dp[i<span class="hljs-number">-1</span>][j<span class="hljs-number">-1</span>] + <span class="hljs-number">1</span><span class="hljs-comment">//替换</span></span><br><span class="line">                );</span><br><span class="line">    <span class="hljs-comment">// 储存着整个 s1 和 s2 的最小编辑距离</span></span><br><span class="line">    <span class="hljs-keyword">return</span> dp[m][n];</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">min</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b, <span class="hljs-type">int</span> c)</span> </span>{</span><br><span class="line">    <span class="hljs-keyword">return</span> Math.<span class="hljs-built_in">min</span>(a, Math.<span class="hljs-built_in">min</span>(b, c));</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="高楼扔鸡蛋"><a href="#高楼扔鸡蛋" class="headerlink" title="高楼扔鸡蛋"></a>高楼扔鸡蛋</h4><h4 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h4><p>动态规划的时间复杂度是伪多项式时间</p>
+<p>伪多项式时间：若一个数值算法的时间复杂度可以表示为输入数值N的多项式，则称其时间复杂度为<strong>伪多项式时间</strong>。</p>
+<p>对背包问题来说，假设n为物品数量，W为背包容量，那么算法的时间复杂度并不是O（nW）,因为n是输入规模，而W并不是输入规模，W是背包的容量，他只输入一个值，这个值的规模应该是这个数所占用的二进制位数。</p>
+<p>所以背包问题还是NPC的。</p>
+<h3 id="贪心"><a href="#贪心" class="headerlink" title="贪心"></a>贪心</h3><p>贪心的本质是选择每一阶段的局部最优，从而达到全局最优</p>
+<h4 id="贪心求解什么问题"><a href="#贪心求解什么问题" class="headerlink" title="贪心求解什么问题"></a>贪心求解什么问题</h4><p>手动模拟下，感觉局部最优是可以推出全局最优，找不到反例，可以试试贪心</p>
+<p>非要证明的话考虑数学归纳法和反证法</p>
+<h4 id="找零钱-1"><a href="#找零钱-1" class="headerlink" title="找零钱"></a>找零钱</h4><p>假设硬币有5种面值，$1 , 5 , 10 , 25 , 100 $，每种硬币无限个，如何用<strong>最少</strong>数量的硬币来凑出给定数值M。<br>这种面值的硬币组合，可以贪心求解。</p>
+<p>因为每个面值都能被比他小的面值整除。</p>
+<h4 id="分发饼干"><a href="#分发饼干" class="headerlink" title="分发饼干"></a>分发饼干</h4><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/assign-cookies/">https://leetcode-cn.com/problems/assign-cookies/</a></p>
+<p>对每个孩子$ i$，都有一个胃口值 $g[i]$，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干$ j$，都有一个尺寸 $s[j]$ 。如果 $s[j] &gt;= g[i]$，我们可以将这个饼干 $j$ 分配给孩子$ i$ ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。</p>
+<h4 id="摆动序列"><a href="#摆动序列" class="headerlink" title="摆动序列"></a>摆动序列</h4><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/wiggle-subsequence/">https://leetcode-cn.com/problems/wiggle-subsequence/</a></p>
+<p>给一个序列，找出这个序列的最长摆动子序列长度</p>
+<h5 id="思路1-贪心"><a href="#思路1-贪心" class="headerlink" title="思路1 贪心"></a>思路1 贪心</h5><p><strong>贪心策略下</strong>，局部最优：删除单调坡度上中间的节点，整体最优：整个序列有最多的局部峰值，从而达到最长摆动序列。</p>
+<p>所以统计峰值就可以了，删除都不用做</p>
+<h5 id="思路2-DP"><a href="#思路2-DP" class="headerlink" title="思路2 DP"></a>思路2 DP</h5><p>状态：数组下标，峰谷</p>
+<p>选择：当前数作为峰时，以前面哪个作为谷。当前数为谷时，以前面哪个作为峰</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">dp[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>] = dp[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>] = <span class="hljs-number">1</span>;</span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt; nums.<span class="hljs-built_in">size</span>(); ++i) {</span><br><span class="line">    dp[i][<span class="hljs-number">0</span>] = dp[i][<span class="hljs-number">1</span>] = <span class="hljs-number">1</span>;</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; i; ++j) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (nums[j] &gt; nums[i]) dp[i][<span class="hljs-number">1</span>] = <span class="hljs-built_in">max</span>(dp[i][<span class="hljs-number">1</span>], dp[j][<span class="hljs-number">0</span>] + <span class="hljs-number">1</span>);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; i; ++j) {</span><br><span class="line">        <span class="hljs-keyword">if</span> (nums[j] &lt; nums[i]) dp[i][<span class="hljs-number">0</span>] = <span class="hljs-built_in">max</span>(dp[i][<span class="hljs-number">0</span>], dp[j][<span class="hljs-number">1</span>] + <span class="hljs-number">1</span>);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-keyword">return</span> <span class="hljs-built_in">max</span>(dp[nums.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>][<span class="hljs-number">0</span>], dp[nums.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>][<span class="hljs-number">1</span>]);</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="最大子序和"><a href="#最大子序和" class="headerlink" title="最大子序和"></a>最大子序和</h4><p>给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。</p>
+<h5 id="思路1-贪心-1"><a href="#思路1-贪心-1" class="headerlink" title="思路1 贪心"></a>思路1 贪心</h5><p>局部最优：连续和为负数时就立刻放弃，重新计算连续和</p>
+<p>全局最优：选择最大的连续和</p>
+<h5 id="思路2-DP-1"><a href="#思路2-DP-1" class="headerlink" title="思路2 DP"></a>思路2 DP</h5><p><code>dp[i] = max(dp[i - 1] + nums[i], nums[i])</code> 以i结尾的最大连续子数组的和</p>
+<p><code>result = max(dp)</code></p>
+<h2 id="网络流"><a href="#网络流" class="headerlink" title="网络流"></a>网络流</h2><blockquote>
+<p>最大流问题和最小割问题及其算法，增广链添加的过程</p>
+</blockquote>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><h4 id="最大流"><a href="#最大流" class="headerlink" title="最大流"></a>最大流</h4><p>源点s，到汇点t的最大流量</p>
+<h4 id="最小割"><a href="#最小割" class="headerlink" title="最小割"></a>最小割</h4><p>割是一种点的划分方式，比如划分为点集S,T，割的容量指，从S到T的边的容量之和，最小割是让这个容量最小，最小割并不唯一。</p>
+<h4 id="最大流最小割定理"><a href="#最大流最小割定理" class="headerlink" title="最大流最小割定理"></a>最大流最小割定理</h4><p>最小割的容量等于最大流的流量</p>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211210170813049.png" alt="image-20211210170813049"></p>
+<h4 id="任意流和割"><a href="#任意流和割" class="headerlink" title="任意流和割"></a>任意流和割</h4><p>对于任意流f，任意割（A,B），流的大小为流出A的流量与流入A的流量之差。</p>
+<h2 id="NP完备性理论"><a href="#NP完备性理论" class="headerlink" title="NP完备性理论"></a>NP完备性理论</h2><h3 id="多项式规约"><a href="#多项式规约" class="headerlink" title="多项式规约"></a>多项式规约</h3><p>假设已有解决一个问题的子程序，利用他可以在多项式时间内解决另一个问题的规约方法。</p>
+<p>问题X可以规约到问题Y：</p>
+<p>h(X) = g(f(Y))，其中g(.)是多项式的，不考虑f子程序运行所用的时间。</p>
+<h3 id="常见规约问题"><a href="#常见规约问题" class="headerlink" title="常见规约问题"></a>常见规约问题</h3><h4 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h4><ul>
+<li>多项式时间</li>
+</ul>
+<p>多项式是指解决问题的时间随输入规模呈多项式的变化</p>
+<p>考虑一个问题，验证一个团是不是最大团是多项式的吗？答案不是</p>
+<p>比如，当前团为k，那枚举k+1的团是否存在并不是多项式的，虽然他的复杂度是$O(n^{k})$，但是这里k也是输入的规模</p>
+<ul>
+<li>P问题：能在多项式时间内解决的问题</li>
+<li>NP问题：能在多项式时间内验证的问题</li>
+<li>NPC问题：首先是NP问题，所有NP问题都可以规约到他<ul>
+<li>假设要证明问题$Y$是一个$NP-completeness$问题<ol>
+<li>首先证明问题$Y$是一个$NP$问题；</li>
+<li>选择一个已知的$NP-completeness$问题$X$；</li>
+<li>将问题$X$多项式归约到问题$Y$，即证明。（即说明了求解问题$Y$不比求解问题$X$简单）</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>NP-Hard问题：NP-hard满足NPC问题的第二条定义但不一定满足第一条，np-hard的意思就是所有的np问题都不比它简单</li>
+</ul>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211202164635547.png" alt="image-20211202164635547"></p>
+<p>理一下：首先，N，NP，npc都是指判定性问题，NP-hard可能</p>
+<ul>
+<li>独立集：图 G 中两两互不相邻的顶点构成的集合</li>
+<li>团：是图中顶点的一个子集，这个子集中的点都相互连接（无向图的最大团==该无向图补图的最大独立集）</li>
+<li>点覆盖：无向图G的一个点集，使得该图中所有边都至少有一点端点在该集合内</li>
+<li>集合覆盖：有n个子集，这几个子集的并集作为全集，找到一个最小的子集组合，使得他们的并集等于全集</li>
+</ul>
+<h4 id="规约"><a href="#规约" class="headerlink" title="规约"></a>规约</h4><p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211202170100252.png" alt="image-20211202170100252"></p>
+<ul>
+<li><p>A要规约到B</p>
+</li>
+<li><p>构造图 G ，存在问题 A 的解集；</p>
+</li>
+<li><p>在图 G 基础上，构造图 G’（常添加边或点），使得问题 A 的解集能反应在 G’ 中问题 B 的解集（注意两个问题解集的规模 k 一定要有确定的联系）；</p>
+</li>
+<li><p>图 G 中存在问题 A 的解集 S，当且仅当图 G’ 中存在问题 B 的解集 S’ ；</p>
+</li>
+<li><p>规约的正确性，需双向证明。</p>
+</li>
+</ul>
+<h5 id="独立集到点覆盖"><a href="#独立集到点覆盖" class="headerlink" title="独立集到点覆盖"></a>独立集到点覆盖</h5><p>S是独立集，则V-S是顶点覆盖</p>
+<h5 id="顶点覆盖到集合覆盖"><a href="#顶点覆盖到集合覆盖" class="headerlink" title="顶点覆盖到集合覆盖"></a>顶点覆盖到集合覆盖</h5><p>构造点覆盖的顶点是集合覆盖问题中的子集和，顶点覆盖的元素相当于集合覆盖中子集和的元素。</p>
+<h5 id="3-SAT到独立集"><a href="#3-SAT到独立集" class="headerlink" title="3-SAT到独立集"></a>3-SAT到独立集</h5><p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211208151801107.png" alt="image-20211208151801107"></p>
+<h5 id="顶点覆盖到支配集"><a href="#顶点覆盖到支配集" class="headerlink" title="顶点覆盖到支配集"></a>顶点覆盖到支配集</h5><h5 id="有向哈密尔顿到无向哈密尔顿"><a href="#有向哈密尔顿到无向哈密尔顿" class="headerlink" title="有向哈密尔顿到无向哈密尔顿"></a>有向哈密尔顿到无向哈密尔顿</h5><blockquote>
+<p>给定一个有向图G，需构造无向图G’</p>
+</blockquote>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211208192105693.png" alt="image-20211208192105693"></p>
+<p>有向图中的一个顶点拆成三个，一个接受入度，一个接收出度，则G‘中的哈密顿环按蓝黑白或者白黑蓝的顺序，去掉蓝和白就是有向图中的哈密顿环。</p>
+<h5 id="3-sat到有向哈密尔顿环"><a href="#3-sat到有向哈密尔顿环" class="headerlink" title="3-sat到有向哈密尔顿环"></a>3-sat到有向哈密尔顿环</h5><p>？？？</p>
+<h5 id="子集和到分区问题"><a href="#子集和到分区问题" class="headerlink" title="子集和到分区问题"></a>子集和到分区问题</h5><blockquote>
+<p>给定一个集合 S = {w1 , w2 , … , wn}，子集和为 W，需构造集合 S’，使得集合 S 存在一个子集之和为 W，当且仅当集合 S’ 存在一个 Partition</p>
+</blockquote>
+<p>构造分区问题集合$ S’ = {v1 , v2 , … , vn, vn+1, vn+2}$，其中</p>
+<p>$v1 = w1，v2 = w2, … , vn = wn，vn+1 = 2∑wi - W，vn+2 = ∑wi + W$</p>
+<h5 id="子集和到背包问题"><a href="#子集和到背包问题" class="headerlink" title="子集和到背包问题"></a>子集和到背包问题</h5><blockquote>
+<p>给定一个集合 S = {w1 , w2 , … , wn}，子集和为 W，需构造集合S‘，使得子集和问题有解当且仅当S’存在一个背包实例</p>
+</blockquote>
+<p>构造背包实例，第i个物品的重量和价值等于wi，背包的U=V=W</p>
+<h4 id="自规约"><a href="#自规约" class="headerlink" title="自规约"></a>自规约</h4><ul>
+<li><p>设该判断算法为 A ，利用算法 A 判断出图中存在…(大小为k的…)；</p>
+</li>
+<li><p>删除一条边或点(看具体是边集还是点集的问题)，对删除边/点后的图运行判断算法 A ；</p>
+</li>
+<li><p>若图中还存在…(大小为k的…)，则从图中彻底删除该边/点；若不存在，则把该边/点加入集合 S 中；</p>
+</li>
+<li><p>对所有的边/点调用算法 A 执行上述操作，最终得到的集合 S 就是求解问题的解。</p>
+</li>
+</ul>
+<h5 id="点覆盖问题"><a href="#点覆盖问题" class="headerlink" title="点覆盖问题"></a>点覆盖问题</h5><h5 id="哈密顿环问题"><a href="#哈密顿环问题" class="headerlink" title="哈密顿环问题"></a>哈密顿环问题</h5><h5 id="3-color问题"><a href="#3-color问题" class="headerlink" title="3-color问题"></a>3-color问题</h5><h5 id="最长路问题"><a href="#最长路问题" class="headerlink" title="最长路问题"></a>最长路问题</h5><h2 id="近似算法"><a href="#近似算法" class="headerlink" title="近似算法"></a>近似算法</h2><h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><h3 id="带权顶点覆盖问题"><a href="#带权顶点覆盖问题" class="headerlink" title="带权顶点覆盖问题"></a>带权顶点覆盖问题</h3><p>顶点覆盖要求图中所有边至少有一个端点在集合内，带权顶点每个点有一个权值，要求这个集合的权值之和最小</p>
+<h4 id="2倍近似算法-竞价法"><a href="#2倍近似算法-竞价法" class="headerlink" title="2倍近似算法-竞价法"></a>2倍近似算法-竞价法</h4><p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211208201628788.png" alt="image-20211208201628788"></p>
+<p>二倍近似证明：</p>
+<p>引理：</p>
+<p>对于一个任意合法的竞价边权的和，都小于等于一个点覆盖的点权和</p>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211208204412930.png" alt="image-20211208204412930"></p>
+<p>则，</p>
+<p><img src="/2021/11/29/%E7%AE%97%E6%B3%95%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%88%86%E6%9E%90/image-20211208202738612.png" alt="image-20211208202738612"></p>
+<p>S里的邻边边权和&lt;=所有点的邻边边权和</p>
+<p>所有的点邻边边权和=2倍的边权和</p>
+<h4 id="整数规划模型"><a href="#整数规划模型" class="headerlink" title="整数规划模型"></a>整数规划模型</h4><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/106624574">https://zhuanlan.zhihu.com/p/106624574</a></p>
+<p><a target="_blank" rel="noopener" href="https://chengyong.blog.csdn.net/article/details/100806815">https://chengyong.blog.csdn.net/article/details/100806815</a></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/01/07/%E5%AE%9E%E9%AA%8C%E5%AE%A4%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">实验室服务器日常运维</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/11/26/%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%81%E6%9D%A1%E4%BB%B6%E5%8F%98%E9%87%8F%E3%80%81%E7%AE%A1%E7%A8%8B/">
+                <span class="level-item">信号量、条件变量、管程</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#基础知识">
+        <span class="has-mr-6">1</span>
+        <span>基础知识</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#引论">
+        <span class="has-mr-6">1.1</span>
+        <span>引论</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#判断性问题和优化问题">
+        <span class="has-mr-6">1.1.1</span>
+        <span>判断性问题和优化问题</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#分治法">
+        <span class="has-mr-6">1.2</span>
+        <span>分治法</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#逆序对">
+        <span class="has-mr-6">1.2.1</span>
+        <span>逆序对</span>
+        </a></li><li>
+        <a class="is-flex" href="#最近点对">
+        <span class="has-mr-6">1.2.2</span>
+        <span>最近点对</span>
+        </a></li><li>
+        <a class="is-flex" href="#主方法求解递归关系式">
+        <span class="has-mr-6">1.2.3</span>
+        <span>主方法求解递归关系式</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#动态规划">
+        <span class="has-mr-6">1.3</span>
+        <span>动态规划</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#DP适合求解什么问题">
+        <span class="has-mr-6">1.3.1</span>
+        <span>DP适合求解什么问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#最优子结构">
+        <span class="has-mr-6">1.3.2</span>
+        <span>最优子结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#思路">
+        <span class="has-mr-6">1.3.3</span>
+        <span>思路</span>
+        </a></li><li>
+        <a class="is-flex" href="#DP数组的遍历方向">
+        <span class="has-mr-6">1.3.4</span>
+        <span>DP数组的遍历方向</span>
+        </a></li><li>
+        <a class="is-flex" href="#带权区间调度问题">
+        <span class="has-mr-6">1.3.5</span>
+        <span>带权区间调度问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#最大子数组和">
+        <span class="has-mr-6">1.3.6</span>
+        <span>最大子数组和</span>
+        </a></li><li>
+        <a class="is-flex" href="#最大子矩阵和">
+        <span class="has-mr-6">1.3.7</span>
+        <span>最大子矩阵和</span>
+        </a></li><li>
+        <a class="is-flex" href="#01背包">
+        <span class="has-mr-6">1.3.8</span>
+        <span>01背包</span>
+        </a></li><li>
+        <a class="is-flex" href="#找零钱">
+        <span class="has-mr-6">1.3.9</span>
+        <span>找零钱</span>
+        </a></li><li>
+        <a class="is-flex" href="#编辑距离">
+        <span class="has-mr-6">1.3.10</span>
+        <span>编辑距离</span>
+        </a></li><li>
+        <a class="is-flex" href="#高楼扔鸡蛋">
+        <span class="has-mr-6">1.3.11</span>
+        <span>高楼扔鸡蛋</span>
+        </a></li><li>
+        <a class="is-flex" href="#时间复杂度">
+        <span class="has-mr-6">1.3.12</span>
+        <span>时间复杂度</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#贪心">
+        <span class="has-mr-6">1.4</span>
+        <span>贪心</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#贪心求解什么问题">
+        <span class="has-mr-6">1.4.1</span>
+        <span>贪心求解什么问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#找零钱-1">
+        <span class="has-mr-6">1.4.2</span>
+        <span>找零钱</span>
+        </a></li><li>
+        <a class="is-flex" href="#分发饼干">
+        <span class="has-mr-6">1.4.3</span>
+        <span>分发饼干</span>
+        </a></li><li>
+        <a class="is-flex" href="#摆动序列">
+        <span class="has-mr-6">1.4.4</span>
+        <span>摆动序列</span>
+        </a></li><li>
+        <a class="is-flex" href="#最大子序和">
+        <span class="has-mr-6">1.4.5</span>
+        <span>最大子序和</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#网络流">
+        <span class="has-mr-6">2</span>
+        <span>网络流</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#概念">
+        <span class="has-mr-6">2.1</span>
+        <span>概念</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#最大流">
+        <span class="has-mr-6">2.1.1</span>
+        <span>最大流</span>
+        </a></li><li>
+        <a class="is-flex" href="#最小割">
+        <span class="has-mr-6">2.1.2</span>
+        <span>最小割</span>
+        </a></li><li>
+        <a class="is-flex" href="#最大流最小割定理">
+        <span class="has-mr-6">2.1.3</span>
+        <span>最大流最小割定理</span>
+        </a></li><li>
+        <a class="is-flex" href="#任意流和割">
+        <span class="has-mr-6">2.1.4</span>
+        <span>任意流和割</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#NP完备性理论">
+        <span class="has-mr-6">3</span>
+        <span>NP完备性理论</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#多项式规约">
+        <span class="has-mr-6">3.1</span>
+        <span>多项式规约</span>
+        </a></li><li>
+        <a class="is-flex" href="#常见规约问题">
+        <span class="has-mr-6">3.2</span>
+        <span>常见规约问题</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#基本概念">
+        <span class="has-mr-6">3.2.1</span>
+        <span>基本概念</span>
+        </a></li><li>
+        <a class="is-flex" href="#规约">
+        <span class="has-mr-6">3.2.2</span>
+        <span>规约</span>
+        </a></li><li>
+        <a class="is-flex" href="#自规约">
+        <span class="has-mr-6">3.2.3</span>
+        <span>自规约</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#近似算法">
+        <span class="has-mr-6">4</span>
+        <span>近似算法</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#负载均衡">
+        <span class="has-mr-6">4.1</span>
+        <span>负载均衡</span>
+        </a></li><li>
+        <a class="is-flex" href="#带权顶点覆盖问题">
+        <span class="has-mr-6">4.2</span>
+        <span>带权顶点覆盖问题</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#2倍近似算法-竞价法">
+        <span class="has-mr-6">4.2.1</span>
+        <span>2倍近似算法-竞价法</span>
+        </a></li><li>
+        <a class="is-flex" href="#整数规划模型">
+        <span class="has-mr-6">4.2.2</span>
+        <span>整数规划模型</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">5</span>
+        <span>参考</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="算法设计与分析" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

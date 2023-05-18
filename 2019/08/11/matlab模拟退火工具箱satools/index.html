@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>matlab模拟退火工具箱satools - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="​    记录了模拟退火的原理和matlab第三方工具箱satools的使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="matlab模拟退火工具箱satools">
+<meta property="og:url" content="http://yoursite.com/2019/08/11/matlab%E6%A8%A1%E6%8B%9F%E9%80%80%E7%81%AB%E5%B7%A5%E5%85%B7%E7%AE%B1satools/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="​    记录了模拟退火的原理和matlab第三方工具箱satools的使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-08-11T04:20:06.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.267Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="matlab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="matlab模拟退火工具箱satools" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-08-11T04:20:06.000Z">2019-08-11</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    5 分钟 读完 (大约 794 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                matlab模拟退火工具箱satools
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>​    记录了模拟退火的原理和matlab第三方工具箱satools的使用。</p>
+<span id="more"></span>
+
+<h2 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h2><p><img src="/2019/08/11/matlab%E6%A8%A1%E6%8B%9F%E9%80%80%E7%81%AB%E5%B7%A5%E5%85%B7%E7%AE%B1satools/1565501784456.png" alt=""></p>
+<h2 id="SATOOLS使用"><a href="#SATOOLS使用" class="headerlink" title="SATOOLS使用"></a>SATOOLS使用</h2><h3 id="模拟退火主函数anneal"><a href="#模拟退火主函数anneal" class="headerlink" title="模拟退火主函数anneal"></a>模拟退火主函数<code>anneal</code></h3><h4 id="调用格式："><a href="#调用格式：" class="headerlink" title="调用格式："></a>调用格式：</h4><figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[W,Ew,Wbsf,Ebsf,Tt,Et,Etarget,ert,Kt,Ebsft,Eh,M,rho,Ebin]</span> = <span class="hljs-title">anneal</span><span class="hljs-params">( ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    verbose, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    newstate, X, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    cost, moveclass, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    walkers, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    acceptrule, q, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    schedule, P, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    equilibrate, C, maxsteps, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    Tinit, r, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    Tfinal, f, maxtemps, ...</span></span></span><br><span class="line"><span class="hljs-params"><span class="hljs-function">    v, bins, e)</span></span></span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><h5 id="输入参数"><a href="#输入参数" class="headerlink" title="输入参数"></a>输入参数</h5><ul>
+<li><code>verbose</code>：flag变量，为1时打印状态变量</li>
+<li><code>newstate</code>：用户自定义函数,产生初始解</li>
+<li><code>X</code>：问题的domain(解空间?)，常量</li>
+<li><code>cost</code>：用户自定义函数，最优化的目标函数</li>
+<li><code>moveclass</code>：用户自定义函数，用来产生新解</li>
+<li><code>walkers</code>：正整数</li>
+<li><code>acceptrule</code>：用户自定义函数，接受规则，工具箱也提供了几个，经常用metropolis准则</li>
+<li><code>q</code>：<code>acceptrule</code>所需要的参数</li>
+<li><code>schedule</code>：温度更新函数，可自定义</li>
+<li><code>P</code>：<code>schedule</code>所需参数</li>
+<li><code>equilibrate</code>：(平衡)可传入函数句柄或其他。当传入函数时，表示温度是否改变的判断函数</li>
+<li><code>C</code>：<code>equilibrate</code>所需参数</li>
+<li><code>maxsteps</code>：同一温度下的迭代最大次数</li>
+<li><code>Tinit</code>：初始化函数，可自定义可使用工具箱提供函数。</li>
+<li><code>r</code>：<code>Tinit</code>所需参数</li>
+<li><code>Tfinal</code>：终止温度，可以是自定义函数，工具箱也提供，或者是数（-INF ok）</li>
+<li><code>f</code>：参数</li>
+<li><code>maxtemps</code>：最大温度迭代次数</li>
+<li><code>v</code>：温度变化的快慢$[0,1]$</li>
+<li><code>bins：</code></li>
+<li><code>e</code>：</li>
+</ul>
+<h5 id="输出参数"><a href="#输出参数" class="headerlink" title="输出参数"></a>输出参数</h5><ul>
+<li><p><code>W</code>：每个<code>walker</code>的最终状态</p>
+</li>
+<li><p><code>Ew</code>：<code>W</code>对应的最终能量</p>
+</li>
+<li><p><code>Wbsf</code>：每个<code>walker</code>的<code>best so far</code>状态</p>
+</li>
+<li><p><code>Ebsf</code>：每个<code>walker</code>的<code>best so far</code>能量</p>
+</li>
+<li><p><code>Tt(i)</code>：每次温度步的温度记录</p>
+</li>
+<li><p><code>Et(i)</code>：<code>Tt(i)</code>对应的平均能量</p>
+</li>
+<li><p><code>Etarget（i）</code>：<code>Tt(i)</code>对应的目标平均能量，根据<code>v</code>计算</p>
+</li>
+<li><p><code>ert(i)</code>：</p>
+</li>
+<li><p><code>kt(i)</code>：<code>Tt(i)</code>对应的热平衡步数</p>
+</li>
+<li><p><code>Ebsft(i)</code>：<code>Tt(i)</code>对应的<code>best so far</code>能量</p>
+</li>
+<li><p><code>Eh</code>：能量和温度的历史记录</p>
+<ul>
+<li><code>i = 1,1 + (steps*walkers)</code></li>
+<li><code>Eh(i,1)</code>：温度步的下标<code>t</code></li>
+<li><code>Eh(i,2)</code>：<code>t</code>对应的温度<code>T</code></li>
+<li><code>Eh(i,3)</code>：在温度<code>T</code>时的达到热平衡步数的编号<code>j</code></li>
+<li><code>Eh(i,4)</code>：<code>walker</code>的编号<code>k</code></li>
+<li><code>Eh(i,5)</code>：在<code>T</code>温度下,第<code>j</code>步，<code>walker k</code>对应的能量</li>
+<li><code>Eh(i,6)</code>：在<code>T</code>温度下,第<code>j</code>步，<code>energy E' attempted from E</code></li>
+</ul>
+</li>
+<li><p><code>M</code>：</p>
+</li>
+<li><p><code>rho</code>：</p>
+</li>
+<li><p><code>Ebin</code>：</p>
+</li>
+</ul>
+<h4 id="自定义函数编写"><a href="#自定义函数编写" class="headerlink" title="自定义函数编写"></a>自定义函数编写</h4><ol>
+<li><p><code>newstate</code>产生初始解，</p>
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">W</span> = <span class="hljs-title">PROBLEMNAME_new</span><span class="hljs-params">(X)</span></span></span><br><span class="line"><span class="hljs-comment">% W = PROBLEMNAME_new(X)</span></span><br><span class="line"><span class="hljs-comment">% See http://www.frostconcepts.com/software for information on SA Tools.</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   W = PROBLEMNAME_new(X) ;</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   X = behaviorally constant application data</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   W = specific data about current state</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   Instantiates a new state.</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line">W = [] ;    <span class="hljs-comment">% a typical application will put state specific data here</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><code>cost</code>最优化目标</p>
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Ew</span> = <span class="hljs-title">PROBLEMNAME_cost</span><span class="hljs-params">(X,W)</span></span></span><br><span class="line"><span class="hljs-comment">% Ew = PROBLEMNAME_cost(X,W)</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   X = behaviorally constant application data</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   W = specific data about current state</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   Ew = energy corresponding to W</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line">Ew = <span class="hljs-built_in">rand</span> ;     <span class="hljs-comment">% a typical application will use information from W and X to compute Ew.</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><code>moveclass</code>产生新解</p>
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">W</span> = <span class="hljs-title">PROBLEMNAME_perturb</span><span class="hljs-params">(X,W,Ea,T)</span></span></span><br><span class="line"><span class="hljs-comment">% W = PROBLEMNAME_perturb(X,W,Ea,T)</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   X = behaviorally constant application data</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   W = (on input) current state, (on output) next state.</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   Ea = current average energy</span></span><br><span class="line"><span class="hljs-comment">%   T = current temperature</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>产生解空间</p>
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">X</span> = <span class="hljs-title">PROBLEMNAME_init</span><span class="hljs-params">()</span></span></span><br><span class="line"><span class="hljs-comment">% X = PROBLEMNAME_init()</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line"><span class="hljs-comment">%   X = behaviorally constant application data</span></span><br><span class="line"><span class="hljs-comment">%</span></span><br><span class="line">X = [] ;        <span class="hljs-comment">% a typical application will put problem domain data here</span></span><br></pre></td></tr></tbody></table></figure>
+
+</li>
+</ol>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/matlab/" rel="tag">matlab</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">mcm离散型题目及思路记录</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/08/10/%E5%85%AC%E5%BC%8F%E6%97%A0%E6%B3%95%E6%B8%B2%E6%9F%93%E9%97%AE%E9%A2%98/">
+                <span class="level-item">公式无法渲染问题</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#算法原理">
+        <span class="has-mr-6">1</span>
+        <span>算法原理</span>
+        </a></li><li>
+        <a class="is-flex" href="#SATOOLS使用">
+        <span class="has-mr-6">2</span>
+        <span>SATOOLS使用</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#模拟退火主函数anneal">
+        <span class="has-mr-6">2.1</span>
+        <span>模拟退火主函数anneal</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#调用格式：">
+        <span class="has-mr-6">2.1.1</span>
+        <span>调用格式：</span>
+        </a></li><li>
+        <a class="is-flex" href="#参数说明">
+        <span class="has-mr-6">2.1.2</span>
+        <span>参数说明</span>
+        </a></li><li>
+        <a class="is-flex" href="#自定义函数编写">
+        <span class="has-mr-6">2.1.3</span>
+        <span>自定义函数编写</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="matlab模拟退火工具箱satools" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

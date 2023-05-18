@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>信号量题目 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="进程管理——同步作业">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信号量题目">
+<meta property="og:url" content="http://yoursite.com/2019/11/12/%E4%BF%A1%E5%8F%B7%E9%87%8F%E9%A2%98%E7%9B%AE/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="进程管理——同步作业">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-11-12T00:36:31.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.307Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="信号量题目" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-11-12T00:36:31.000Z">2019-11-12</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    10 分钟 读完 (大约 1425 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                信号量题目
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>进程管理——同步作业</p>
+<span id="more"></span>
+
+<ul>
+<li><p>图书馆有N个座位，一张登记表，要求(1)阅读者进入时登记，取得座位号；(2)出来时注销。请用P、V操作描述一个读者的使用过程。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 进入时为生产者 出来时为消费者</span></span><br><span class="line">semaphore s = <span class="hljs-number">0</span>; <span class="hljs-comment">// 已经登记量</span></span><br><span class="line">semaphore empty = N; <span class="hljs-comment">// 空余量</span></span><br><span class="line">semaphore mutex = <span class="hljs-number">1</span>; <span class="hljs-comment">// 互斥信号量</span></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">login</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(empty); <span class="hljs-comment">// 空余量减少1</span></span><br><span class="line">        P(mutex); <span class="hljs-comment">// 互斥</span></span><br><span class="line">        <span class="hljs-comment">// 登记</span></span><br><span class="line">        V(mutex);</span><br><span class="line">        V(s); <span class="hljs-comment">// 已登记量增加1</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">logout</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(s); <span class="hljs-comment">// 已登记量减少1</span></span><br><span class="line">        P(mutex); <span class="hljs-comment">// 互斥，（这里互斥的原因是不可能为多个人注销，或者在注销的时候为另一个人登记，因此申请互斥信号量）</span></span><br><span class="line">        <span class="hljs-comment">// 注销</span></span><br><span class="line">        V(mutex);</span><br><span class="line">        V(empty); <span class="hljs-comment">// 空余量增加1</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>请用P、V操作描述下列过程：<img src="/2019/11/12/%E4%BF%A1%E5%8F%B7%E9%87%8F%E9%A2%98%E7%9B%AE/1573519264834.png" alt="题目"></p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 假设一开始车停下，门开启</span></span><br><span class="line">semaphore stop = <span class="hljs-number">1</span>; <span class="hljs-comment">// 停车信号量</span></span><br><span class="line">semaphore closedoor = <span class="hljs-number">0</span>; <span class="hljs-comment">// 关门信号量</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">drive</span><span class="hljs-params">()</span> <span class="hljs-comment">//司机</span></span><br><span class="line">{</span><br><span class="line">	<span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">	{</span><br><span class="line">		P(closedoor); <span class="hljs-comment">// 检测到门已关</span></span><br><span class="line">		<span class="hljs-comment">// 启动, 正常运行</span></span><br><span class="line">		V(stop); <span class="hljs-comment">// 停下</span></span><br><span class="line">	}</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">seller</span><span class="hljs-params">()</span> <span class="hljs-comment">// 售票员</span></span><br><span class="line">{</span><br><span class="line">	<span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">	{</span><br><span class="line">		P(stop); <span class="hljs-comment">// 检测到车已停</span></span><br><span class="line">		<span class="hljs-comment">// 售票</span></span><br><span class="line">		V(closedoor); <span class="hljs-comment">// 关门</span></span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>4个并发执行的进程P1、P2、P3和P4合作解决数据计算问题：Y(i)=X(i)2+X(i)3</p>
+<pre><code> (1)P1不断产生随机数并放入的缓冲区A中；
+ (2)P2、P3分别读取缓冲区A中的数据并计算其平方值、立方值，然后分别放入缓冲区B、C中；
+ (3)P4读取缓冲区B、C中的数据，将其相加，并输出；
+(4)缓冲区A、B、C的容量为1。
+     用P，V操作实现其同步过程。</code></pre><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">semaphore A = <span class="hljs-number">1</span>; <span class="hljs-comment">// 缓冲区A</span></span><br><span class="line">semaphore B = <span class="hljs-number">0</span>; <span class="hljs-comment">// 缓冲区B</span></span><br><span class="line">semaphore C = <span class="hljs-number">0</span>; <span class="hljs-comment">// 缓冲区C</span></span><br><span class="line">semaphore s12 = <span class="hljs-number">0</span>; <span class="hljs-comment">// P1与P2同步</span></span><br><span class="line">semaphore s13 = <span class="hljs-number">0</span>; <span class="hljs-comment">// P1与P3同步</span></span><br><span class="line">semaphore s24 = <span class="hljs-number">0</span>; <span class="hljs-comment">// P2与P4同步</span></span><br><span class="line">semaphore s34 = <span class="hljs-number">0</span>; <span class="hljs-comment">// P3与P4同步</span></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">P1</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(A); <span class="hljs-comment">// 上一次计算是否完毕</span></span><br><span class="line">        <span class="hljs-comment">// 随机产生数据放入缓冲区A</span></span><br><span class="line">        V(s12); V(s13); <span class="hljs-comment">// 通知P2和P3</span></span><br><span class="line">        V(B); V(C);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">P2</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(s12); <span class="hljs-comment">// 收到P1的信号</span></span><br><span class="line">        P(B); <span class="hljs-comment">// 申请缓冲区B的资源</span></span><br><span class="line">        <span class="hljs-comment">// 读取缓冲区A中存放数据计算其平方值 写入缓冲区B</span></span><br><span class="line">        V(s24); <span class="hljs-comment">// 通知P4</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">P3</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(s13); <span class="hljs-comment">// 收到P1的信号</span></span><br><span class="line">        P(C); <span class="hljs-comment">// 申请缓冲区C的资源</span></span><br><span class="line">        <span class="hljs-comment">// 读取缓冲区A中存放数据计算其立方值 写入缓冲区C</span></span><br><span class="line">        V(s34); <span class="hljs-comment">// 通知P4</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">P4</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(s24); <span class="hljs-comment">// 收到P2的通知</span></span><br><span class="line">        P(s34); <span class="hljs-comment">// 收到P3的通知</span></span><br><span class="line">        <span class="hljs-comment">// 将缓冲区B和C中的数值相加并输出</span></span><br><span class="line">        V(B); <span class="hljs-comment">// 缓冲区B释放</span></span><br><span class="line">        V(C); <span class="hljs-comment">// 缓冲区C释放</span></span><br><span class="line">        V(A); <span class="hljs-comment">// 本次计算完毕 可以写入新的i</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>桌上有一空盘，最多允许存放一只水果。爸爸可向盘中放一个苹果或放一个桔子；儿子专等吃盘中的桔子，女儿专等吃苹果。用P、V操作实现爸爸、儿子、女儿三个并发进程的同步。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">semaphore plate = <span class="hljs-number">1</span>; <span class="hljs-comment">// 盘子是否可以放入水果</span></span><br><span class="line">semaphore orange = <span class="hljs-number">0</span>; <span class="hljs-comment">// 盘子中的桔子数 </span></span><br><span class="line">semaphore apple = <span class="hljs-number">0</span>; <span class="hljs-comment">// 盘子中的苹果数</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">dad</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        result = prepare_fruit(); <span class="hljs-comment">// 准备水果 result为水果类型</span></span><br><span class="line">        P(plate); <span class="hljs-comment">// 放入水果</span></span><br><span class="line">        <span class="hljs-comment">// 将水果放入盘子</span></span><br><span class="line">        <span class="hljs-keyword">if</span> (result == apple) </span><br><span class="line">            V(apple); <span class="hljs-comment">// 苹果数+1</span></span><br><span class="line">        <span class="hljs-keyword">else</span> V(orange); <span class="hljs-comment">// 桔子数+1</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">daughter</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(apple); <span class="hljs-comment">// 盘中是否有苹果</span></span><br><span class="line">        <span class="hljs-comment">// 拿走苹果</span></span><br><span class="line">        V(plate); <span class="hljs-comment">// 盘空</span></span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">son</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(orange); <span class="hljs-comment">// 盘中是否有桔子</span></span><br><span class="line">        <span class="hljs-comment">// 拿走桔子</span></span><br><span class="line">        V(plate); <span class="hljs-comment">// 盘空</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>用P、V原语实现东西向单行道上车辆的正确行驶，要求：(1)当有车自东向西方向（或自西向东方向）行驶，另一方向上的车辆须等待；(2)同一方向上的车可以连续通过；(3)当某一方向上已经没有车辆在单行道上行驶时，另一方向上的车辆即可以进入单行道。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">semaphore mutex_dir = <span class="hljs-number">1</span>; <span class="hljs-comment">// 互斥东西方向</span></span><br><span class="line">semaphore mutex_eastc = <span class="hljs-number">1</span>;</span><br><span class="line">semaphore mutex_westc = <span class="hljs-number">1</span>;</span><br><span class="line"><span class="hljs-type">int</span> east_count = <span class="hljs-number">0</span>, west_count = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">east_to_west</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(mutex_eastc); </span><br><span class="line">        east_count++; </span><br><span class="line">        <span class="hljs-keyword">if</span> (east_count == <span class="hljs-number">1</span>) P(mutex_dir); <span class="hljs-comment">// 当前方向是否可以通过</span></span><br><span class="line">        V(mutex_eastc);</span><br><span class="line">        <span class="hljs-comment">// 从东向西通过</span></span><br><span class="line">        P(mutex_eastc);</span><br><span class="line">        east_count--;</span><br><span class="line">        <span class="hljs-keyword">if</span> (east_count == <span class="hljs-number">0</span>) V(mutex_dir); <span class="hljs-comment">// 单行道上已空 释放方向</span></span><br><span class="line">        V(mutex_eastc);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">west_to_east</span><span class="hljs-params">()</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)</span><br><span class="line">    {</span><br><span class="line">        P(mutex_westc);</span><br><span class="line">        west_count++;</span><br><span class="line">        <span class="hljs-keyword">if</span> (west_count == <span class="hljs-number">1</span>) P(mutex_dir); <span class="hljs-comment">// 当前方向是否可以通过</span></span><br><span class="line">        V(mutex_westc);</span><br><span class="line">        <span class="hljs-comment">// 从西向东通过</span></span><br><span class="line">        P(mutex_westc);</span><br><span class="line">        west_count--;</span><br><span class="line">        <span class="hljs-keyword">if</span> (west_count == <span class="hljs-number">0</span>) V(mutex_dir); <span class="hljs-comment">// 单行道上已空 释放方向</span></span><br><span class="line">        V(mutex_westc);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>某寺庙，有小、老和尚若干，有一水缸，由小和尚提入水缸供老和尚饮用。水缸可容10桶水，水取自同一井中。水井径窄，每次只能容一个水桶取水，水桶总数为3个。每次入、取缸水仅为1桶，且不可同时进行。试给出有关老和尚从缸取水和小和尚打水、入水的算法描述。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">semaphore sj = <span class="hljs-number">1</span>; <span class="hljs-comment">// 水井</span></span><br><span class="line">semaphore sg = <span class="hljs-number">1</span>; <span class="hljs-comment">// 水缸</span></span><br><span class="line">semaphore st = <span class="hljs-number">3</span>; <span class="hljs-comment">// 可用水桶数</span></span><br><span class="line">semaphore water = <span class="hljs-number">0</span>; <span class="hljs-comment">// 已入水数</span></span><br><span class="line">semaphore empty_w = <span class="hljs-number">10</span>; <span class="hljs-comment">// 可入水数</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">drwater</span><span class="hljs-params">()</span> <span class="hljs-comment">// 小和尚打水入水</span></span><br><span class="line">{</span><br><span class="line">    P(empty_w); <span class="hljs-comment">// 是否有空位可以入水</span></span><br><span class="line">    P(sj); <span class="hljs-comment">// 水井是否可用</span></span><br><span class="line">    P(st); <span class="hljs-comment">// 是否有水桶</span></span><br><span class="line">    <span class="hljs-comment">// 打水</span></span><br><span class="line">    V(sj); <span class="hljs-comment">// 释放水井</span></span><br><span class="line"></span><br><span class="line">    P(sg); <span class="hljs-comment">// 水缸是否可用</span></span><br><span class="line">    <span class="hljs-comment">// 入水</span></span><br><span class="line">    V(st); <span class="hljs-comment">// 可用水桶数增加1</span></span><br><span class="line">    V(sg); <span class="hljs-comment">// 释放水缸</span></span><br><span class="line">    V(water); <span class="hljs-comment">// 已入水数增加1</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-type">void</span> <span class="title function_">qwater</span><span class="hljs-params">()</span> <span class="hljs-comment">// 老和尚取水</span></span><br><span class="line">{</span><br><span class="line">    P(water); <span class="hljs-comment">// 是否有水可以取</span></span><br><span class="line">    P(sg); <span class="hljs-comment">// 水缸是否可用</span></span><br><span class="line">    P(st); <span class="hljs-comment">// 是否有水桶</span></span><br><span class="line">    <span class="hljs-comment">// 取水</span></span><br><span class="line">    V(sg); <span class="hljs-comment">// 释放水缸</span></span><br><span class="line">    V(st); <span class="hljs-comment">// 可用水桶数增加1</span></span><br><span class="line">    V(empty_w); <span class="hljs-comment">// 可入水数增加1</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/11/27/DQN%E7%AE%97%E6%B3%95/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">DQN算法</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/10/%E5%8D%B7%E7%A7%AF%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C/">
+                <span class="level-item">卷积网络中的一些操作</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="信号量题目" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

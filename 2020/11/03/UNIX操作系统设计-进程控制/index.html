@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX操作系统设计-进程控制 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="《UNIX操作系统设计》第七章进程控制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX操作系统设计-进程控制">
+<meta property="og:url" content="http://yoursite.com/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="《UNIX操作系统设计》第七章进程控制">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-11-03T07:39:25.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.115Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="UNIX">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX操作系统设计-进程控制" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-11-03T07:39:25.000Z">2020-11-03</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/UNIX/">UNIX</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    21 分钟 读完 (大约 3151 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX操作系统设计-进程控制
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>《UNIX操作系统设计》第七章进程控制</p>
+<span id="more"></span>
+
+<h2 id="进程的创建"><a href="#进程的创建" class="headerlink" title="进程的创建"></a>进程的创建</h2><p>UNIX中，创建新进程的唯一方法就是系统调用fork，进程0使唯一不通过fork创建的进程，由内核内部的创建。</p>
+<p><code>pid = fork()</code></p>
+<p>父子进程除了返回值pid不同外，具有完全一样的用户级上下文。</p>
+<p>父进程pid为子进程的进程号</p>
+<p>子进程的pid值为0</p>
+<p>fork完成的操作：</p>
+<ul>
+<li>为新进程在进程表中分配空槽</li>
+<li>为新进程赋值唯一的pid</li>
+<li>做一个父进程上下文的逻辑副本</li>
+<li>进程关联的文件表和索引节点表的引用数++</li>
+<li>父子进程分别返回pid</li>
+</ul>
+<p>fork会先确认由足够的资源来完成fork，对换系统中在内存或磁盘上存放子进程、请求调页系统中，内核为页表分配存储空间，如果资源不足，调用失败</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201103155304100.png" alt="image-20201103155304100"></p>
+<p>pid分配的时候使累加的，达到最大值后会从0重新分配。</p>
+<p>一个用户可以同时运行的进程数有限制，也不能占用最后一个进程表表项，否则不能调用exit正常退出。超级用户可以创建进程表所能容纳的任意多个进程，也可以占用最后一个空槽，它能启动一个子进程强制其他进程退出kill。</p>
+<p>初始化子进程的进程表项，从父进程拷贝各各字段，填写父进程pid。再初始化各种调度参数，初始状态为“创建”状态。</p>
+<p>然后调整引用数。子进程位于父进程的当前目录，所以当前目录的进程数+1，内核要层架该目录索引节点的引用数。如果父进程调用了chroot，子进程也继承这一改变，并增加其索引节点的引用数。内核查找父进程的用户文件描述符表，把其中的每一个打开的文件的全局文件表中的引用数+1。</p>
+<p>创建子进程上下文时，对于静态部分，算法dupreg复制父进程的所有区，attachreg将每个区附接到子进程。在对换系统，内核拷贝非共享区的内容到一个新的内存区域。子进程的U区被初始化和父进程一样，除了指向进程表表项的指针。</p>
+<p>对于动态部分，子进程和附近成的内核栈完全一样。</p>
+<p>子进程上下文就绪后，父进程将子进程状态改为“在内存中就绪”。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201103172043524.png" alt="image-20201103172043524"></p>
+<h2 id="软中断信号"><a href="#软中断信号" class="headerlink" title="软中断信号"></a>软中断信号</h2><p>简称信号，通知进程发生了异步事件。</p>
+<p>进程之间可以调用kill相互发送软中断信号，内核从内部也可以发送软中断信号</p>
+<p>UNIX系统V中有19个软中断信号，分为几类：</p>
+<ul>
+<li>进程终止相关</li>
+<li>进程例外事件相关，如访问越界、写 只读的内存区、硬件错误</li>
+<li>系统调用期间遇到的不可恢复的条件相关</li>
+<li>系统调用时遇到非预测错误条件</li>
+<li>用户态进程发出</li>
+<li>和终端交互有关</li>
+<li>跟踪进程执行</li>
+</ul>
+<p>相关问题：</p>
+<p>内核如何向进程发送软中断信号？</p>
+<p>内核在进程表中，按所要接受的信号类型设置软中断信号字段的某一位。</p>
+<p>进程如何接受软中断信号？</p>
+<p>进程从内核态返回用户态，或者进入或离开低调度优先级睡眠状态，内核会检查进程是否收到了软中断信号。</p>
+<p>进程如何对中断信号反应？</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201103175516454.png" alt="image-20201103175516454"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201103175557757.png" alt="image-20201103175557757"></p>
+<h3 id="软中断信号的处理"><a href="#软中断信号的处理" class="headerlink" title="软中断信号的处理"></a>软中断信号的处理</h3><p>内核在收到软中断信号的进程上下文中处理软中断信号。处理分三种情况：进程收到软中断信号后退出；进程忽略信号；收到信号后执行一个特殊的用户函数。</p>
+<p>进程可以调用signal来定义当收到某一信号时要做的特殊动作</p>
+<p><code>oldfunction = signal(signum,function)</code></p>
+<p>u区中含有一个软中断处理程序字段的数组，每一个字段对应系统中定义的一个信号。</p>
+<p>内核可以对进程有错的那些软中断信号转储内存映像，便于调试程序。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201104111854948.png" alt="image-20201104111854948"></p>
+<p>进程接受到一个决定要捕获的信号，当返回用户态，便执行用户定义的软中断处理函数，执行前，内核要执行下列步骤：</p>
+<ul>
+<li>存取用户保存的寄存器上下文，找出PC和栈指针</li>
+<li>清除u区软中断信号处理函数字段，设置为缺省</li>
+<li>在用户栈上创建一个新的栈层，写入PC和栈指针，根据需要分配新空间</li>
+<li>改变寄存器上下文</li>
+</ul>
+<h4 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h4><p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201104153302632.png" alt="image-20201104153302632"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201104153507589.png" alt="image-20201104153507589"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201104153540969.png" alt="image-20201104153540969"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201104153532669.png" alt="image-20201104153532669"></p>
+<p>可能产生竞争条件</p>
+<h3 id="进程组"><a href="#进程组" class="headerlink" title="进程组"></a>进程组</h3><p>系统有时用组来标识进程。用进程组号标识进程，这组进程对于某些事件应该收到共同的信号。进程表中有记录组标识号。</p>
+<p><code>grp = setpgrp</code>用来初始化一个进程的进程组号，并设置为与该进程标识号相同的值。</p>
+<h3 id="从进程发送软中断信号"><a href="#从进程发送软中断信号" class="headerlink" title="从进程发送软中断信号"></a>从进程发送软中断信号</h3><p>进程使用系统调用kill发送软中断信号</p>
+<p><code>kill(pid,signum)</code></p>
+<p>pid为正值，发送给pid的进程；为0发送给所有同组进程；为-1发送给真正用户标识号等于发送进程的有效用户标识号的进程，如果发送进程有超级用户的有效用户标识号，信号将被发送给除进程0和进程1以外的所有进程。pid为非-1的负数，发送个组好为pid绝对值的进程组中的所有进程。</p>
+<h2 id="进程的终止"><a href="#进程的终止" class="headerlink" title="进程的终止"></a>进程的终止</h2><p>退出的进程进入僵死状态，释放它的资源，撤出进程上下文，但保留它的进程表项</p>
+<p><code>exit(status)</code></p>
+<p>status的值返回给父进程。main结束调用；内核在进程收到非捕获信号时，可以内部调用exit，status是软中断信号号。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201105092956882.png" alt="image-20201105092956882"></p>
+<h2 id="等待进程的终止"><a href="#等待进程的终止" class="headerlink" title="等待进程的终止"></a>等待进程的终止</h2><p>进程调用wait使它的执行与子进程终止同步</p>
+<p><code>pid = wait(stat_addr)</code></p>
+<p>pid使僵死子进程的进程号；</p>
+<p>stat_addr使一个整数在用户空间的地址，将含有子进程的退出状态码。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201105110246711.png" alt="image-20201105110246711"></p>
+<p>执行wait的进程有子进程，但没有僵死进程，则该进程睡眠在可被中断的优先级上，直到出现一个软中断信号。</p>
+<p>内核对睡眠与系统调用wait中的进程没有显示的唤醒调用，只有收到软中断信号时才被唤醒。</p>
+<p>特殊点是，如果软中断信号是“子进程死”，该进程将采用不同的对策</p>
+<ul>
+<li>缺省情况下，进程从wait的睡眠中醒来</li>
+<li>如果进程捕俘“子进程死”软中断信号，内核将像处理其他信号一样，安排调用用户的软中断信号处理子程序</li>
+<li>如果进程忽略“子进程死”软中断信号，内核将重新开始wait中的循环，释放僵死进程的进程表项，然后寻找其他的子进程。</li>
+</ul>
+<h2 id="对其他程序的引用"><a href="#对其他程序的引用" class="headerlink" title="对其他程序的引用"></a>对其他程序的引用</h2><p>exec实现引用一个程序，用一个可执行文件的副本覆盖一个进程的存储空间。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">execve</span>(filename,argv,envp);</span><br><span class="line"><span class="hljs-comment">//filename是要引用的可执行文件的文件名</span></span><br><span class="line"><span class="hljs-comment">//argv是一个字符指针数组的指针，这组字符指针是可执行程序的参数</span></span><br><span class="line"><span class="hljs-comment">//envp是另一个字符指针数组的指针，这一组字符指针是执行程序的环境</span></span><br><span class="line">系统调用exec的库函数有好几个，如execl，execv，execle等待。这些库函数最终都要调用execve</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201105144529931.png" alt="image-20201105144529931"></p>
+<p>文件系统中一个可执行文件的逻辑格式，通常由汇编程序或装配程序（loader）所组成</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201105145010586.png" alt="image-20201105145010586"></p>
+<p>四部分组成：</p>
+<ul>
+<li>主文件头：魔数给出了可执行文件的类型</li>
+<li>若干个段头：段头描述了文件中的每个段，给出了段的大小、在系统中运行时该段所占据的虚地址和其他信息</li>
+<li>数据段：如正文</li>
+<li>其他信息段：如符号表、其他数据，这些信息对debug很有用</li>
+</ul>
+<p>？？？</p>
+<h2 id="进程的用户标识号"><a href="#进程的用户标识号" class="headerlink" title="进程的用户标识号"></a>进程的用户标识号</h2><p>内核将两个用户标识号和一个进程关联，独立于进程标识号。用户标识号分为：真正用户标识号和有效用户标识号（setuid设置的用户ID），真正用户标识号标识负责运行进程的用户。有效用户标识号用于给新创建的文件赋所有权、检查文件的存取权限和检查通过系统调用kill像进程发送软中断信号的许可权限。</p>
+<p>进程可以用exec执行一个setuid程序，或显示的系统调用setuid来改变有效用户标识号</p>
+<h2 id="改变进程数据区的大小"><a href="#改变进程数据区的大小" class="headerlink" title="改变进程数据区的大小"></a>改变进程数据区的大小</h2><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">brk</span>(endds);<span class="hljs-comment">//endds是进程数据区的最高虚地址值，称为break值</span></span><br><span class="line">oldendds = <span class="hljs-built_in">sbrk</span>(increment);<span class="hljs-comment">//increment以字节为单位对当前break值的改变量</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201105162823000.png" alt="image-20201105162823000"></p>
+<h2 id="shell程序"><a href="#shell程序" class="headerlink" title="shell程序"></a>shell程序</h2><p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201108124220116.png" alt="image-20201108124220116"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201108124230707.png" alt="image-20201108124230707"></p>
+<h2 id="系统自举和进程init"><a href="#系统自举和进程init" class="headerlink" title="系统自举和进程init"></a>系统自举和进程init</h2><p>自举：系统管理员通过自举过程来初始化一个处于非活动状态的系统。将操作系统装入内存，并开始执行。</p>
+<p>系统管理员设置计算机控制台上的开关，规定一个特殊的硬编码的程序地址，按下一个按钮，指示机器从他的微代码装入自举程序，这个程序仅有几条指令组成，只是机器执行另一个程序。UNIX中，自举最后读一个磁盘自举块，并装入内存，自举块中的程序将内核从文件系统装入内存，内核装入内存后，自举程序将控制转到内核的起始地址，内核开始运行start。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201108134737517.png" alt="image-20201108134737517"></p>
+<p>init进程是一个进程派遣者，除了产生其他进程外，还产生一些使用户在系统上注册的进程。进程init读文件“/etc/inittab”来得到关于要产生那些进程的指示。</p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201108141634287.png" alt="image-20201108141634287"></p>
+<p><img src="/2020/11/03/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E6%8E%A7%E5%88%B6/image-20201108143317605.png" alt="image-20201108143317605"></p>
+<p>UNIX三种进程：用户进程、守护进程、核心进程</p>
+<p>守护进程执行系统功能，如管理和控制网络，执行与时间相关的活动、行打印机假脱机输出等等</p>
+<p>核心进程只在内核态运行，由进程0产生，核心进程在提供系统范围服务方面类似于守护进程，但执行优先权上具有更大的权力，因为他们是内核代码的一部分。</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/UNIX/" rel="tag">UNIX</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/11/12/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6%E5%92%8C%E6%97%B6%E9%97%B4/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">UNIX操作系统设计-进程调度和时间</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/11/03/vim%E4%BD%BF%E7%94%A8/">
+                <span class="level-item">vim使用</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#进程的创建">
+        <span class="has-mr-6">1</span>
+        <span>进程的创建</span>
+        </a></li><li>
+        <a class="is-flex" href="#软中断信号">
+        <span class="has-mr-6">2</span>
+        <span>软中断信号</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#软中断信号的处理">
+        <span class="has-mr-6">2.1</span>
+        <span>软中断信号的处理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#例子">
+        <span class="has-mr-6">2.1.1</span>
+        <span>例子</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程组">
+        <span class="has-mr-6">2.2</span>
+        <span>进程组</span>
+        </a></li><li>
+        <a class="is-flex" href="#从进程发送软中断信号">
+        <span class="has-mr-6">2.3</span>
+        <span>从进程发送软中断信号</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程的终止">
+        <span class="has-mr-6">3</span>
+        <span>进程的终止</span>
+        </a></li><li>
+        <a class="is-flex" href="#等待进程的终止">
+        <span class="has-mr-6">4</span>
+        <span>等待进程的终止</span>
+        </a></li><li>
+        <a class="is-flex" href="#对其他程序的引用">
+        <span class="has-mr-6">5</span>
+        <span>对其他程序的引用</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程的用户标识号">
+        <span class="has-mr-6">6</span>
+        <span>进程的用户标识号</span>
+        </a></li><li>
+        <a class="is-flex" href="#改变进程数据区的大小">
+        <span class="has-mr-6">7</span>
+        <span>改变进程数据区的大小</span>
+        </a></li><li>
+        <a class="is-flex" href="#shell程序">
+        <span class="has-mr-6">8</span>
+        <span>shell程序</span>
+        </a></li><li>
+        <a class="is-flex" href="#系统自举和进程init">
+        <span class="has-mr-6">9</span>
+        <span>系统自举和进程init</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX操作系统设计-进程控制" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

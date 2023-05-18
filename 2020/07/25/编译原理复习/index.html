@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>编译原理复习 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="编译基本过程：词法分析、语法分析、语义分析、中间代码生成、编译优化、目标代码生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译原理复习">
+<meta property="og:url" content="http://yoursite.com/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="编译基本过程：词法分析、语法分析、语义分析、中间代码生成、编译优化、目标代码生成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-07-25T05:19:26.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.523Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="编译原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="编译原理复习" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-07-25T05:19:26.000Z">2020-07-25</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/">编译原理</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    30 分钟 读完 (大约 4501 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                编译原理复习
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>编译基本过程：词法分析、语法分析、语义分析、中间代码生成、编译优化、目标代码生成</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200725133655985.png" alt="image-20200725133655985"></p>
+<span id="more"></span>
+
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>对存储器中存储数据的抽象，包括一组值和一组操作</p>
+<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
+<li>内部数据：语言自己定义的数据</li>
+<li>用户定义数据：运行程序员利用数据的<strong>聚合机制</strong>，定义复杂的数据对象<ul>
+<li>笛卡尔积：例如  正多边形的   边数X边长</li>
+<li>有限映像：通过下标变量对应的函数</li>
+<li>序列：任意多个数据项，但类型相同</li>
+<li>递归：通过指针构建</li>
+<li>判定或：union，c语言中union使用同一段内存</li>
+<li>幂集：类型T的元素所有子集的集合</li>
+</ul>
+</li>
+<li>抽象数据类型</li>
+</ul>
+<h3 id="C语言中的数据类型"><a href="#C语言中的数据类型" class="headerlink" title="C语言中的数据类型"></a>C语言中的数据类型</h3><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809142851311.png" alt="image-20200809142851311"></p>
+<h3 id="类型检查"><a href="#类型检查" class="headerlink" title="类型检查"></a>类型检查</h3><p>对语言按照数据类型分类：</p>
+<ul>
+<li>无类型语言</li>
+<li>强类型语言：所有类型检查要在编译时完成（C）</li>
+<li>弱类型语言：类型检查要全部或部分要在运行时完成（PASCAL）</li>
+</ul>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p>类型转换分为：</p>
+<ul>
+<li>扩展：整型—&gt;实型</li>
+<li>收缩：实型—&gt;整型</li>
+</ul>
+<p>语言应该提供的类型转换机制：</p>
+<ul>
+<li>隐式转换（自动）</li>
+<li>显示转换（强制）</li>
+</ul>
+<h3 id="类型等价"><a href="#类型等价" class="headerlink" title="类型等价"></a>类型等价</h3><p><code>T1</code>和<code>T2</code>是两个类型<br>T1的任何值都可以赋给T2的变量，反之亦然<br>T1实参可对应T2形参，反之亦然<br>则T1和T2类型等价（相容）</p>
+<h3 id="实现模型"><a href="#实现模型" class="headerlink" title="实现模型"></a>实现模型</h3><p>数据类型的实现模型，用<strong>描述符</strong>和<strong>数据对象</strong>表示</p>
+<ul>
+<li>描述符：描述数据对象的属性数据</li>
+<li>数据对象：存储区及其内容</li>
+</ul>
+<p>绑定：一个对象与其某种属性建立起某种联系的过程。</p>
+<h4 id="内部类型"><a href="#内部类型" class="headerlink" title="内部类型"></a>内部类型</h4><p>描述符一般由类型和一个指针组成：</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809144404591.png" alt="image-20200809144404591"></p>
+<h4 id="用户定义类型"><a href="#用户定义类型" class="headerlink" title="用户定义类型"></a>用户定义类型</h4><ul>
+<li><p>笛卡尔积：</p>
+<ul>
+<li>各成分顺序排列，每个成分占整数个可编址存储单元</li>
+<li>描述符包含：类型名，构造符，若干三元式（选择符名、域类型、指针），每个域对应一个三元式</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809144840348.png" alt="image-20200809144840348"></p>
+</li>
+<li><p>有限映像：</p>
+<ul>
+<li>每个成分分配整数个可编址的存储单元</li>
+<li>描述符包含：类型名、构造符、定义域的基类型、下界、上界、成分类型、（每个成分占有的）单元个数、首地址</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809145917735.png" alt="image-20200809145917735"></p>
+</li>
+<li><p>序列</p>
+<p>静态描述符+动态描述符+堆</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809150121846.png" alt="image-20200809150121846"></p>
+</li>
+<li><p>判定或：</p>
+<ul>
+<li>对判定或类型变量分配的空间要足够容纳需要最大空间的变体的值</li>
+<li>PASCAL的变体记录包括：描述符、数据对象、case表、若干变体描述符</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809150546405.png" alt="image-20200809150546405"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809150632001.png" alt="image-20200809150632001"></p>
+</li>
+<li><p>幂集</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809151252178.png" alt="image-20200809151252178"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809151324947.png" alt="image-20200809151324947"></p>
+</li>
+</ul>
+<h2 id="控制结构"><a href="#控制结构" class="headerlink" title="控制结构"></a>控制结构</h2><p>语句级控制结构分为：顺序、选择、重复</p>
+<p>重复的两种控制方式：计数器制导（for循环知道循环次数）、条件制导（while循环）</p>
+<p>单元级控制结构：显示调用、异常处理、协同程序、并发单元</p>
+<p>区分协同程序和并发单元：协同程序是伪并行的，是交错执行。</p>
+<p>异常处理：被调用单元是隐含的</p>
+<h2 id="程序语言设计"><a href="#程序语言设计" class="headerlink" title="程序语言设计"></a>程序语言设计</h2><h3 id="语言的定义、语义描述、语法描述"><a href="#语言的定义、语义描述、语法描述" class="headerlink" title="语言的定义、语义描述、语法描述"></a>语言的定义、语义描述、语法描述</h3><p>语言 = 语法 + 语义</p>
+<p>可以从生成（文法）和识别（语法图）的角度描述语法。</p>
+<p>文法和语法图是语法的等价表示。</p>
+<p>语义尚无描述工具，一般用自然语言。可以用操作语义学的抽象机行为来描述语法单位的作用和意义。</p>
+<ul>
+<li><p>抽象机GAM：</p>
+<p>存储器、控制器、处理器、指令指针ip</p>
+<p>存储器分为代码区和数据区</p>
+<p>GAM启动后，将依次完成以下工作：</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809160322302.png" alt="image-20200809160322302"></p>
+</li>
+</ul>
+<h3 id="形式语言与文法"><a href="#形式语言与文法" class="headerlink" title="形式语言与文法"></a>形式语言与文法</h3><p>文法的形式定义：G = （VT,VN,S,P） 终结符集、非终结符集、文法开始符号、产生式集。</p>
+<p>a-&gt;b   产生式箭头后面的叫候选式</p>
+<h4 id="文法分类"><a href="#文法分类" class="headerlink" title="文法分类"></a>文法分类</h4><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/whuexe/article/details/8710723">https://blog.csdn.net/whuexe/article/details/8710723</a></p>
+<ul>
+<li>0型文法</li>
+<li>1型文法：上下文有关文法</li>
+<li>2型文法：上下文无关文法</li>
+<li>3型文法：正规文法</li>
+</ul>
+<h4 id="推导"><a href="#推导" class="headerlink" title="推导"></a>推导</h4><p>推导就是用产生式的右边代替产生式的左边</p>
+<p>推导的逆过程——归约</p>
+<p>最左推导：替换最左边的非终结符</p>
+<p>最右推导（规范推导）：替换最右边的非终结符</p>
+<p>直接推导：推导一次</p>
+<p>广义推导：推零次或若干次</p>
+<p>句型和句子：</p>
+<p>句型是推导过程中生成的产生式</p>
+<p>句子是只有终结符的句型</p>
+<h4 id="语言的定义"><a href="#语言的定义" class="headerlink" title="语言的定义"></a>语言的定义</h4><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809162636004.png" alt="image-20200809162636004"></p>
+<p>一个文法只能产生一个语言，一个语言可以由多个不同的文法产生。若L(G) = L(G‘)，则称G和G’是等价文法。</p>
+<h4 id="语法树（推导树）"><a href="#语法树（推导树）" class="headerlink" title="语法树（推导树）"></a>语法树（推导树）</h4><p>非终结符—&gt;终结符</p>
+<p>推导树不是唯一的，语言二义性，一个句子可能有两颗不同的推到树。</p>
+<p>推导树的边缘：所有叶节点从左到右的连接</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809163235387.png" alt="image-20200809163235387"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200809163531573.png" alt="image-20200809163531573"></p>
+<h2 id="编译概述"><a href="#编译概述" class="headerlink" title="编译概述"></a>编译概述</h2><p>一些基本概念：</p>
+<ul>
+<li>翻译：一种语言编写的程序转换成另一种语言编写的程序，实现翻译的程序叫翻译程序</li>
+<li>从高级语言到低级语言的翻译叫做编译<br>从汇编语言到机器语言的翻译叫做汇编</li>
+<li>编译程序：高级语言—&gt;低级语言 </li>
+<li>汇编程序：汇编语言—&gt;机器语言</li>
+<li>宿主语言：编写编译程序的语言</li>
+<li>宿主机：运行翻译程序的机器</li>
+<li>自驻留：宿主语言编写的编译程序能生成其宿主机上执行的机器代码</li>
+<li>交叉编译：编译程序生成的不是宿主机的机器代码</li>
+<li>自编译：编译程序是用源语言写的</li>
+</ul>
+<h3 id="编译和解释"><a href="#编译和解释" class="headerlink" title="编译和解释"></a>编译和解释</h3><h4 id="编译执行"><a href="#编译执行" class="headerlink" title="编译执行"></a>编译执行</h4><p>先将源程序翻译成目标程序，再执行目标程序得到结果</p>
+<h4 id="解释执行"><a href="#解释执行" class="headerlink" title="解释执行"></a>解释执行</h4><p>直接由解释程序对源程序进行分析、执行并得到结果</p>
+<p>解释执行无需生成目标代码、易于实现、易于移植，需要边翻译边执行，优化难，执行效率低</p>
+<h4 id="如何区分"><a href="#如何区分" class="headerlink" title="如何区分"></a>如何区分</h4><p>看进程：是目标程序还是解释程序</p>
+<p>如c语言程序的进程就是 程序.exe，而python是python解释器pyhon.exe</p>
+<h2 id="词法分析"><a href="#词法分析" class="headerlink" title="词法分析"></a>词法分析</h2><p>输入源程序的符号串，输出单词流</p>
+<p>工具：状态转换图</p>
+<h2 id="语法分析"><a href="#语法分析" class="headerlink" title="语法分析"></a>语法分析</h2><p>对经过词法分析的符号串，按照文法判断，看是否构成正确的句子，给出语法树和错误信息。</p>
+<h3 id="自上而下"><a href="#自上而下" class="headerlink" title="自上而下"></a>自上而下</h3><p>前提条件：消除左递归和无公共左因子</p>
+<ul>
+<li>递归下降分析</li>
+<li>预测分析</li>
+</ul>
+<h4 id="递归下降分析"><a href="#递归下降分析" class="headerlink" title="递归下降分析"></a>递归下降分析</h4><ul>
+<li>消除左递归：目的是避免产生无限推导，而不能匹配任何字符</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/liyun123gx/article/details/19924993">https://blog.csdn.net/liyun123gx/article/details/19924993</a></p>
+<p><strong>P→Pα1 / Pα2 /…/ Pαn / β1 / β2 /…/βm</strong></p>
+<p>改为：</p>
+<p><strong>P→β1 P’ / β2 P’ /…/βm P’</strong></p>
+<p><strong>P’</strong> <strong>→α1P’ / α2 P’ /…/ αn P’ /ε</strong></p>
+<ul>
+<li>提取公共左因子：目的是消除回溯，拥有唯一的推导过程</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200725145246957.png" alt="image-20200725145246957"></p>
+<h4 id="预测分析法"><a href="#预测分析法" class="headerlink" title="预测分析法"></a>预测分析法</h4><p>表驱动，由 下推栈、预测分析表、控制程序 组成</p>
+<ul>
+<li>first(α)集：α（任意符号串）所有可能<strong>推导出的</strong>首终结符（或ε）的集合，首符集</li>
+<li>follow(A)集：所有句型中紧跟在A后面出现的终结符的集合，跟随符集</li>
+</ul>
+<h5 id="first集构造"><a href="#first集构造" class="headerlink" title="first集构造"></a>first集构造</h5><ul>
+<li>终结符的first集是它本身</li>
+<li>非终结符的first集是这个字符可能能推导出的第一个非终结符，包括直接推导出的、间接推导出的</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727130212901.png" alt="image-20200727130212901"></p>
+<p>4那里应该是1&lt;=j&lt;=i吧？注： *表示大于1    +表示大于等于1</p>
+<h5 id="follow集构造"><a href="#follow集构造" class="headerlink" title="follow集构造"></a>follow集构造</h5><p>找产生式右边的这个字符B，这个字符后面符号的first集加入。推导符号的follow集加入(推导结果能以B结束)</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727130310525.png" alt="image-20200727130310525"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727130716495.png" alt="image-20200727130716495"></p>
+<h5 id="预测分析表构造"><a href="#预测分析表构造" class="headerlink" title="预测分析表构造"></a>预测分析表构造</h5><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727140400707.png" alt="image-20200727140400707"></p>
+<p>严谨的说  First集是针对候选式而说的，所以用了α区分A。求候选式First集的算法：</p>
+<p>输入：文法G = (V,P,T,S)，α = (v ∪ T)*，α = X1…..Xn</p>
+<p>输出：First(α)</p>
+<p>步骤：</p>
+<p>1、计算First(X1);</p>
+<p>2、First(α) = First(X1) - {ε}</p>
+<p>3、k = 1</p>
+<p>4、while(<strong>ε ∈ First(Xk)</strong> and k &lt; n)   do begin</p>
+<p>​        First(α) = First(α) ∪ (<strong>First(Xk+1)</strong> - {ε})</p>
+<p>​        k = k +1  end</p>
+<p>5、if(k = n and ε ∈ First(Xk))  then First(α) = First(α) ∪ {ε}</p>
+<p>思路：看前一个字符的first集中是否有ε，有的话，下一个字符的 first集-ε 也要加进去。</p>
+<h3 id="自下而上"><a href="#自下而上" class="headerlink" title="自下而上"></a>自下而上</h3><p>采用栈，移进过程中观察栈顶是否形成了某个产生式的一个候选，若是，则规约，直到只剩下开始符号。</p>
+<ul>
+<li>算符优先分析法</li>
+<li>LR分析法</li>
+</ul>
+<h4 id="算符优先分析法"><a href="#算符优先分析法" class="headerlink" title="算符优先分析法"></a>算符优先分析法</h4><p>使用分析栈，当其栈顶形成<strong>最左素短语</strong>时，进行归约。</p>
+<h5 id="FIRSTVT集和LASTVT集"><a href="#FIRSTVT集和LASTVT集" class="headerlink" title="FIRSTVT集和LASTVT集"></a>FIRSTVT集和LASTVT集</h5><ul>
+<li>FIRSTVT(P)集：P所可能<strong>推导的</strong>第一个终结符的集合</li>
+<li>LASTVT(P)集：P所可能推导的最后一个终结符的集合</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727150802705.png" alt="image-20200727150802705"></p>
+<p>用矩阵求不容易遗漏</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727151427074.png" alt="image-20200727151427074"></p>
+<h5 id="优先关系表构造"><a href="#优先关系表构造" class="headerlink" title="优先关系表构造"></a>优先关系表构造</h5><p>这个优先关系是单方面的，也就是说这里的 “a&lt;b” 并不意味着 “b&gt;a”，同样的，“a=b” 也不意味着 “b=a”。</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727151559352.png" alt="image-20200727151559352"></p>
+<p>都是集合里的优先级高，终结符前面的看lastvt，后面的看firstvt</p>
+<p><strong>“终结符&lt;firstVT()”或“lastVT()&gt;终结符”</strong>        左边对应行，右边对应列</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727151614090.png" alt="image-20200727151614090"></p>
+<p>想象一个句型…aQ…..,在这个句型中只有等Q的短语规约为Q了，才有可能将…aQ….再次向上规约，因此a的优先级要小于Q产生式的firstVT(Q)集，因为我们可以断定a必定是比Q中第一个出现的终结符优先级低的，也就是说优先级a&lt;优先级firstVT(Q)</p>
+<p>同理，对于lastVT()，让我们想一下这种情况…..Qa…..,对于这个句型我们知道只有当Q的短语归约成了Q，我们才敢将….Qa……向上归约。这样的话就是说Q的产生式中最后出现的一个终结符的优先级必定是比a的优先级高的，也就是优先级lastVT(Q)&gt;优先级a</p>
+<h4 id="LR分析法"><a href="#LR分析法" class="headerlink" title="LR分析法"></a>LR分析法</h4><h5 id="LR-0"><a href="#LR-0" class="headerlink" title="LR(0)"></a>LR(0)</h5><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37154839/article/details/80316089">https://blog.csdn.net/m0_37154839/article/details/80316089</a></p>
+<h5 id="SLR-1"><a href="#SLR-1" class="headerlink" title="SLR(1)"></a>SLR(1)</h5><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200727164529081.png" alt="image-20200727164529081"></p>
+<h2 id="语义分析和中间代码生成"><a href="#语义分析和中间代码生成" class="headerlink" title="语义分析和中间代码生成"></a>语义分析和中间代码生成</h2><h3 id="语义分析"><a href="#语义分析" class="headerlink" title="语义分析"></a>语义分析</h3><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/D:%5Ccode%5CmyBlog%5CBlog%5Csource_posts%5C%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0%5Cimage-20200824190617844.png" alt="image-20200824190617844"></p>
+<ul>
+<li>语义检查：类型检查、控制流检查（break出现位置）、<strong>一致性检查</strong>（数组维数、变量重名、变量定义）、<strong>越界检查</strong></li>
+<li>语义处理：说明语句翻译（对说明语句的信息登记到符号表中），执行语句翻译（生成中间代码）</li>
+</ul>
+<h3 id="中间代码生成"><a href="#中间代码生成" class="headerlink" title="中间代码生成"></a>中间代码生成</h3><p>语义子程序是某种中间代码生成程序，随着语法分析的进行，中间代码也逐步生成。</p>
+<p>为什么要生成中间代码：<strong>不同的机器有不同的机器码</strong>，所以编译器会把高级语言翻译到一个低层，而这个低层又没有低到机器码这个层级。这就是中间代码（intermediate representation，IR）。<strong>编译器的前端把高级语言翻译到 IR，编译器的后端把 IR 翻译成目标机器的汇编代码。</strong></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200725141716576.png" alt="image-20200725141716576"></p>
+<p>中间代码的形式多样：三地址代码、后缀式、语法树。通常使用三地址代码(或称为四元式)。</p>
+<h3 id="语法制导翻译"><a href="#语法制导翻译" class="headerlink" title="语法制导翻译"></a>语法制导翻译</h3><p>在语法分析的过程中，产生式对应的语义子程序对源代码进行翻译，生成中间代码。</p>
+<h4 id="赋值语句翻译"><a href="#赋值语句翻译" class="headerlink" title="赋值语句翻译"></a>赋值语句翻译</h4><h4 id="变量说明语句翻译"><a href="#变量说明语句翻译" class="headerlink" title="变量说明语句翻译"></a>变量说明语句翻译</h4><h4 id="控制语句翻译"><a href="#控制语句翻译" class="headerlink" title="控制语句翻译"></a>控制语句翻译</h4><h5 id="布尔表达式"><a href="#布尔表达式" class="headerlink" title="布尔表达式"></a>布尔表达式</h5><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804144157989.png" alt="image-20200804144157989"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804144212824.png" alt="image-20200804144212824"></p>
+<h5 id="if语句"><a href="#if语句" class="headerlink" title="if语句"></a>if语句</h5><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804133454472.png" alt="image-20200804133454472"></p>
+<p>s1.chain错了 ,应该是s2.chain</p>
+<p><strong>例题：</strong></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804133629330.png" alt="image-20200804133629330"></p>
+<h4 id="while语句翻译"><a href="#while语句翻译" class="headerlink" title="while语句翻译"></a>while语句翻译</h4><p>chain记录的是要回填的那条指令的地址，code记录回填的内容</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804143627718.png" alt="image-20200804143627718"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804143714320.png" alt="image-20200804143714320"></p>
+<h4 id="for循环语句翻译"><a href="#for循环语句翻译" class="headerlink" title="for循环语句翻译"></a>for循环语句翻译</h4><p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/D:%5Ccode%5CmyBlog%5CBlog%5Csource_posts%5C%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0%5Cimage-20200814160438624.png" alt="image-20200814160438624"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804143856002.png" alt="image-20200804143856002"></p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200804143928625.png" alt="image-20200804143928625"></p>
+<h2 id="编译优化"><a href="#编译优化" class="headerlink" title="编译优化"></a>编译优化</h2><p>等价、有效    不改变程序运行结果，提高程序的时间效率和空间的效率。</p>
+<p>中间代码优化分为：局部优化和全局优化（基本块内和基本块外）</p>
+<p>基本块：一段语句序列，有为一的入口语句和唯一的出口语句。所有语句的执行次数相同。</p>
+<p>入口语句：能由转移语句转移到的语句，紧跟在条件转移后的语句</p>
+<p>出口语句：转移语句，停止语句</p>
+<h3 id="局部优化"><a href="#局部优化" class="headerlink" title="局部优化"></a>局部优化</h3><p>是基本块内的优化，常见的方法包括：</p>
+<ul>
+<li>合并已知量</li>
+<li>删除死代码：永远不会执行的分支的代码，可以删除</li>
+<li>删除公共子表达式：a = b<em>c ; d = b</em>c 改为 a = b*c ; d = a </li>
+<li>删除无用赋值：a = 1; a = 2 改为 a = 2</li>
+</ul>
+<h3 id="全局优化"><a href="#全局优化" class="headerlink" title="全局优化"></a>全局优化</h3><p><strong>循环定义</strong>：循环是程序流图中有唯一入口节点的强连通子图</p>
+<p><strong>如何查找循环</strong></p>
+<p>基本块之间的优化，这里只讨论循环优化，常见的方法包括：</p>
+<ul>
+<li>代码外提：循环不变运算，提到循环入口节点之前所增设的节点</li>
+<li>强度削弱：加法代替乘法</li>
+<li>删除归纳变量</li>
+</ul>
+<h2 id="目标代码生成"><a href="#目标代码生成" class="headerlink" title="目标代码生成"></a>目标代码生成</h2><p>将中间代码翻译成等价的目标代码（机器代码、汇编码）</p>
+<p>输入：中间代码（三地址码）</p>
+<p>输出：目标代码（汇编代码）</p>
+<p>目标代码的生成需要考虑：目标计算机的指令系统、寄存器分配、存储空间分配</p>
+<h3 id="循环中的寄存器分配"><a href="#循环中的寄存器分配" class="headerlink" title="循环中的寄存器分配"></a>循环中的寄存器分配</h3><h3 id="存储空间分配"><a href="#存储空间分配" class="headerlink" title="存储空间分配"></a>存储空间分配</h3><ul>
+<li>代码空间</li>
+<li>数据空间<ul>
+<li>静态数据空间</li>
+<li>动态数据空间<ul>
+<li>堆空间</li>
+<li>栈空间</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200802170631851.png" alt="image-20200802170631851"></p>
+<h4 id="活动记录"><a href="#活动记录" class="headerlink" title="活动记录"></a>活动记录</h4><p>又叫栈帧。每个函数拥有自己的局部数据空间，就叫活动记录。一个函数的数据信息、管理信息都是通过活动记录存放的。通过栈式分配在栈空间种进行。</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200802171036275.png" alt="image-20200802171036275"></p>
+<p>活动记录是在函数调用时动态建立，函数退出时动态撤销的。</p>
+<p>动态连接：被调函数的活动记录中保存主调函数的活动记录的首地址，用来被调函数退出时，回复主调函数的活动记录。</p>
+<h4 id="非局部变量"><a href="#非局部变量" class="headerlink" title="非局部变量"></a>非局部变量</h4><p>指全局变量和其他函数中定义的变量。访问方式取决于变量的作用域</p>
+<p>静态连接：指向直接嵌套外层的最新活动记录的指针。</p>
+<p><img src="/2020/07/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E5%A4%8D%E4%B9%A0/image-20200802182934691.png" alt="image-20200802182934691"></p>
+<h3 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h3><h4 id="引址调用"><a href="#引址调用" class="headerlink" title="引址调用"></a>引址调用</h4><p>将实参的地址传给形参，表达式将创建新的临时单元</p>
+<h4 id="值调用"><a href="#值调用" class="headerlink" title="值调用"></a>值调用</h4><ul>
+<li>传值：将实参的计算值传给形参，作为局部变量使用</li>
+<li>传结果：实参地址传给形参，另外还有一个局部变量空间 （通常不采用）</li>
+<li>传值得结果：编译程序为每个形参分配两个单元；一个用来存放实参地址，一个用来作为被调用单元的局部变量，用来存放实参传递的值；实参将值传递给形参，被调用单元结束后，将形参的值再传递回实参</li>
+</ul>
+<h3 id="静态作用域和动态作用域"><a href="#静态作用域和动态作用域" class="headerlink" title="静态作用域和动态作用域"></a>静态作用域和动态作用域</h3><p>词法作用域的函数中遇到既不是形参也不是函数内部定义的局部变量的变量时，去函数定义时的环境中查询。</p>
+<p>动态域的函数中遇到既不是形参也不是函数内部定义的局部变量的变量时，到函数调用时的环境中查。</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" rel="tag">编译原理</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">计算机系统结构复习</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/06/14/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0%E6%A6%82%E5%BF%B5%E5%A4%8D%E4%B9%A0/">
+                <span class="level-item">线性代数概念复习</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#数据类型">
+        <span class="has-mr-6">1</span>
+        <span>数据类型</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#分类">
+        <span class="has-mr-6">1.1</span>
+        <span>分类</span>
+        </a></li><li>
+        <a class="is-flex" href="#C语言中的数据类型">
+        <span class="has-mr-6">1.2</span>
+        <span>C语言中的数据类型</span>
+        </a></li><li>
+        <a class="is-flex" href="#类型检查">
+        <span class="has-mr-6">1.3</span>
+        <span>类型检查</span>
+        </a></li><li>
+        <a class="is-flex" href="#类型转换">
+        <span class="has-mr-6">1.4</span>
+        <span>类型转换</span>
+        </a></li><li>
+        <a class="is-flex" href="#类型等价">
+        <span class="has-mr-6">1.5</span>
+        <span>类型等价</span>
+        </a></li><li>
+        <a class="is-flex" href="#实现模型">
+        <span class="has-mr-6">1.6</span>
+        <span>实现模型</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#内部类型">
+        <span class="has-mr-6">1.6.1</span>
+        <span>内部类型</span>
+        </a></li><li>
+        <a class="is-flex" href="#用户定义类型">
+        <span class="has-mr-6">1.6.2</span>
+        <span>用户定义类型</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#控制结构">
+        <span class="has-mr-6">2</span>
+        <span>控制结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#程序语言设计">
+        <span class="has-mr-6">3</span>
+        <span>程序语言设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#语言的定义、语义描述、语法描述">
+        <span class="has-mr-6">3.1</span>
+        <span>语言的定义、语义描述、语法描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#形式语言与文法">
+        <span class="has-mr-6">3.2</span>
+        <span>形式语言与文法</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#文法分类">
+        <span class="has-mr-6">3.2.1</span>
+        <span>文法分类</span>
+        </a></li><li>
+        <a class="is-flex" href="#推导">
+        <span class="has-mr-6">3.2.2</span>
+        <span>推导</span>
+        </a></li><li>
+        <a class="is-flex" href="#语言的定义">
+        <span class="has-mr-6">3.2.3</span>
+        <span>语言的定义</span>
+        </a></li><li>
+        <a class="is-flex" href="#语法树（推导树）">
+        <span class="has-mr-6">3.2.4</span>
+        <span>语法树（推导树）</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#编译概述">
+        <span class="has-mr-6">4</span>
+        <span>编译概述</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#编译和解释">
+        <span class="has-mr-6">4.1</span>
+        <span>编译和解释</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#编译执行">
+        <span class="has-mr-6">4.1.1</span>
+        <span>编译执行</span>
+        </a></li><li>
+        <a class="is-flex" href="#解释执行">
+        <span class="has-mr-6">4.1.2</span>
+        <span>解释执行</span>
+        </a></li><li>
+        <a class="is-flex" href="#如何区分">
+        <span class="has-mr-6">4.1.3</span>
+        <span>如何区分</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#词法分析">
+        <span class="has-mr-6">5</span>
+        <span>词法分析</span>
+        </a></li><li>
+        <a class="is-flex" href="#语法分析">
+        <span class="has-mr-6">6</span>
+        <span>语法分析</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#自上而下">
+        <span class="has-mr-6">6.1</span>
+        <span>自上而下</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#递归下降分析">
+        <span class="has-mr-6">6.1.1</span>
+        <span>递归下降分析</span>
+        </a></li><li>
+        <a class="is-flex" href="#预测分析法">
+        <span class="has-mr-6">6.1.2</span>
+        <span>预测分析法</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#自下而上">
+        <span class="has-mr-6">6.2</span>
+        <span>自下而上</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算符优先分析法">
+        <span class="has-mr-6">6.2.1</span>
+        <span>算符优先分析法</span>
+        </a></li><li>
+        <a class="is-flex" href="#LR分析法">
+        <span class="has-mr-6">6.2.2</span>
+        <span>LR分析法</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#语义分析和中间代码生成">
+        <span class="has-mr-6">7</span>
+        <span>语义分析和中间代码生成</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#语义分析">
+        <span class="has-mr-6">7.1</span>
+        <span>语义分析</span>
+        </a></li><li>
+        <a class="is-flex" href="#中间代码生成">
+        <span class="has-mr-6">7.2</span>
+        <span>中间代码生成</span>
+        </a></li><li>
+        <a class="is-flex" href="#语法制导翻译">
+        <span class="has-mr-6">7.3</span>
+        <span>语法制导翻译</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#赋值语句翻译">
+        <span class="has-mr-6">7.3.1</span>
+        <span>赋值语句翻译</span>
+        </a></li><li>
+        <a class="is-flex" href="#变量说明语句翻译">
+        <span class="has-mr-6">7.3.2</span>
+        <span>变量说明语句翻译</span>
+        </a></li><li>
+        <a class="is-flex" href="#控制语句翻译">
+        <span class="has-mr-6">7.3.3</span>
+        <span>控制语句翻译</span>
+        </a></li><li>
+        <a class="is-flex" href="#while语句翻译">
+        <span class="has-mr-6">7.3.4</span>
+        <span>while语句翻译</span>
+        </a></li><li>
+        <a class="is-flex" href="#for循环语句翻译">
+        <span class="has-mr-6">7.3.5</span>
+        <span>for循环语句翻译</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#编译优化">
+        <span class="has-mr-6">8</span>
+        <span>编译优化</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#局部优化">
+        <span class="has-mr-6">8.1</span>
+        <span>局部优化</span>
+        </a></li><li>
+        <a class="is-flex" href="#全局优化">
+        <span class="has-mr-6">8.2</span>
+        <span>全局优化</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#目标代码生成">
+        <span class="has-mr-6">9</span>
+        <span>目标代码生成</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#循环中的寄存器分配">
+        <span class="has-mr-6">9.1</span>
+        <span>循环中的寄存器分配</span>
+        </a></li><li>
+        <a class="is-flex" href="#存储空间分配">
+        <span class="has-mr-6">9.2</span>
+        <span>存储空间分配</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#活动记录">
+        <span class="has-mr-6">9.2.1</span>
+        <span>活动记录</span>
+        </a></li><li>
+        <a class="is-flex" href="#非局部变量">
+        <span class="has-mr-6">9.2.2</span>
+        <span>非局部变量</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参数传递">
+        <span class="has-mr-6">9.3</span>
+        <span>参数传递</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#引址调用">
+        <span class="has-mr-6">9.3.1</span>
+        <span>引址调用</span>
+        </a></li><li>
+        <a class="is-flex" href="#值调用">
+        <span class="has-mr-6">9.3.2</span>
+        <span>值调用</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#静态作用域和动态作用域">
+        <span class="has-mr-6">9.4</span>
+        <span>静态作用域和动态作用域</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="编译原理复习" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

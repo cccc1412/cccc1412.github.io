@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>进程与资源管理设计-操作系统实验 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="UESTC操作系统课程实验：进程与资源管理器设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程与资源管理设计-操作系统实验">
+<meta property="og:url" content="http://yoursite.com/2019/12/23/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E8%AE%BE%E8%AE%A1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="UESTC操作系统课程实验：进程与资源管理器设计">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-12-23T04:44:09.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.587Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="进程与资源管理设计-操作系统实验" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-23T04:44:09.000Z">2019-12-23</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/">课程学习</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    12 分钟 读完 (大约 1829 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                进程与资源管理设计-操作系统实验
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>UESTC操作系统课程实验：进程与资源管理器设计</p>
+<span id="more"></span>
+
+<h3 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h3><p>本程序使用python语言实现，在Windows平台进行测试并与相关环境兼容。以下环境和包需要在运行程序前预先安装：</p>
+<ul>
+<li>Python 3</li>
+<li>collections</li>
+</ul>
+<h3 id="运行demo"><a href="#运行demo" class="headerlink" title="运行demo"></a>运行demo</h3><ol>
+<li><p>在命令行执行命令：</p>
+<p><code>python ./main.py</code></p>
+</li>
+<li><p>程序将会模拟shell终端读取输入命令：</p>
+<p><code>shell&gt;</code></p>
+</li>
+<li><p>可支持命令如下：</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-init</span><br><span class="line">-cr &lt;name&gt; &lt;priority&gt;(=<span class="hljs-number">1</span> or <span class="hljs-number">2</span>) <span class="hljs-comment">// create process </span></span><br><span class="line">-de &lt;name&gt; <span class="hljs-comment">// delete process</span></span><br><span class="line">-req &lt;resource name&gt; &lt;<span class="hljs-meta"># of units&gt; <span class="hljs-comment">// request resource</span></span></span><br><span class="line">-rel &lt;resource name&gt; &lt;<span class="hljs-meta"># of units&gt; <span class="hljs-comment">// release resource</span></span></span><br><span class="line">-to <span class="hljs-comment">// time out</span></span><br><span class="line">查看进程状态和资源状态的命令</span><br><span class="line">-<span class="hljs-built_in">list</span> ready <span class="hljs-comment">//list all processes in the ready queue</span></span><br><span class="line">-<span class="hljs-built_in">list</span> block <span class="hljs-comment">// list all processes in the block queue</span></span><br><span class="line">-<span class="hljs-built_in">list</span> res <span class="hljs-comment">//list all available resources</span></span><br><span class="line">-pr &lt;name&gt; <span class="hljs-comment">//print pcb information about a given process.</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="4">
+<li><p>首先你需要先使用<code>init</code>命令初始化资源和创建<code>init</code>进程，该命令是必须的。</p>
+</li>
+<li><p>接下来你可以使用<code>cr</code> <code>de</code> <code>req</code> <code>rel</code> <code>to</code>等命令进行进程或资源的操作，并使用<code>list</code>命令查看就绪队列和阻塞队列的状态，使用<code>pr</code>命令打印指定进程的pcb信息，使用<code>exit()</code>命令退出shell。</p>
+</li>
+<li><p>enjoy! :happy:</p>
+</li>
+</ol>
+<h3 id="代码简单说明"><a href="#代码简单说明" class="headerlink" title="代码简单说明"></a>代码简单说明</h3><h4 id="定义PCB和RCB"><a href="#定义PCB和RCB" class="headerlink" title="定义PCB和RCB"></a>定义PCB和RCB</h4><figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">PCB</span>:</span><br><span class="line">    <span class="hljs-keyword">def</span> <span class="title function_">__init__</span>(<span class="hljs-params">self,priority</span>):</span><br><span class="line">        self.res = {<span class="hljs-string">'R1'</span>: <span class="hljs-number">0</span>, <span class="hljs-string">'R2'</span>: <span class="hljs-number">0</span>, <span class="hljs-string">'R3'</span>: <span class="hljs-number">0</span>, <span class="hljs-string">'R4'</span>: <span class="hljs-number">0</span>}<span class="hljs-comment">#占用资源情况</span></span><br><span class="line">        self.status = <span class="hljs-string">"ready"</span><span class="hljs-comment">#进程状态</span></span><br><span class="line">        self.parent = <span class="hljs-literal">None</span><span class="hljs-comment">#父进程</span></span><br><span class="line">        self.child = []<span class="hljs-comment">#子进程</span></span><br><span class="line">        self.priority = priority<span class="hljs-comment">#进程优先级</span></span><br><span class="line">        self.req = <span class="hljs-number">0</span></span><br><span class="line"><span class="hljs-keyword">class</span> <span class="title class_">RCB</span>:</span><br><span class="line">    <span class="hljs-keyword">def</span> <span class="title function_">__init__</span>(<span class="hljs-params">self,total</span>):</span><br><span class="line">        self.waitList = []</span><br><span class="line">        self.total = total<span class="hljs-comment">#资源总量</span></span><br><span class="line">        self.num = total<span class="hljs-comment">#当前资源可用量</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="进程管理函数"><a href="#进程管理函数" class="headerlink" title="进程管理函数"></a>进程管理函数</h4><p>包含：</p>
+<ul>
+<li>创建进程<code>create</code> </li>
+<li>进程销毁<code>destroy</code></li>
+</ul>
+<figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">create</span>(<span class="hljs-params">pid,priority,cPid</span>):</span><br><span class="line">	<span class="hljs-comment">#pid为要创建进程的id,priority为要创建进程的优先级</span></span><br><span class="line">	<span class="hljs-comment">#cPid为当前正在执行进程的id</span></span><br><span class="line">    <span class="hljs-keyword">if</span>(cPid!=<span class="hljs-literal">None</span>):<span class="hljs-comment">#如果当前存在正在运行的进程</span></span><br><span class="line">        ready[cPid].child.append(pid)<span class="hljs-comment">#则要创建的进程加入到当前进程的子进程列表里</span></span><br><span class="line">    pcb = PCB(priority)<span class="hljs-comment">#初始化pcb对象，创建进程</span></span><br><span class="line">    pcb.parent = cPid<span class="hljs-comment">#新进程的父节点为当前运行的进程</span></span><br><span class="line">    ready[pid] = pcb<span class="hljs-comment">#将新进程加入到readylist中</span></span><br><span class="line">    scheduler()</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">destroy</span>(<span class="hljs-params">pid</span>):<span class="hljs-comment">#要撤销的进程号</span></span><br><span class="line">    <span class="hljs-built_in">dict</span> = {}</span><br><span class="line">    <span class="hljs-built_in">dict</span>.update(ready)</span><br><span class="line">    <span class="hljs-built_in">dict</span>.update(block)<span class="hljs-comment">#dict维护了所有的进程记录，包括就绪态进程和阻塞态进程</span></span><br><span class="line">    p = <span class="hljs-built_in">dict</span>[pid]<span class="hljs-comment">#根据pid找到该pid对应的PCB对象</span></span><br><span class="line">    killTree(p,pid)<span class="hljs-comment">#进行递归的销毁</span></span><br><span class="line">    scheduler()</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">killTree</span>(<span class="hljs-params">p,pid</span>):<span class="hljs-comment">#要删除的PCB和pid</span></span><br><span class="line">    <span class="hljs-built_in">dict</span> = {}</span><br><span class="line">    <span class="hljs-built_in">dict</span>.update(ready)</span><br><span class="line">    <span class="hljs-built_in">dict</span>.update(block)<span class="hljs-comment">#维护存储所有进程记录</span></span><br><span class="line">    <span class="hljs-keyword">for</span> childPid <span class="hljs-keyword">in</span> p.child:<span class="hljs-comment">#遍历要删除的进程的子进程</span></span><br><span class="line">        killTree(<span class="hljs-built_in">dict</span>[childPid],childPid)<span class="hljs-comment">#递归删除</span></span><br><span class="line">    <span class="hljs-keyword">if</span> pid <span class="hljs-keyword">in</span> ready.keys():<span class="hljs-comment">#如果该进程在readylist里</span></span><br><span class="line">        <span class="hljs-keyword">for</span> rid <span class="hljs-keyword">in</span> ready[pid].res.keys():<span class="hljs-comment">#释放该进程占用的资源</span></span><br><span class="line">            <span class="hljs-keyword">if</span> ready[pid].res[rid]!=<span class="hljs-number">0</span>:</span><br><span class="line">                release(rid,ready[pid].res[rid],pid)</span><br><span class="line">        ready.pop(pid)<span class="hljs-comment">#将该进程从readylist中删除</span></span><br><span class="line">    <span class="hljs-keyword">else</span>:<span class="hljs-comment">#如果该进程在blocklist中</span></span><br><span class="line">        temp = block[pid].res<span class="hljs-comment">#找到该进程在blocklist中存储的pcb</span></span><br><span class="line">        <span class="hljs-keyword">for</span> rid <span class="hljs-keyword">in</span> temp.keys():<span class="hljs-comment">#遍历该进程占用的资源进行释放</span></span><br><span class="line">            <span class="hljs-keyword">if</span> pid <span class="hljs-keyword">in</span> block.keys() <span class="hljs-keyword">and</span> temp[rid]!=<span class="hljs-number">0</span>:</span><br><span class="line">                release(rid,block[pid].res[rid],pid)<span class="hljs-comment">#释放资源</span></span><br><span class="line">        <span class="hljs-keyword">for</span> rid <span class="hljs-keyword">in</span> temp.keys():<span class="hljs-comment">#在rcb的waitlist中移除该进程</span></span><br><span class="line">            <span class="hljs-keyword">if</span> pid <span class="hljs-keyword">in</span> res[rid].waitList:</span><br><span class="line">                res[rid].waitList.remove(pid)</span><br><span class="line">        block.pop(pid)<span class="hljs-comment">#把该进程从blocklist中删除</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="资源管理函数"><a href="#资源管理函数" class="headerlink" title="资源管理函数"></a>资源管理函数</h4><p>包含：</p>
+<ul>
+<li>资源的请求函数<code>request</code></li>
+<li>资源释放函数<code>relResource</code>，内部调用函数<code>release</code></li>
+</ul>
+<figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">request</span>(<span class="hljs-params">cPid,rid,n</span>):</span><br><span class="line">	<span class="hljs-comment">#参数含义：</span></span><br><span class="line">	<span class="hljs-comment">#cPid：当前正在执行的进程id</span></span><br><span class="line">	<span class="hljs-comment">#rid：请求资源的id</span></span><br><span class="line">	<span class="hljs-comment">#n:请求资源的数量</span></span><br><span class="line">    <span class="hljs-keyword">if</span>(res[rid].num&gt;=n):<span class="hljs-comment">#如果当前可用资源数量大于请求量</span></span><br><span class="line">        res[rid].num -=n<span class="hljs-comment">#则进行资源的分配，更新可用资源数</span></span><br><span class="line">        ready[cPid].res[rid] +=n<span class="hljs-comment">#p占有的资源数更新</span></span><br><span class="line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"process "</span>+cPid+<span class="hljs-string">" requests "</span>+<span class="hljs-built_in">str</span>(n)+<span class="hljs-string">" "</span>+rid);<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">    <span class="hljs-keyword">else</span>:<span class="hljs-comment">#如果剩余资源数不足以分配</span></span><br><span class="line">        <span class="hljs-keyword">if</span>(n&gt;res[rid].total):<span class="hljs-comment">#如果大于资源总量，提示error，拒绝分配</span></span><br><span class="line">            <span class="hljs-built_in">print</span>(<span class="hljs-string">"error"</span>)</span><br><span class="line">            <span class="hljs-keyword">return</span></span><br><span class="line">        ready[cPid].status = <span class="hljs-string">"blocked"</span><span class="hljs-comment">#请求量小于总量但大于可分配量，该进程转为阻塞态</span></span><br><span class="line">        block[cPid] = ready[cPid]<span class="hljs-comment">#将该进程从readylist移动到blocklist</span></span><br><span class="line">        block[cPid].req = n<span class="hljs-comment">#记录阻塞时，请求的资源量</span></span><br><span class="line">        ready.pop(cPid)<span class="hljs-comment">#将该进程从readylist中移除</span></span><br><span class="line">        res[rid].waitList.append(cPid)<span class="hljs-comment">#在要请求的资源的waitlist中加入该进程</span></span><br><span class="line">        scheduler()</span><br><span class="line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"process "</span>+cPid+<span class="hljs-string">" is blocked."</span>)<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">relResource</span>(<span class="hljs-params">pid,rid,n</span>):</span><br><span class="line">    <span class="hljs-comment">#print(list(ready.keys())[0])</span></span><br><span class="line">    cP = ready[<span class="hljs-built_in">list</span>(ready.keys())[<span class="hljs-number">0</span>]]<span class="hljs-comment">#获取当前正在执行的进程PCB</span></span><br><span class="line">    cP.res[rid]  = <span class="hljs-built_in">max</span>(cP.res[rid]-n,<span class="hljs-number">0</span>)<span class="hljs-comment">#更新该进程的资源占用情况</span></span><br><span class="line">    release(rid,n)<span class="hljs-comment">#进行资源的释放</span></span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">release</span>(<span class="hljs-params">rid,n,pid</span>):<span class="hljs-comment">#针对一种资源的释放</span></span><br><span class="line"><span class="hljs-comment">#参数：rid要释放资源的id</span></span><br><span class="line"><span class="hljs-comment">#n:释放的数量</span></span><br><span class="line"><span class="hljs-comment">#pid：释放该资源的进程id</span></span><br><span class="line">    rcb = res[rid]<span class="hljs-comment">#获取rid对应的rcb对象</span></span><br><span class="line">    <span class="hljs-built_in">print</span>(<span class="hljs-string">"release "</span>+rid)<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">    res[rid].num +=n<span class="hljs-comment">#资源的可以量增加</span></span><br><span class="line">    pop = []<span class="hljs-comment">#初始化一个空列表，记录可以从阻塞态转为就绪态的进程号</span></span><br><span class="line">    <span class="hljs-keyword">for</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> res[rid].waitList:<span class="hljs-comment">#检查block_list里的进程能否ready，遍历该资源的waitlist</span></span><br><span class="line">        <span class="hljs-keyword">if</span> block[<span class="hljs-built_in">id</span>].req&lt;=res[rid].num <span class="hljs-keyword">and</span> <span class="hljs-built_in">id</span>!=pid:<span class="hljs-comment">#如果可以转为ready态</span></span><br><span class="line">            res[rid].num -=block[<span class="hljs-built_in">id</span>].req<span class="hljs-comment">#更新资源的剩余量</span></span><br><span class="line">            pop.append(<span class="hljs-built_in">id</span>)<span class="hljs-comment">#记录可以转为就绪态的进程号</span></span><br><span class="line">    <span class="hljs-keyword">for</span> <span class="hljs-built_in">id</span> <span class="hljs-keyword">in</span> pop:<span class="hljs-comment">#遍历刚刚得到的可以转化为就绪态的进程号</span></span><br><span class="line">        block[<span class="hljs-built_in">id</span>].req = <span class="hljs-number">0</span><span class="hljs-comment">#请求量更新</span></span><br><span class="line">        ready[<span class="hljs-built_in">id</span>] = block[<span class="hljs-built_in">id</span>]<span class="hljs-comment">##从blocklist中移动到readylist</span></span><br><span class="line">        block.pop(<span class="hljs-built_in">id</span>)</span><br><span class="line">        res[rid].waitList.remove(<span class="hljs-built_in">id</span>)<span class="hljs-comment">#将该进程从waitlist中移除</span></span><br><span class="line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"wake up process "</span> + <span class="hljs-built_in">id</span>)<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">        ready[<span class="hljs-built_in">id</span>].status = <span class="hljs-string">"ready"</span><span class="hljs-comment">#更新进程状态</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="进程调度与时钟中断函数"><a href="#进程调度与时钟中断函数" class="headerlink" title="进程调度与时钟中断函数"></a>进程调度与时钟中断函数</h4><p>包含：</p>
+<ul>
+<li>调度函数<code>scheduler</code></li>
+<li>抢占函数<code>preempt</code></li>
+<li>时钟中断函数<code>timeOut</code></li>
+</ul>
+<figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">scheduler</span>():</span><br><span class="line">    i = <span class="hljs-number">0</span></span><br><span class="line">    l2 = [];l1 = [];l0 = []<span class="hljs-comment">#初始化三个列表，分别记录2 1 0三个优先级的进程id</span></span><br><span class="line">    <span class="hljs-keyword">for</span> pid <span class="hljs-keyword">in</span> ready:<span class="hljs-comment">#遍历readylist</span></span><br><span class="line">        <span class="hljs-keyword">if</span> i==<span class="hljs-number">0</span>:<span class="hljs-comment">#获取当前正在执行的进程id和PCB</span></span><br><span class="line">            cPid = pid</span><br><span class="line">            cPCB = ready[pid]</span><br><span class="line">            i +=<span class="hljs-number">1</span></span><br><span class="line">        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">int</span>(ready[pid].priority)==<span class="hljs-number">0</span>):</span><br><span class="line">            l0.append(pid)</span><br><span class="line">        <span class="hljs-keyword">elif</span>(<span class="hljs-built_in">int</span>(ready[pid].priority)==<span class="hljs-number">1</span>):</span><br><span class="line">            l1.append(pid)</span><br><span class="line">        <span class="hljs-keyword">elif</span>(<span class="hljs-built_in">int</span>(ready[pid].priority)==<span class="hljs-number">2</span>):</span><br><span class="line">            l2.append(pid)</span><br><span class="line">    <span class="hljs-built_in">list</span> = l2+l1+l0<span class="hljs-comment">#将三个列表按优先级顺序拼接，此时list中的第一个进程就是最高优先级且根据RR原则将要调度的进程</span></span><br><span class="line">    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">len</span>(<span class="hljs-built_in">list</span>)==<span class="hljs-number">0</span>):<span class="hljs-comment">#如果列表为空，则结束调度</span></span><br><span class="line">        <span class="hljs-keyword">return</span></span><br><span class="line">    hpP = ready[<span class="hljs-built_in">list</span>[<span class="hljs-number">0</span>]]<span class="hljs-comment">#highest priority process获取最高优先级且根据RR原则将要调度的进程</span></span><br><span class="line">    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">int</span>(cPCB.priority)&lt;<span class="hljs-built_in">int</span>(hpP.priority) <span class="hljs-keyword">or</span> cPCB.status!=<span class="hljs-string">"running"</span> <span class="hljs-keyword">or</span> cPCB==<span class="hljs-literal">None</span>):<span class="hljs-comment">#如果满足抢占条件</span></span><br><span class="line">        preempt(cPid,<span class="hljs-built_in">list</span>[<span class="hljs-number">0</span>])<span class="hljs-comment">#则进行抢占</span></span><br><span class="line">    <span class="hljs-keyword">else</span>:</span><br><span class="line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"process "</span>+cPid+<span class="hljs-string">" is running"</span>)</span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">preempt</span>(<span class="hljs-params">oldId,newId</span>):</span><br><span class="line">	<span class="hljs-comment">#参数：</span></span><br><span class="line">	<span class="hljs-comment">#oldId：原先正在执行的进程id</span></span><br><span class="line">	<span class="hljs-comment">#newId:要抢占cpu的进程id</span></span><br><span class="line">    ready.move_to_end(oldId)<span class="hljs-comment">#将原进程移动到readylist的队尾</span></span><br><span class="line">    ready.move_to_end(newId, last=<span class="hljs-literal">False</span>)<span class="hljs-comment">#将要抢占cpu的进程移动到readylist队首</span></span><br><span class="line">    ready[oldId].status = <span class="hljs-string">"ready"</span><span class="hljs-comment">#更新进程的状态</span></span><br><span class="line">    ready[newId].status = <span class="hljs-string">"running"</span><span class="hljs-comment">#更新进程的状态</span></span><br><span class="line">    <span class="hljs-built_in">print</span>(<span class="hljs-string">"process "</span>+newId+<span class="hljs-string">" is running."</span>)<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">    </span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">timeOut</span>(<span class="hljs-params">cPid</span>):<span class="hljs-comment">#传入当前运行的进程名</span></span><br><span class="line">    ready.move_to_end(cPid)<span class="hljs-comment">#将当前正在执行的进程移动到readylist队尾</span></span><br><span class="line">    ready[cPid].status = <span class="hljs-string">"ready"</span><span class="hljs-comment">#更新进程状态</span></span><br><span class="line">    scheduler()</span><br><span class="line">    <span class="hljs-keyword">if</span> <span class="hljs-built_in">list</span>(ready.keys())[<span class="hljs-number">0</span>]!=cPid:<span class="hljs-comment">#打印提示信息</span></span><br><span class="line">        <span class="hljs-built_in">print</span>(<span class="hljs-string">"process "</span>+cPid+<span class="hljs-string">" is ready"</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="测试效果"><a href="#测试效果" class="headerlink" title="测试效果"></a>测试效果</h3><p><img src="/2019/12/23/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E8%AE%BE%E8%AE%A1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C/1577077821259.png" alt="1577077821259"></p>
+<p><img src="/2019/12/23/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E8%AE%BE%E8%AE%A1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C/1577077827414.png" alt="1577077827414"></p>
+<p><img src="/2019/12/23/%E8%BF%9B%E7%A8%8B%E4%B8%8E%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E8%AE%BE%E8%AE%A1-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C/1577077835364.png" alt="1577077835364"></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/12/23/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0%E2%80%94IO%E7%AE%A1%E7%90%86%E4%B8%8E%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">操作系统笔记—IO管理与磁盘调度</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/27/DQN%E7%AE%97%E6%B3%95/">
+                <span class="level-item">DQN算法</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#实验环境">
+        <span class="has-mr-6">1</span>
+        <span>实验环境</span>
+        </a></li><li>
+        <a class="is-flex" href="#运行demo">
+        <span class="has-mr-6">2</span>
+        <span>运行demo</span>
+        </a></li><li>
+        <a class="is-flex" href="#代码简单说明">
+        <span class="has-mr-6">3</span>
+        <span>代码简单说明</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#定义PCB和RCB">
+        <span class="has-mr-6">3.1</span>
+        <span>定义PCB和RCB</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程管理函数">
+        <span class="has-mr-6">3.2</span>
+        <span>进程管理函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#资源管理函数">
+        <span class="has-mr-6">3.3</span>
+        <span>资源管理函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程调度与时钟中断函数">
+        <span class="has-mr-6">3.4</span>
+        <span>进程调度与时钟中断函数</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#测试效果">
+        <span class="has-mr-6">4</span>
+        <span>测试效果</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="进程与资源管理设计-操作系统实验" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

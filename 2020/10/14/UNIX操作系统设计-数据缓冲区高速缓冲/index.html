@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX操作系统设计-数据缓冲区高速缓冲 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="《UNIX操作系统设计》第三章 数据缓冲区高速缓冲（buffer cache）简称高速缓冲。内核通过保持其内部数据缓冲池来减小对磁盘的存取频率，高速缓冲中含有最近被使用过的磁盘块的数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX操作系统设计-数据缓冲区高速缓冲">
+<meta property="og:url" content="http://yoursite.com/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="《UNIX操作系统设计》第三章 数据缓冲区高速缓冲（buffer cache）简称高速缓冲。内核通过保持其内部数据缓冲池来减小对磁盘的存取频率，高速缓冲中含有最近被使用过的磁盘块的数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-10-14T09:04:00.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.059Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="UNIX">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX操作系统设计-数据缓冲区高速缓冲" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-10-14T09:04:00.000Z">2020-10-14</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/UNIX/">UNIX</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    6 分钟 读完 (大约 849 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX操作系统设计-数据缓冲区高速缓冲
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>《UNIX操作系统设计》第三章</p>
+<p>数据缓冲区高速缓冲（buffer cache）简称高速缓冲。内核通过保持其内部数据缓冲池来减小对磁盘的存取频率，高速缓冲中含有最近被使用过的磁盘块的数据。</p>
+<span id="more"></span>
+
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>数据缓冲区高速缓冲（buffer cache）简称高速缓冲。内核通过保持其内部数据缓冲池来减小对磁盘的存取频率，高速缓冲中含有最近被使用过的磁盘块的数据。</p>
+<p>这里这是一个<strong>软件结构</strong>，和cache硬件不同。</p>
+<p>高速缓冲模块位于文件子系统与设备驱动程序之间，如图：</p>
+<p><img src="/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2%5Cimage-20201014171109809.png" alt="image-20201014171109809"></p>
+<p>高层内核算法让告诉缓冲模块把数据预先缓存起来，或者延迟写数据以扩大高速缓冲的效果。</p>
+<h2 id="缓冲头部"><a href="#缓冲头部" class="headerlink" title="缓冲头部"></a>缓冲头部</h2><p><img src="/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2%5Cimage-20201014172335559.png" alt="image-20201014172335559"></p>
+<p>缓冲区组成：一个含有磁盘上的的数据的存储器数组 + 一个用来标识该缓冲区的<strong>缓冲头部</strong>。缓冲头部到数据数组一对一映射，所以统作为“缓冲区”。</p>
+<p>一个缓冲区的数据与文件系统上体格逻辑磁盘块中的数据对应，<strong>缓冲区是磁盘块在主存中的拷贝</strong>。</p>
+<p>缓冲头部包含一个<strong>设备号</strong>字段和一个<strong>块号</strong>字段，两者指令了文件系统与磁盘上的数据的块号，并唯一标识该缓冲区。</p>
+<ul>
+<li>设备号是逻辑文件系统号，而不是物理设备（磁盘）号。</li>
+<li>指向数据数组的指针至少有磁盘块那么大。</li>
+<li>缓冲区状态是如下条件的组合<ul>
+<li>缓冲区当前为“上锁”</li>
+<li>缓冲区包含有效数据</li>
+<li>延迟写，内核把某缓冲区重新改分配出去之前必须把缓冲区内容写到磁盘上。</li>
+<li>正在读或写，内核正从磁盘往缓冲区读或者把缓冲区写道磁盘上。</li>
+<li>一个进程当前正在等候缓冲区变为闲。</li>
+</ul>
+</li>
+</ul>
+<h2 id="缓冲池结构"><a href="#缓冲池结构" class="headerlink" title="缓冲池结构"></a>缓冲池结构</h2><h3 id="空闲表"><a href="#空闲表" class="headerlink" title="空闲表"></a>空闲表</h3><ul>
+<li>内核维护一个缓冲区的空闲表，保存最近使用的次序</li>
+<li>采用双向循环链表</li>
+<li>哑缓冲区头标，标志缓冲区空闲表的开始和结束</li>
+<li>内核按最近最少用算法把数据缓存于缓冲池</li>
+<li>缓冲区还给缓冲池时，添加到尾部。申请时，从头部取出。</li>
+<li>空闲表头部是最近最少使用的</li>
+</ul>
+<p><img src="/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2%5Cimage-20201015012235788.png" alt="image-20201015012235788"></p>
+<h3 id="散列队列"><a href="#散列队列" class="headerlink" title="散列队列"></a>散列队列</h3><p>为了方便内核搜索相应的缓冲区，内核使用设备号和块号的组合找相应的缓冲区，它把缓冲区组织成多个队列，这些队列以设备号和块号散列。</p>
+<p><img src="/2020/10/14/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%95%B0%E6%8D%AE%E7%BC%93%E5%86%B2%E5%8C%BA%E9%AB%98%E9%80%9F%E7%BC%93%E5%86%B2%5Cimage-20201015013622658.png" alt="image-20201015013622658"></p>
+<p>一个缓冲区总是在某个散列队列上，但是可以在或不在空闲表中。</p>
+<h2 id="缓冲区的检索"><a href="#缓冲区的检索" class="headerlink" title="缓冲区的检索"></a>缓冲区的检索</h2></body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/UNIX/" rel="tag">UNIX</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">UNIX操作系统设计-文件的内部表示</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/07/30/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/">
+                <span class="level-item">计算机系统结构复习</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#概述">
+        <span class="has-mr-6">1</span>
+        <span>概述</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓冲头部">
+        <span class="has-mr-6">2</span>
+        <span>缓冲头部</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓冲池结构">
+        <span class="has-mr-6">3</span>
+        <span>缓冲池结构</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#空闲表">
+        <span class="has-mr-6">3.1</span>
+        <span>空闲表</span>
+        </a></li><li>
+        <a class="is-flex" href="#散列队列">
+        <span class="has-mr-6">3.2</span>
+        <span>散列队列</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#缓冲区的检索">
+        <span class="has-mr-6">4</span>
+        <span>缓冲区的检索</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX操作系统设计-数据缓冲区高速缓冲" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

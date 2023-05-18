@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>KML论文阅读 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="KML: Using Machine Learning to Improve Storage Systems https:&#x2F;&#x2F;github.com&#x2F;sbu-fsl&#x2F;kernel-ml">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KML论文阅读">
+<meta property="og:url" content="http://yoursite.com/2022/01/13/KML%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="KML: Using Machine Learning to Improve Storage Systems https:&#x2F;&#x2F;github.com&#x2F;sbu-fsl&#x2F;kernel-ml">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-01-13T07:22:03.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:48.991Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="KML论文阅读" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-01-13T07:22:03.000Z">2022-01-13</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    16 分钟 读完 (大约 2358 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                KML论文阅读
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>KML: Using Machine Learning to Improve Storage Systems</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/sbu-fsl/kernel-ml">https://github.com/sbu-fsl/kernel-ml</a></p>
+<span id="more"></span>
+
+<h2 id="motivation"><a href="#motivation" class="headerlink" title="motivation"></a>motivation</h2><p>这篇论文把机器学习框架移植到了内核，为什么要移植到内核？操作系统中包括许多启发式的算法，但是这些启发式的算法并不能很好的适用多变的工作负载，OS不得不向用户公开许多可调参数，让用户决定参数设置。</p>
+<p>KML的提出是为了：</p>
+<p>1、取代启发式算法，动态适应不断变化的工作负载。</p>
+<p>2、使用ML进行系统参数设定，不再需要由用户确定。</p>
+<p>该论文证明了ML可以比现有的启发式算法更好的调优存储系统的参数。</p>
+<h2 id="OS中的启发式决策场景"><a href="#OS中的启发式决策场景" class="headerlink" title="OS中的启发式决策场景"></a>OS中的启发式决策场景</h2><h3 id="预读大小"><a href="#预读大小" class="headerlink" title="预读大小"></a>预读大小</h3><p>比如在NFS中，预读太少会浪费潜在的吞吐量，预读太大会污染缓存，读入无用数据，可以用ml设置参数。</p>
+<h3 id="预测KV存储中的索引结构"><a href="#预测KV存储中的索引结构" class="headerlink" title="预测KV存储中的索引结构"></a>预测KV存储中的索引结构</h3><h3 id="缓存相关"><a href="#缓存相关" class="headerlink" title="缓存相关"></a>缓存相关</h3><h3 id="IO调度"><a href="#IO调度" class="headerlink" title="IO调度"></a>IO调度</h3><h2 id="KML的设计"><a href="#KML的设计" class="headerlink" title="KML的设计"></a>KML的设计</h2><p>提供了两种不同的操作模式：</p>
+<ul>
+<li>内核空间进行训练和推理（性能和准确性，采样速率高时使用）</li>
+<li>用户空间训练，内核空间进行推理（开发框架使用的便利性）</li>
+</ul>
+<p>KML代码库由用户和内核空间共享</p>
+<p>KML通过探针来收集OS中目标组件的数据。</p>
+<p>异步ML计算不会对IO路径产生负面影响。</p>
+<p>神经网络的计算是一个DAG（有向无环图），推理意味着从源点（输入）开始遍历DAG，直到终点（网络输出）。</p>
+<p><img src="/2022/01/13/KML%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/image-20220113154117021.png" alt="image-20220113154117021"></p>
+<p>u-MLib.a和k-MLib.ko时从相同的KML源码中编译得来的。</p>
+<p>同时做了一个KML的包裹层，使得KML在用户和内核api是统一的（类似于syscall和glibc吧）。</p>
+<p>问题：为什么不在用户空间推理，然后只修改内核参数</p>
+<h3 id="资源开销"><a href="#资源开销" class="headerlink" title="资源开销"></a>资源开销</h3><p>3.4节介绍</p>
+<h4 id="减少计算开销"><a href="#减少计算开销" class="headerlink" title="减少计算开销"></a>减少计算开销</h4><h5 id="浮点计算问题"><a href="#浮点计算问题" class="headerlink" title="浮点计算问题"></a>浮点计算问题</h5><p>内核一般禁用浮点单元（FPU），这是为了减小上下文切换的开销，而ML中的矩阵原酸一般基于浮点运算。</p>
+<p>三种解决方法：</p>
+<ul>
+<li>量化：减少计算和内存开销，单数会降低准确度</li>
+<li>定点表示：使用整数寄存器做浮点计算，所有浮点操作都是模拟的，效率很高，但是会有数值不稳定的现象（不太懂）</li>
+<li>在内核中启用FPU：使用kernel_fpu_begin开启FP寄存器的使用。</li>
+</ul>
+<h5 id="降低内存开销"><a href="#降低内存开销" class="headerlink" title="降低内存开销"></a>降低内存开销</h5><p>内存开销有三个：</p>
+<ul>
+<li>模型数据：结构，权重</li>
+<li>训练和推理过程中KML内部的内存分配</li>
+<li>训练和推理的数据收集：使用一个无锁循环缓冲区收集输入数据，然后用一个异步线程对收集到的数据进行训练，注意合理设置ringbuffer的大小，使得异步训练线程能及时处理。</li>
+</ul>
+<h5 id="资源受限情况"><a href="#资源受限情况" class="headerlink" title="资源受限情况"></a>资源受限情况</h5><p>没看懂，大概就是留了一些内存分配的api。</p>
+<h5 id="数据处理和异步训练"><a href="#数据处理和异步训练" class="headerlink" title="数据处理和异步训练"></a>数据处理和异步训练</h5><p>normalization需要大量的FP计算，在为存储系统中设计KML时，一个主要原则时避免IO在数据路径上的内联计算。因此KML将训练、推理、数据归一化放到不同的异步线程中，线程间的通信使用ringbuffer或者其他KML组件（如数据收集组件）。目前只支持一个异步训练线程，不支持并行训练。</p>
+<h3 id="用户空间训练"><a href="#用户空间训练" class="headerlink" title="用户空间训练"></a>用户空间训练</h3><p>KML的用户空间和内核空间库由相同的API访问，并从相同的代码库中编译，因此将训练好的ML模型移植到内核空间进行推断很容易。</p>
+<p><img src="/2022/01/13/KML%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/image-20220113155827731.png" alt="image-20220113155827731"></p>
+<p>跟踪内存管理子系统，使用Re-Animator从存储组件中收集数据。</p>
+<p>KML提供了30个API，分为五类：内存管理、线程、日志、原子操作、文件操作。</p>
+<h3 id="安全稳定性"><a href="#安全稳定性" class="headerlink" title="安全稳定性"></a>安全稳定性</h3><p>除了模型初始化和ML模型保存外，不涉及IO，KML对存储组件的稳定性方面的影响仅限于内存分配和并发。</p>
+<p>用户模式和内核模式分配内存时都用到了锁机制，因此可能会出现意外的延迟或者死锁，为了解决这些问题，KML只在异步训练线程中分配内存，在使用ringbuffer使用了额外的保留内存（防止溢出吗）。</p>
+<h2 id="两个应用实例"><a href="#两个应用实例" class="headerlink" title="两个应用实例"></a>两个应用实例</h2><h3 id="预读"><a href="#预读" class="headerlink" title="预读"></a>预读</h3><p>在动态工作负载下预测最佳的预读值。</p>
+<p>预读是将磁盘上的存储数据预取到操作系统缓存，根据局部性原理预计这些数据将在近期使用，问题是要决定提前读多少：读太少就需要更多次的磁盘读，读太多会带来无用数据的缓存污染。这里的第一个应用就是ML调参，决定预读值的大小。</p>
+<h4 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a>数据采集</h4><p>数据集生成：作者使用了4个不同的RocksDB的基准测试程序，每个测试都有20个不同的预读大小（8~1024）,这样就有了不同工作负载下不同预读值大小的性能（ops/sec），以这些为数据集预测其他工作负载的最佳预读值。</p>
+<p>原始特征采集：使用LTTng来采集系统特征。利用hook function捕获page cache的行为，采集了三个原始特征：开始执行的时间差，inode 号（用来过滤RocksDB的文件访问）、文件的页偏移。</p>
+<h4 id="数据预处理和归一化"><a href="#数据预处理和归一化" class="headerlink" title="数据预处理和归一化"></a>数据预处理和归一化</h4><p>以一秒为间隔对输入数据进行汇总，处理后的特征：</p>
+<ul>
+<li>每秒发生的事务数量</li>
+<li>页面偏移量的滑动平均值</li>
+<li>页面偏移量的滑动标注差</li>
+<li>连续事务的平均绝对页面偏移量的差值</li>
+</ul>
+<p>输入到nn之前，先进行z-score归一化。</p>
+<h4 id="模型结构"><a href="#模型结构" class="headerlink" title="模型结构"></a>模型结构</h4><p>就一个3层的fcnn或这决策树模型（决策树要快，而且可解释性强一点）</p>
+<h4 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h4><p>k fold的交叉验证，准确率为95.5%</p>
+<p>验证特征对分类性能的贡献：</p>
+<ul>
+<li>随机化interest features的顺序，然后计算k fold的交叉验证</li>
+<li>皮尔逊相关分析</li>
+</ul>
+<p>最后发现特征的重要程度从高到低为：平均绝对页面偏移量的差，事务数，页面偏移量的滑动平均值。</p>
+<h3 id="NFS-rsize"><a href="#NFS-rsize" class="headerlink" title="NFS rsize"></a>NFS rsize</h3><p>网络读块大小最优值确定</p>
+<p>最后处理完的特征为：</p>
+<ul>
+<li>每秒的事务数</li>
+<li>每对nfs4_read和nfs_readpage_done的时间差</li>
+<li>连续nfs4_read的请求平均时间差</li>
+<li>连续nfs_readpage_done的平均时间差</li>
+</ul>
+<h2 id="未来改进点"><a href="#未来改进点" class="headerlink" title="未来改进点"></a>未来改进点</h2><ul>
+<li><p>引入基于反馈的控制算法来解决不稳定行为</p>
+</li>
+<li><p>安全方面考虑，模型加载需要数字前面和认证</p>
+</li>
+</ul>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h3><h4 id="IO栈"><a href="#IO栈" class="headerlink" title="IO栈"></a>IO栈</h4><h4 id="kernel中的文件读写"><a href="#kernel中的文件读写" class="headerlink" title="kernel中的文件读写"></a>kernel中的文件读写</h4><p> filp_open() filp_close(), vfs_read() vfs_write()，set_fs()，get_fs()等，这些函数在linux/fs.h和asm/uaccess.h头文件中声明。</p>
+<h4 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h4><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1619659">https://cloud.tencent.com/developer/article/1619659</a></p>
+<h4 id="ebpf"><a href="#ebpf" class="headerlink" title="ebpf"></a>ebpf</h4><h4 id="C风格的面向对象"><a href="#C风格的面向对象" class="headerlink" title="C风格的面向对象"></a>C风格的面向对象</h4><p><a target="_blank" rel="noopener" href="http://unicornx.github.io/2016/01/06/20160106-c-oob/">http://unicornx.github.io/2016/01/06/20160106-c-oob/</a></p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct foo {</span><br><span class="line">    int a;</span><br><span class="line">    int b;</span><br><span class="line">    int c;</span><br><span class="line">    struct foo_operations ops;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line">struct foo_operations {</span><br><span class="line">    void (*op_a) (struct foo *, loff_t, int);</span><br><span class="line">    void (*op_b) (struct foo *, char __user *, size_t, loff_t *);</span><br><span class="line">    void (*op_c) (struct foo *, const char __user *, size_t, loff_t *);</span><br><span class="line">    ......</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="源码阅读"><a href="#源码阅读" class="headerlink" title="源码阅读"></a>源码阅读</h3><h4 id="readahead"><a href="#readahead" class="headerlink" title="readahead"></a>readahead</h4><p>针对readahead问题，在readahead.c文件中实现了内核模块。</p>
+<p><code>module_init(kml_readahead_init)</code>指明了模块的入口点。</p>
+<p><code>kml_readahead_init</code>创建了两个内核线程，然后设置跟踪点。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title">kml_readahead_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> </span>{</span><br><span class="line">  ...</span><br><span class="line">  kml_readahead_update_thread =</span><br><span class="line">      <span class="hljs-built_in">kthread_run</span>(&amp;readahead_update, <span class="hljs-literal">NULL</span>, <span class="hljs-string">"kml_readahead_update"</span>);</span><br><span class="line">  kml_perf_monitoring_thread =</span><br><span class="line">      <span class="hljs-built_in">kthread_run</span>(&amp;perf_monitoring, <span class="hljs-literal">NULL</span>, <span class="hljs-string">"kml_perf_monitoring"</span>);</span><br><span class="line">  ...</span><br><span class="line">  <span class="hljs-built_in">set_trace_readahead_add_to_page_cache_fptr</span>(</span><br><span class="line">      (<span class="hljs-type">void</span> *)&amp;readahead_add_to_page_cache);<span class="hljs-comment">//函数指针</span></span><br><span class="line">  <span class="hljs-built_in">set_trace_readahead_mm_filemap_fsl_read_fptr</span>(</span><br><span class="line">      (<span class="hljs-type">void</span> *)&amp;readahead_mm_filemap_fsl_read);</span><br><span class="line">  <span class="hljs-built_in">set_trace_readahead_fsl_writeback_dirty_page_fptr</span>(</span><br><span class="line">      (<span class="hljs-type">void</span> *)&amp;readahead_fsl_writeback_dirty_page);</span><br><span class="line">  <span class="hljs-built_in">set_trace_readahead_get_tuning_device_fptr</span>(</span><br><span class="line">      (<span class="hljs-type">void</span> *)&amp;readahead_get_tuning_device);</span><br><span class="line">  <span class="hljs-built_in">set_trace_readahead_get_disk_ra_val_fptr</span>((<span class="hljs-type">void</span> *)&amp;readahead_get_disk_ra_val);</span><br><span class="line">  <span class="hljs-comment">//(void *)&amp; a,取a的地址，然后转化为无类型指针。</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">readahead_add_to_page_cache</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *page)</span> </span>{</span><br><span class="line">  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> index = <span class="hljs-number">0</span>, i_ino = <span class="hljs-number">0</span>;</span><br><span class="line">  u64 time_passed;</span><br><span class="line">  u64 data_process_start, data_process_end;</span><br><span class="line">  <span class="hljs-type">dev_t</span> blk_dev_no = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-type">double</span> data[<span class="hljs-number">3</span>];</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (page != <span class="hljs-literal">NULL</span>) {</span><br><span class="line">    index = page-&gt;index;</span><br><span class="line">    <span class="hljs-keyword">if</span> (page-&gt;mapping != <span class="hljs-literal">NULL</span> &amp;&amp; page-&gt;mapping-&gt;host != <span class="hljs-literal">NULL</span>) {</span><br><span class="line">      i_ino = page-&gt;mapping-&gt;host-&gt;i_ino;</span><br><span class="line">      blk_dev_no = page-&gt;mapping-&gt;host-&gt;i_sb ? page-&gt;mapping-&gt;host-&gt;i_sb-&gt;s_dev</span><br><span class="line">                                             : page-&gt;mapping-&gt;host-&gt;i_rdev;</span><br><span class="line">      <span class="hljs-keyword">if</span> (blk_dev_no != tunning_device_number) {</span><br><span class="line">        <span class="hljs-keyword">return</span>;</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  time_passed = <span class="hljs-built_in">kml_get_current_time</span>();</span><br><span class="line">  time_passed = <span class="hljs-built_in">kml_get_time_diff</span>(time_passed, start_time);</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (module_exiting) <span class="hljs-keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-built_in">kernel_fpu_begin</span>();</span><br><span class="line">  data[<span class="hljs-number">0</span>] = time_passed;</span><br><span class="line">  data[<span class="hljs-number">1</span>] = i_ino;</span><br><span class="line">  data[<span class="hljs-number">2</span>] = index;</span><br><span class="line"></span><br><span class="line">  data_process_start = <span class="hljs-built_in">kml_get_current_time</span>();</span><br><span class="line">  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">readahead_data_processing</span>(data, (readahead_net *)readahead,</span><br><span class="line">                                disk_base_readahead_val, <span class="hljs-literal">true</span>, <span class="hljs-literal">false</span>, i_ino)) {</span><br><span class="line">  }</span><br><span class="line">  data_process_end = <span class="hljs-built_in">kml_get_current_time</span>();</span><br><span class="line"></span><br><span class="line">  data_process_total += <span class="hljs-built_in">kml_get_time_diff</span>(data_process_end, data_process_start);</span><br><span class="line">  <span class="hljs-built_in">kml_atomic_add</span>(&amp;data_process_count, <span class="hljs-number">1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="hljs-built_in">kernel_fpu_end</span>();</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>为什么不用mmap</p>
+<p><a target="_blank" rel="noopener" href="https://blog.acolyer.org/2016/04/26/the-linux-scheduler-a-decade-of-wasted-cores/">https://blog.acolyer.org/2016/04/26/the-linux-scheduler-a-decade-of-wasted-cores/</a></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/01/21/rpc%E6%A1%86%E6%9E%B6/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">rpc框架</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/01/07/%E5%AE%9E%E9%AA%8C%E5%AE%A4%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%A5%E5%B8%B8%E8%BF%90%E7%BB%B4/">
+                <span class="level-item">实验室服务器日常运维</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#motivation">
+        <span class="has-mr-6">1</span>
+        <span>motivation</span>
+        </a></li><li>
+        <a class="is-flex" href="#OS中的启发式决策场景">
+        <span class="has-mr-6">2</span>
+        <span>OS中的启发式决策场景</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#预读大小">
+        <span class="has-mr-6">2.1</span>
+        <span>预读大小</span>
+        </a></li><li>
+        <a class="is-flex" href="#预测KV存储中的索引结构">
+        <span class="has-mr-6">2.2</span>
+        <span>预测KV存储中的索引结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#缓存相关">
+        <span class="has-mr-6">2.3</span>
+        <span>缓存相关</span>
+        </a></li><li>
+        <a class="is-flex" href="#IO调度">
+        <span class="has-mr-6">2.4</span>
+        <span>IO调度</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#KML的设计">
+        <span class="has-mr-6">3</span>
+        <span>KML的设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#资源开销">
+        <span class="has-mr-6">3.1</span>
+        <span>资源开销</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#减少计算开销">
+        <span class="has-mr-6">3.1.1</span>
+        <span>减少计算开销</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#用户空间训练">
+        <span class="has-mr-6">3.2</span>
+        <span>用户空间训练</span>
+        </a></li><li>
+        <a class="is-flex" href="#安全稳定性">
+        <span class="has-mr-6">3.3</span>
+        <span>安全稳定性</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#两个应用实例">
+        <span class="has-mr-6">4</span>
+        <span>两个应用实例</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#预读">
+        <span class="has-mr-6">4.1</span>
+        <span>预读</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#数据采集">
+        <span class="has-mr-6">4.1.1</span>
+        <span>数据采集</span>
+        </a></li><li>
+        <a class="is-flex" href="#数据预处理和归一化">
+        <span class="has-mr-6">4.1.2</span>
+        <span>数据预处理和归一化</span>
+        </a></li><li>
+        <a class="is-flex" href="#模型结构">
+        <span class="has-mr-6">4.1.3</span>
+        <span>模型结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#实验结果">
+        <span class="has-mr-6">4.1.4</span>
+        <span>实验结果</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#NFS-rsize">
+        <span class="has-mr-6">4.2</span>
+        <span>NFS rsize</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#未来改进点">
+        <span class="has-mr-6">5</span>
+        <span>未来改进点</span>
+        </a></li><li>
+        <a class="is-flex" href="#代码">
+        <span class="has-mr-6">6</span>
+        <span>代码</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#前置知识">
+        <span class="has-mr-6">6.1</span>
+        <span>前置知识</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#IO栈">
+        <span class="has-mr-6">6.1.1</span>
+        <span>IO栈</span>
+        </a></li><li>
+        <a class="is-flex" href="#kernel中的文件读写">
+        <span class="has-mr-6">6.1.2</span>
+        <span>kernel中的文件读写</span>
+        </a></li><li>
+        <a class="is-flex" href="#iptables">
+        <span class="has-mr-6">6.1.3</span>
+        <span>iptables</span>
+        </a></li><li>
+        <a class="is-flex" href="#ebpf">
+        <span class="has-mr-6">6.1.4</span>
+        <span>ebpf</span>
+        </a></li><li>
+        <a class="is-flex" href="#C风格的面向对象">
+        <span class="has-mr-6">6.1.5</span>
+        <span>C风格的面向对象</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#源码阅读">
+        <span class="has-mr-6">6.2</span>
+        <span>源码阅读</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#readahead">
+        <span class="has-mr-6">6.2.1</span>
+        <span>readahead</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#问题">
+        <span class="has-mr-6">7</span>
+        <span>问题</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="KML论文阅读" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

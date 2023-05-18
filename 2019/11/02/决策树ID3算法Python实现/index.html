@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>决策树ID3算法Python实现 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="参考西瓜书第4章编写，并用graphviz实现可视化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="决策树ID3算法Python实现">
+<meta property="og:url" content="http://yoursite.com/2019/11/02/%E5%86%B3%E7%AD%96%E6%A0%91ID3%E7%AE%97%E6%B3%95Python%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="参考西瓜书第4章编写，并用graphviz实现可视化。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-11-02T03:26:59.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.411Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="决策树ID3算法Python实现" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-11-02T03:26:59.000Z">2019-11-02</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    5 分钟 读完 (大约 765 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                决策树ID3算法Python实现
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>参考西瓜书第4章编写，并用<code>graphviz</code>实现可视化。</p>
+<span id="more"></span>
+
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np</span><br><span class="line"><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter</span><br><span class="line"><span class="hljs-keyword">from</span> graphviz <span class="hljs-keyword">import</span> Digraph</span><br><span class="line"><span class="hljs-keyword">import</span> os</span><br><span class="line">os.environ[<span class="hljs-string">"PATH"</span>] += os.pathsep + <span class="hljs-string">'D:/Graphviz2.39/bin'</span></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">loadData</span>(<span class="hljs-params">filename</span>):</span><br><span class="line">    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(filename) <span class="hljs-keyword">as</span> f:</span><br><span class="line">        line = f.readline()</span><br><span class="line">        res = []</span><br><span class="line">        <span class="hljs-keyword">while</span> line:</span><br><span class="line">            c = line.split()</span><br><span class="line">            content = [<span class="hljs-built_in">float</span>(x) <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> c]</span><br><span class="line">            res.append(content)</span><br><span class="line">            line = f.readline()</span><br><span class="line">    <span class="hljs-comment">#print(res)</span></span><br><span class="line">    <span class="hljs-keyword">return</span> res</span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">getEnt</span>(<span class="hljs-params">data</span>):</span><br><span class="line">    num = <span class="hljs-built_in">len</span>(data)</span><br><span class="line">    labelCount = {}</span><br><span class="line">    <span class="hljs-keyword">for</span> feature <span class="hljs-keyword">in</span> data:</span><br><span class="line">        label = feature[-<span class="hljs-number">1</span>]</span><br><span class="line">        <span class="hljs-keyword">if</span> label <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> labelCount.keys():</span><br><span class="line">            labelCount[label] = <span class="hljs-number">0</span></span><br><span class="line">        labelCount[label] += <span class="hljs-number">1</span></span><br><span class="line">    Ent = <span class="hljs-number">0</span></span><br><span class="line">    <span class="hljs-keyword">for</span> key, p <span class="hljs-keyword">in</span> labelCount.items():</span><br><span class="line">        p = p / num</span><br><span class="line">        Ent -= p*np.log2(p)</span><br><span class="line">    <span class="hljs-keyword">return</span> Ent</span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">splitDate</span>(<span class="hljs-params">data,feature,point</span>):<span class="hljs-comment">#整体数据集、特征编号、分割点</span></span><br><span class="line">    data1 = [x <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> data <span class="hljs-keyword">if</span> x[feature]&lt;point]</span><br><span class="line">    data2 = [x <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> data <span class="hljs-keyword">if</span> x[feature]&gt;point]</span><br><span class="line">    <span class="hljs-keyword">return</span> data1,data2</span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">chooseBF</span>(<span class="hljs-params">data</span>):<span class="hljs-comment">#选择最佳的划分属性</span></span><br><span class="line">    featureValue = []</span><br><span class="line">    num = <span class="hljs-built_in">len</span>(data)</span><br><span class="line">    Ent = getEnt(data)</span><br><span class="line">    numFeature = <span class="hljs-built_in">len</span>(data[<span class="hljs-number">0</span>])-<span class="hljs-number">1</span><span class="hljs-comment">#获取属性的个数</span></span><br><span class="line">    maxGain = <span class="hljs-built_in">float</span>(<span class="hljs-string">'-inf'</span>)</span><br><span class="line">    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(numFeature):<span class="hljs-comment">#对每个属性，统计出现的值</span></span><br><span class="line">        featureList = [feature[i] <span class="hljs-keyword">for</span> feature <span class="hljs-keyword">in</span> data]<span class="hljs-comment">#统计该属性出现的可能值</span></span><br><span class="line">        featureList = <span class="hljs-built_in">sorted</span>(<span class="hljs-built_in">list</span>(<span class="hljs-built_in">set</span>(featureList)))</span><br><span class="line">        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(featureList)-<span class="hljs-number">1</span>):</span><br><span class="line">            data1,data2 = splitDate(data,i,(featureList[j]+featureList[j+<span class="hljs-number">1</span>])/<span class="hljs-number">2</span>)</span><br><span class="line">            Ent1 = getEnt(data1)</span><br><span class="line">            Ent2 = getEnt(data2)</span><br><span class="line">            Gain = Ent - (<span class="hljs-built_in">len</span>(data1)/num)*Ent1 - (<span class="hljs-built_in">len</span>(data2)/num)*Ent2</span><br><span class="line">            <span class="hljs-keyword">if</span> Gain&gt;maxGain:</span><br><span class="line">                feature = i</span><br><span class="line">                point = (featureList[j]+featureList[j+<span class="hljs-number">1</span>])/<span class="hljs-number">2</span></span><br><span class="line">                dataLeft = data1</span><br><span class="line">                dataRight = data2</span><br><span class="line">                maxGain = Gain</span><br><span class="line">    <span class="hljs-keyword">return</span> feature,point,dataLeft,dataRight<span class="hljs-comment">#返回分割的属性和分裂点</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">creatTree</span>(<span class="hljs-params">data</span>):</span><br><span class="line">    node = {}</span><br><span class="line">    label = [sample[-<span class="hljs-number">1</span>] <span class="hljs-keyword">for</span> sample <span class="hljs-keyword">in</span> data]</span><br><span class="line">    <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(<span class="hljs-built_in">set</span>(label))==<span class="hljs-number">1</span>:</span><br><span class="line">        node[<span class="hljs-string">'label'</span>] = label[<span class="hljs-number">0</span>]</span><br><span class="line">        <span class="hljs-keyword">return</span> node</span><br><span class="line">    unique = []</span><br><span class="line">    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(data[<span class="hljs-number">0</span>])-<span class="hljs-number">1</span>):</span><br><span class="line">        unique.append(<span class="hljs-built_in">len</span>(<span class="hljs-built_in">set</span>([sample[i] <span class="hljs-keyword">for</span> sample <span class="hljs-keyword">in</span> data])))</span><br><span class="line">    tot = <span class="hljs-built_in">sum</span>([<span class="hljs-number">1</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> unique <span class="hljs-keyword">if</span> (x == <span class="hljs-number">1</span>)])</span><br><span class="line">    dataCount = Counter([sample[-<span class="hljs-number">1</span>] <span class="hljs-keyword">for</span> sample <span class="hljs-keyword">in</span> data])</span><br><span class="line">    <span class="hljs-keyword">if</span> (tot == <span class="hljs-number">4</span>):</span><br><span class="line">        node[<span class="hljs-string">'label'</span>] = <span class="hljs-built_in">list</span>(dataCount.most_common(<span class="hljs-number">1</span>)[<span class="hljs-number">0</span>])[<span class="hljs-number">0</span>]</span><br><span class="line">        <span class="hljs-keyword">return</span> node</span><br><span class="line">    featureIndex,point,dataLeft,dataRight = chooseBF(data)<span class="hljs-comment">#分裂属性编号，分裂值</span></span><br><span class="line">    node[<span class="hljs-string">'value'</span>] = point</span><br><span class="line">    node[<span class="hljs-string">'feature'</span>] = featureIndex</span><br><span class="line">    node[<span class="hljs-string">'leftChild'</span>] = creatTree(dataLeft)</span><br><span class="line">    node[<span class="hljs-string">'rightChild'</span>] = creatTree(dataRight)</span><br><span class="line">    <span class="hljs-keyword">return</span> node</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">predict</span>(<span class="hljs-params">sample,node</span>):</span><br><span class="line">    <span class="hljs-keyword">if</span> <span class="hljs-string">'feature'</span> <span class="hljs-keyword">in</span> node:</span><br><span class="line">        <span class="hljs-keyword">if</span> sample[node[<span class="hljs-string">'feature'</span>]]&gt;node[<span class="hljs-string">'value'</span>]:</span><br><span class="line">            label = predict(sample,node[<span class="hljs-string">'rightChild'</span>])</span><br><span class="line">        <span class="hljs-keyword">else</span>:</span><br><span class="line">            label = predict(sample,node[<span class="hljs-string">'leftChild'</span>])</span><br><span class="line">    <span class="hljs-keyword">else</span>:</span><br><span class="line">        <span class="hljs-keyword">return</span> node[<span class="hljs-string">'label'</span>]</span><br><span class="line">    <span class="hljs-keyword">return</span> label</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">test</span>(<span class="hljs-params">data,tree</span>):</span><br><span class="line">    num = <span class="hljs-built_in">len</span>(data)</span><br><span class="line">    ans = []</span><br><span class="line">    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num):</span><br><span class="line">        ans.append(predict(data[i],tree))</span><br><span class="line">    <span class="hljs-keyword">return</span> ans</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">plot_model</span>(<span class="hljs-params">tree, name</span>):</span><br><span class="line">    g = Digraph(<span class="hljs-string">"G"</span>, filename=name, <span class="hljs-built_in">format</span>=<span class="hljs-string">'png'</span>, strict=<span class="hljs-literal">False</span>)</span><br><span class="line">    g.node(<span class="hljs-string">"0"</span>, <span class="hljs-built_in">str</span>(tree[<span class="hljs-string">'feature'</span>]))<span class="hljs-comment">#根节点的feature</span></span><br><span class="line">    _sub_plot(g, tree, <span class="hljs-string">"0"</span>)</span><br><span class="line">    <span class="hljs-keyword">return</span> g</span><br><span class="line">    g.view()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">root = <span class="hljs-string">"0"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">def</span> <span class="title function_">_sub_plot</span>(<span class="hljs-params">g, tree, inc</span>):</span><br><span class="line">    <span class="hljs-keyword">global</span> root</span><br><span class="line">    ts = tree</span><br><span class="line">    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> ts.keys():<span class="hljs-comment">#i是字典的key 根节点的key</span></span><br><span class="line">        <span class="hljs-keyword">if</span> i == <span class="hljs-string">'leftChild'</span>:  <span class="hljs-comment"># 上次的节点指向刚刚画的节点</span></span><br><span class="line">            root = <span class="hljs-built_in">str</span>(<span class="hljs-built_in">int</span>(root) + <span class="hljs-number">1</span>)</span><br><span class="line">            <span class="hljs-keyword">if</span> <span class="hljs-string">'feature'</span> <span class="hljs-keyword">in</span> tree[i]:</span><br><span class="line">                g.node(root,<span class="hljs-built_in">str</span>(tree[i][<span class="hljs-string">'feature'</span>]))<span class="hljs-comment">#新生成的子节点root</span></span><br><span class="line">            <span class="hljs-keyword">else</span>:</span><br><span class="line">                g.node(root, <span class="hljs-built_in">str</span>(tree[i][<span class="hljs-string">'label'</span>]))  <span class="hljs-comment"># 新生成的子节点root</span></span><br><span class="line">            g.edge(inc, root, <span class="hljs-string">'&lt;'</span> + <span class="hljs-built_in">str</span>(tree[<span class="hljs-string">'value'</span>]))</span><br><span class="line">            _sub_plot(g, tree[i], root)</span><br><span class="line">        <span class="hljs-keyword">if</span> i == <span class="hljs-string">'rightChild'</span>:</span><br><span class="line">            root = <span class="hljs-built_in">str</span>(<span class="hljs-built_in">int</span>(root) + <span class="hljs-number">1</span>)</span><br><span class="line">            <span class="hljs-keyword">if</span> <span class="hljs-string">'feature'</span> <span class="hljs-keyword">in</span> tree[i]:</span><br><span class="line">                g.node(root, <span class="hljs-built_in">str</span>(tree[i][<span class="hljs-string">'feature'</span>]))  <span class="hljs-comment"># 新生成的子节点root</span></span><br><span class="line">            <span class="hljs-keyword">else</span>:</span><br><span class="line">                g.node(root, <span class="hljs-built_in">str</span>(tree[i][<span class="hljs-string">'label'</span>]))  <span class="hljs-comment"># 新生成的子节点root</span></span><br><span class="line">            g.edge(inc, root, <span class="hljs-string">'&gt;'</span> + <span class="hljs-built_in">str</span>(tree[<span class="hljs-string">'value'</span>]))</span><br><span class="line">            _sub_plot(g, tree[i], root)</span><br><span class="line">        <span class="hljs-keyword">if</span> i == <span class="hljs-string">'label'</span>:</span><br><span class="line">            g.node(root, <span class="hljs-string">'label:'</span> + <span class="hljs-built_in">str</span>(tree[<span class="hljs-string">'label'</span>]))  <span class="hljs-comment"># 画出儿子节点</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">'__main__'</span>:</span><br><span class="line">    trainData = loadData(<span class="hljs-string">'traindata.txt'</span>)</span><br><span class="line">    testData = loadData(<span class="hljs-string">'testdata.txt'</span>)</span><br><span class="line">    tree = creatTree(trainData)</span><br><span class="line">    ans = test(testData,tree)</span><br><span class="line">    trueLabel = [sample[-<span class="hljs-number">1</span>] <span class="hljs-keyword">for</span> sample <span class="hljs-keyword">in</span> testData]</span><br><span class="line">    rightCount = <span class="hljs-number">0</span></span><br><span class="line">    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(ans)):</span><br><span class="line">        <span class="hljs-keyword">if</span> ans[i]==trueLabel[i]:</span><br><span class="line">            rightCount = rightCount + <span class="hljs-number">1</span></span><br><span class="line">    g = plot_model(tree, <span class="hljs-string">"决策树"</span>)</span><br><span class="line">    g.view()</span><br><span class="line"></span><br><span class="line">    <span class="hljs-built_in">print</span>(rightCount/<span class="hljs-built_in">len</span>(ans))</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="结果及可视化"><a href="#结果及可视化" class="headerlink" title="结果及可视化"></a>结果及可视化</h2><p><code>acc = 96%</code></p>
+<p><img src="/2019/11/02/%E5%86%B3%E7%AD%96%E6%A0%91ID3%E7%AE%97%E6%B3%95Python%E5%AE%9E%E7%8E%B0/1572665601544.png" alt=""></p>
+<h2 id="实验数据"><a href="#实验数据" class="headerlink" title="实验数据"></a>实验数据</h2><p>每行一个样本，前三列为属性，最后一列为label</p>
+<h3 id="训练集"><a href="#训练集" class="headerlink" title="训练集"></a>训练集</h3><figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">5	3	1.6	0.2	1</span><br><span class="line">5	3.4	1.6	0.4	1</span><br><span class="line">5.2	3.5	1.5	0.2	1</span><br><span class="line">5.2	3.4	1.4	0.2	1</span><br><span class="line">4.7	3.2	1.6	0.2	1</span><br><span class="line">4.8	3.1	1.6	0.2	1</span><br><span class="line">5.4	3.4	1.5	0.4	1</span><br><span class="line">5.2	4.1	1.5	0.1	1</span><br><span class="line">5.5	4.2	1.4	0.2	1</span><br><span class="line">4.9	3.1	1.5	0.2	1</span><br><span class="line">5	3.2	1.2	0.2	1</span><br><span class="line">5.5	3.5	1.3	0.2	1</span><br><span class="line">4.9	3.6	1.4	0.1	1</span><br><span class="line">4.4	3	1.3	0.2	1</span><br><span class="line">5.1	3.4	1.5	0.2	1</span><br><span class="line">5	3.5	1.3	0.3	1</span><br><span class="line">4.5	2.3	1.3	0.3	1</span><br><span class="line">4.4	3.2	1.3	0.2	1</span><br><span class="line">5	3.5	1.6	0.6	1</span><br><span class="line">5.1	3.8	1.9	0.4	1</span><br><span class="line">4.8	3	1.4	0.3	1</span><br><span class="line">5.1	3.8	1.6	0.2	1</span><br><span class="line">4.6	3.2	1.4	0.2	1</span><br><span class="line">5.3	3.7	1.5	0.2	1</span><br><span class="line">5	3.3	1.4	0.2	1</span><br><span class="line">6.6	3	4.4	1.4	2</span><br><span class="line">6.8	2.8	4.8	1.4	2</span><br><span class="line">6.7	3	5	1.7	2</span><br><span class="line">6	2.9	4.5	1.5	2</span><br><span class="line">5.7	2.6	3.5	1	2</span><br><span class="line">5.5	2.4	3.8	1.1	2</span><br><span class="line">5.5	2.4	3.7	1	2</span><br><span class="line">5.8	2.7	3.9	1.2	2</span><br><span class="line">6	2.7	5.1	1.6	2</span><br><span class="line">5.4	3	4.5	1.5	2</span><br><span class="line">6	3.4	4.5	1.6	2</span><br><span class="line">6.7	3.1	4.7	1.5	2</span><br><span class="line">6.3	2.3	4.4	1.3	2</span><br><span class="line">5.6	3	4.1	1.3	2</span><br><span class="line">5.5	2.5	4	1.3	2</span><br><span class="line">5.5	2.6	4.4	1.2	2</span><br><span class="line">6.1	3	4.6	1.4	2</span><br><span class="line">5.8	2.6	4	1.2	2</span><br><span class="line">5	2.3	3.3	1	2</span><br><span class="line">5.6	2.7	4.2	1.3	2</span><br><span class="line">5.7	3	4.2	1.2	2</span><br><span class="line">5.7	2.9	4.2	1.3	2</span><br><span class="line">6.2	2.9	4.3	1.3	2</span><br><span class="line">5.1	2.5	3	1.1	2</span><br><span class="line">5.7	2.8	4.1	1.3	2</span><br><span class="line">7.2	3.2	6	1.8	3</span><br><span class="line">6.2	2.8	4.8	1.8	3</span><br><span class="line">6.1	3	4.9	1.8	3</span><br><span class="line">6.4	2.8	5.6	2.1	3</span><br><span class="line">7.2	3	5.8	1.6	3</span><br><span class="line">7.4	2.8	6.1	1.9	3</span><br><span class="line">7.9	3.8	6.4	2	3</span><br><span class="line">6.4	2.8	5.6	2.2	3</span><br><span class="line">6.3	2.8	5.1	1.5	3</span><br><span class="line">6.1	2.6	5.6	1.4	3</span><br><span class="line">7.7	3	6.1	2.3	3</span><br><span class="line">6.3	3.4	5.6	2.4	3</span><br><span class="line">6.4	3.1	5.5	1.8	3</span><br><span class="line">6	3	4.8	1.8	3</span><br><span class="line">6.9	3.1	5.4	2.1	3</span><br><span class="line">6.7	3.1	5.6	2.4	3</span><br><span class="line">6.9	3.1	5.1	2.3	3</span><br><span class="line">5.8	2.7	5.1	1.9	3</span><br><span class="line">6.8	3.2	5.9	2.3	3</span><br><span class="line">6.7	3.3	5.7	2.5	3</span><br><span class="line">6.7	3	5.2	2.3	3</span><br><span class="line">6.3	2.5	5	1.9	3</span><br><span class="line">6.5	3	5.2	2	3</span><br><span class="line">6.2	3.4	5.4	2.3	3</span><br><span class="line">5.9	3	5.1	1.8	3</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="测试集"><a href="#测试集" class="headerlink" title="测试集"></a>测试集</h3><figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">5.1	3.5	1.4	0.2	1</span><br><span class="line">4.9	3	1.4	0.2	1</span><br><span class="line">4.7	3.2	1.3	0.2	1</span><br><span class="line">4.6	3.1	1.5	0.2	1</span><br><span class="line">5	3.6	1.4	0.2	1</span><br><span class="line">5.4	3.9	1.7	0.4	1</span><br><span class="line">4.6	3.4	1.4	0.3	1</span><br><span class="line">5	3.4	1.5	0.2	1</span><br><span class="line">4.4	2.9	1.4	0.2	1</span><br><span class="line">4.9	3.1	1.5	0.1	1</span><br><span class="line">5.4	3.7	1.5	0.2	1</span><br><span class="line">4.8	3.4	1.6	0.2	1</span><br><span class="line">4.8	3	1.4	0.1	1</span><br><span class="line">4.3	3	1.1	0.1	1</span><br><span class="line">5.8	4	1.2	0.2	1</span><br><span class="line">5.7	4.4	1.5	0.4	1</span><br><span class="line">5.4	3.9	1.3	0.4	1</span><br><span class="line">5.1	3.5	1.4	0.3	1</span><br><span class="line">5.7	3.8	1.7	0.3	1</span><br><span class="line">5.1	3.8	1.5	0.3	1</span><br><span class="line">5.4	3.4	1.7	0.2	1</span><br><span class="line">5.1	3.7	1.5	0.4	1</span><br><span class="line">4.6	3.6	1	0.2	1</span><br><span class="line">5.1	3.3	1.7	0.5	1</span><br><span class="line">4.8	3.4	1.9	0.2	1</span><br><span class="line">7	3.2	4.7	1.4	2</span><br><span class="line">6.4	3.2	4.5	1.5	2</span><br><span class="line">6.9	3.1	4.9	1.5	2</span><br><span class="line">5.5	2.3	4	1.3	2</span><br><span class="line">6.5	2.8	4.6	1.5	2</span><br><span class="line">5.7	2.8	4.5	1.3	2</span><br><span class="line">6.3	3.3	4.7	1.6	2</span><br><span class="line">4.9	2.4	3.3	1	2</span><br><span class="line">6.6	2.9	4.6	1.3	2</span><br><span class="line">5.2	2.7	3.9	1.4	2</span><br><span class="line">5	2	3.5	1	2</span><br><span class="line">5.9	3	4.2	1.5	2</span><br><span class="line">6	2.2	4	1	2</span><br><span class="line">6.1	2.9	4.7	1.4	2</span><br><span class="line">5.6	2.9	3.6	1.3	2</span><br><span class="line">6.7	3.1	4.4	1.4	2</span><br><span class="line">5.6	3	4.5	1.5	2</span><br><span class="line">5.8	2.7	4.1	1	2</span><br><span class="line">6.2	2.2	4.5	1.5	2</span><br><span class="line">5.6	2.5	3.9	1.1	2</span><br><span class="line">5.9	3.2	4.8	1.8	2</span><br><span class="line">6.1	2.8	4	1.3	2</span><br><span class="line">6.3	2.5	4.9	1.5	2</span><br><span class="line">6.1	2.8	4.7	1.2	2</span><br><span class="line">6.4	2.9	4.3	1.3	2</span><br><span class="line">6.3	3.3	6	2.5	3</span><br><span class="line">5.8	2.7	5.1	1.9	3</span><br><span class="line">7.1	3	5.9	2.1	3</span><br><span class="line">6.3	2.9	5.6	1.8	3</span><br><span class="line">6.5	3	5.8	2.2	3</span><br><span class="line">7.6	3	6.6	2.1	3</span><br><span class="line">4.9	2.5	4.5	1.7	3</span><br><span class="line">7.3	2.9	6.3	1.8	3</span><br><span class="line">6.7	2.5	5.8	1.8	3</span><br><span class="line">7.2	3.6	6.1	2.5	3</span><br><span class="line">6.5	3.2	5.1	2	3</span><br><span class="line">6.4	2.7	5.3	1.9	3</span><br><span class="line">6.8	3	5.5	2.1	3</span><br><span class="line">5.7	2.5	5	2	3</span><br><span class="line">5.8	2.8	5.1	2.4	3</span><br><span class="line">6.4	3.2	5.3	2.3	3</span><br><span class="line">6.5	3	5.5	1.8	3</span><br><span class="line">7.7	3.8	6.7	2.2	3</span><br><span class="line">7.7	2.6	6.9	2.3	3</span><br><span class="line">6	2.2	5	1.5	3</span><br><span class="line">6.9	3.2	5.7	2.3	3</span><br><span class="line">5.6	2.8	4.9	2	3</span><br><span class="line">7.7	2.8	6.7	2	3</span><br><span class="line">6.3	2.7	4.9	1.8	3</span><br><span class="line">6.7	3.3	5.7	2.1	3</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="graphviz安装"><a href="#graphviz安装" class="headerlink" title="graphviz安装"></a><code>graphviz</code>安装</h2><p>先<code>pip install praphviz</code></p>
+<p>windows端需要去官网下载<code>msi</code>文件进行安装</p>
+<p>然后将<code>D:\Graphviz2.39\bin</code>添加到环境变量</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/python/" rel="tag">python</a>, <a class="has-link-grey -link-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/11/04/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">操作系统笔记—内存管理</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/10/27/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%AE%97%E6%B3%95-matlab%E5%AE%9E%E7%8E%B0/">
+                <span class="level-item">BP神经网络算法 matlab实现</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#代码">
+        <span class="has-mr-6">1</span>
+        <span>代码</span>
+        </a></li><li>
+        <a class="is-flex" href="#结果及可视化">
+        <span class="has-mr-6">2</span>
+        <span>结果及可视化</span>
+        </a></li><li>
+        <a class="is-flex" href="#实验数据">
+        <span class="has-mr-6">3</span>
+        <span>实验数据</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#训练集">
+        <span class="has-mr-6">3.1</span>
+        <span>训练集</span>
+        </a></li><li>
+        <a class="is-flex" href="#测试集">
+        <span class="has-mr-6">3.2</span>
+        <span>测试集</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#graphviz安装">
+        <span class="has-mr-6">4</span>
+        <span>graphviz安装</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="决策树ID3算法Python实现" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

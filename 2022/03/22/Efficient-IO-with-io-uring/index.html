@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>Efficient IO with io_uring - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="本文旨在介绍最新的Linux  IO接口，io_uring，并将其与现有的进行比较。我们将讨论它存在的原因、内部工作原理以及用户接口。本文不会详细介绍具体的命令，这些在man手册中。相反，本文将介绍io_uring以及其工作原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Efficient IO with io_uring">
+<meta property="og:url" content="http://yoursite.com/2022/03/22/Efficient-IO-with-io-uring/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="本文旨在介绍最新的Linux  IO接口，io_uring，并将其与现有的进行比较。我们将讨论它存在的原因、内部工作原理以及用户接口。本文不会详细介绍具体的命令，这些在man手册中。相反，本文将介绍io_uring以及其工作原理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-03-22T07:16:08.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:48.991Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="Efficient IO with io_uring" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-03-22T07:16:08.000Z">2022-03-22</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    16 分钟 读完 (大约 2373 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                Efficient IO with io_uring
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>本文旨在介绍最新的Linux  IO接口，io_uring，并将其与现有的进行比较。我们将讨论它存在的原因、内部工作原理以及用户接口。本文不会详细介绍具体的命令，这些在man手册中。相反，本文将介绍io_uring以及其工作原理。 </p>
+<span id="more"></span>
+
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>在Linux中有很多基于文件的IO方式。最古老的是read和write系统调用。后来有了pread和pwrite的版本，可以传入偏移量参数。在后来又有了preadv和pwritev，这是基于前者的向量版本，进一步扩展了API以及可修改的标志位。这几个系统调用有一个共同点，他们都是同步接口。这就意味这这些调用在数据准备就绪时才能返回。在一些场景下，需要异步接口，POSIX有aio_read和aio_write来满足，但是这两个的实现和性能一般。</p>
+<p>Linux的原生异步IO接口，简称aio，有许多局限性：</p>
+<ul>
+<li>最大的限制是<strong>只支持O_DIRECT</strong>。由于这个限制，native aio在大部分场景下都不适用，对于buffered IO，aio接口以同步的方式运行。</li>
+<li>即使满足了异步的所有约束，有时候还不是异步的。<strong>IO提交可能会以多种方式阻塞</strong>，如果需要元数据来执行IO，提交将会阻塞。对于存储设备，只有固定数量的请求slots可用，如果这些slots当前被占用，提交将会被阻塞直到有一个可用。</li>
+<li>API本身设计不好。每次IO提交需要拷贝64+8字节，每次完成拷贝32字节，共104字节的内存拷贝。对IO来说，希望的是零拷贝。</li>
+</ul>
+<p>这意味着Linux缺乏一个能满足异步IO的接口，在内核可以更高效实现这一点的情况下，应用程序没有理由要创建私有IO线程池来获得良好的异步IO。</p>
+<h2 id="Improving-the-status-quo"><a href="#Improving-the-status-quo" class="headerlink" title="Improving the status quo"></a>Improving the status quo</h2><p>一开始的工作集中在改进aio接口上，在被放弃之前，这项工作取得了相当大的进展。出发点是，改善原有接口比提供新的接口简单，工作量小。</p>
+<p>现有aio接口由三个系统调用组成：</p>
+<ul>
+<li>io_setuo：设置aio上下文的系统调用。</li>
+<li>io_submit：提交io。</li>
+<li>io_getevents：用于获取或等待io完成的系统调用。</li>
+</ul>
+<p>由于这些系统调用需要改变行为，要添加新的系统调用来传递这些信息，最终使得代码复杂度和可维护性都不是很好，API的理解和使用也变得更复杂。</p>
+<p>所以有必要从零开始设计一个全新的东西。</p>
+<h2 id="新的接口设计目标"><a href="#新的接口设计目标" class="headerlink" title="新的接口设计目标"></a>新的接口设计目标</h2><ul>
+<li><p>易用，不易误用。</p>
+</li>
+<li><p>可扩展，新的接口不只是用于块IO，对于网络或非块存储也能用。</p>
+</li>
+<li><p>功能丰富。要涵盖应用程序所需要的大部分功能（比如IO线程池），减少应用程序开发的工作量。</p>
+</li>
+<li><p>效率高。存储IO大多是基于块的，因此一个IO大小至少为512b或4kb，协议请求甚至没有携带数据负载，新接口要求对每个请求的开销都高效。</p>
+</li>
+<li><p>可伸缩性。虽然效率和低延迟很重要，但是在峰值也要尽可能提供最佳的新能。</p>
+</li>
+</ul>
+<h2 id="io-uring"><a href="#io-uring" class="headerlink" title="io_uring"></a>io_uring</h2><p>aio为了处理IO尽量了多个单独内存拷贝，也就是存在内存副本，损害了效率和可扩展性，这是要避免的。</p>
+<p>由于要尽量避免复制，内核和应用程序必须友好的共享定义IO本身和完成事件的结构，要实现这一点，需要让共享数据的coordination也驻留在应用程序和内核之间的共享内存。要实现这一点，就要考虑这内核和应用程序的同步管理方式。</p>
+<p>应用程序不能在不用系统调用的情况下与内核共享锁，系统调用肯定会降低与内核通信的速率，这违背了设计目标中的效率需求。满足我们需求的一种数据结构是ringbuffer，单生产者单消费者的场景。通过共享环形缓冲区，我们可以消除应用程序和内核之间共享锁的需要，而且巧妙的避开了memory和ordering和barriers。</p>
+<p>异步接口有两个基本操作：提交请求的行为和完成请求的事件。对于提交IO，应用程序时生产者，内核是消费者。对于完成事件刚好相反，内核生产，用户消费。因此我们需要一对环buffer来在应用程序和内核之间提供有效的通信通道。这个ringbuffer的通信通道就是io_uring的核心，也就是后面的提交队列（SQ）和完成队列（CQ），这是新接口的基础。</p>
+<h3 id="data-structure"><a href="#data-structure" class="headerlink" title="data structure"></a>data structure</h3><p>有了通信通道，下面要定义用于描述请求和完成事件的数据结构。</p>
+<h4 id="cqe完成队列事件"><a href="#cqe完成队列事件" class="headerlink" title="cqe完成队列事件"></a>cqe完成队列事件</h4><blockquote>
+<p>Completion Queue Event</p>
+</blockquote>
+<p>对于完成队列事件，简称cqe：</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">io_uring_cqe</span> { </span><br><span class="line">    __u64    user_data; </span><br><span class="line">    __s32    res; </span><br><span class="line">    __u32    flags; </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>user_data用户数据字段取自初始提交请求，可以包含应用程序识别请求所需要的任何信息。一个常见的用例是将其作为原始请求的指针，内核不会触及这个字段，只是在提交和完成过程中简单搬运。</li>
+<li>res保存请求的结果，将其视为系统调用的返回值。对于正常的读写操作，类似于读或写的返回值。对于成功的操作，他将包含传输的字节数，如果发生故障，返回负数。</li>
+</ul>
+<h4 id="sqe请求队列条目"><a href="#sqe请求队列条目" class="headerlink" title="sqe请求队列条目"></a>sqe请求队列条目</h4><blockquote>
+<p>Submission Queue Entry</p>
+</blockquote>
+<p>请求队列(sqe)定义：</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">io_uring_sqe</span> { </span><br><span class="line">    __u8    opcode; </span><br><span class="line">    __u8    flags; </span><br><span class="line">    __u16    ioprio; </span><br><span class="line">    __s32    fd; </span><br><span class="line">    __u64    off; </span><br><span class="line">    __u64    addr; </span><br><span class="line">    __u32    len; </span><br><span class="line">    <span class="hljs-keyword">union</span> { </span><br><span class="line">        <span class="hljs-type">__kernel_rwf_t</span>    rw_flags; </span><br><span class="line">        __u32        fsync_flags; </span><br><span class="line">        __u16        poll_events; </span><br><span class="line">        __u32        sync_range_flags; </span><br><span class="line">        __u32        msg_flags;             </span><br><span class="line">    }; </span><br><span class="line">    __u64    user_data; </span><br><span class="line">    <span class="hljs-keyword">union</span> { </span><br><span class="line">        __u16    buf_index; </span><br><span class="line">        __u64    __pad2[<span class="hljs-number">3</span>]; </span><br><span class="line">    }; </span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li><p>opcode：操作码，用于描述特定请求的操作码，比如矢量读取IORING_OP_READV</p>
+</li>
+<li><p>flag：</p>
+</li>
+<li><p>ioprio是对此请求的优先级，对于正常的读写操作，遵循ioprio_set中的定义，</p>
+</li>
+<li><p>fd是与请求关联的文件描述符</p>
+</li>
+<li><p>off保存操作应该发生传递偏移量</p>
+</li>
+<li><p>addr：如果操纵码描述了传输数据的操作，addr包含操作应执行IO的地址。如果操作码时某种向量化读写操作，那么将指向struct iovec数组的指针，跟preadv类似。对于非矢量IO传输，addr直接包含地址。</p>
+</li>
+<li><p>len是非矢量IO传输的字节计数，或者是addr描述的矢量数，用于矢量IO传输。 </p>
+</li>
+<li><p>…</p>
+</li>
+</ul>
+<h3 id="communication-channel"><a href="#communication-channel" class="headerlink" title="communication channel"></a>communication channel</h3><p>介绍ring如何工作的。尽管提交和完成是对称的，但是两者之间的索引是不同的。</p>
+<p>CQE被组织成一个数组，该数组的内存可以被内核和应用程序可读可写。然而CQE是内核产生的，因此实际上只能由内核修改。</p>
+<p>每当内核想cq ring发布新事件时，都会更新tail，当应用程序消费entry时，更新头部。因此，如果head和tail不同，应用程序就知道有多个事件可以消费。head和tail时32位int，可以自然溢出，这样就不用管理ring已满的标志。ring的大小必须是2的n次幂。</p>
+<p>要查找一个事件的索引，应用程序必须使用环的大小掩码来屏蔽当前尾部的索引。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">unsigned</span> head; </span><br><span class="line"></span><br><span class="line">head = cqring→head; </span><br><span class="line"><span class="hljs-built_in">read_barrier</span>(); </span><br><span class="line"><span class="hljs-keyword">if</span> (head != cqring→tail) { </span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">io_uring_cqe</span> *cqe; </span><br><span class="line">    <span class="hljs-type">unsigned</span> index; </span><br><span class="line"></span><br><span class="line">    index = head &amp; (cqring→mask); </span><br><span class="line">    cqe = &amp;cqring→cqes[index]; </span><br><span class="line">    <span class="hljs-comment">/* process completed cqe here */</span> </span><br><span class="line">    ... </span><br><span class="line">    <span class="hljs-comment">/* we've now consumed this entry */</span> </span><br><span class="line">    head++; </span><br><span class="line">} </span><br><span class="line"></span><br><span class="line">cqring→head = head; </span><br><span class="line"><span class="hljs-built_in">write_barrier</span>();</span><br></pre></td></tr></tbody></table></figure>
+
+<p>虽然CQ环直接索引CQ的共享数组，但提交端在他们之间有一个间接数组。因此提交端环形缓冲区是该数组的索引，而该数组又包含进入SQE的索引。原因是，一些应用程序可能回在内部数据结构中嵌入请求单元，使他们能灵活的这样做，同时保留在一个操作中提交多个SQE的能力。</p>
+<p>sqe的使用和cqe基本是相反的操作：</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">io_uring_sqe</span> *sqe; </span><br><span class="line"><span class="hljs-type">unsigned</span> tail, index; </span><br><span class="line"></span><br><span class="line">tail = sqring→tail; </span><br><span class="line">index = tail &amp; (*sqring→ring_mask); </span><br><span class="line">sqe = &amp;sqring→sqes[index]; </span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">/* this call fills in the sqe entries for this IO */</span> </span><br><span class="line"><span class="hljs-built_in">init_io</span>(sqe); </span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">/* fill the sqe index into the SQ ring array */</span> </span><br><span class="line">sqring→array[index] = index; </span><br><span class="line">tail++; </span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">write_barrier</span>(); </span><br><span class="line">sqring→tail = tail; </span><br><span class="line"><span class="hljs-built_in">write_barrier</span>();</span><br></pre></td></tr></tbody></table></figure>
+
+<p>一旦内核使用了sqe</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2></body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/03/23/ml4sys%E7%AC%94%E8%AE%B0/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">ml4sys笔记</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/">
+                <span class="level-item">内核开发</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#Introduction">
+        <span class="has-mr-6">1</span>
+        <span>Introduction</span>
+        </a></li><li>
+        <a class="is-flex" href="#Improving-the-status-quo">
+        <span class="has-mr-6">2</span>
+        <span>Improving the status quo</span>
+        </a></li><li>
+        <a class="is-flex" href="#新的接口设计目标">
+        <span class="has-mr-6">3</span>
+        <span>新的接口设计目标</span>
+        </a></li><li>
+        <a class="is-flex" href="#io-uring">
+        <span class="has-mr-6">4</span>
+        <span>io_uring</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#data-structure">
+        <span class="has-mr-6">4.1</span>
+        <span>data structure</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#cqe完成队列事件">
+        <span class="has-mr-6">4.1.1</span>
+        <span>cqe完成队列事件</span>
+        </a></li><li>
+        <a class="is-flex" href="#sqe请求队列条目">
+        <span class="has-mr-6">4.1.2</span>
+        <span>sqe请求队列条目</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#communication-channel">
+        <span class="has-mr-6">4.2</span>
+        <span>communication channel</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参考资料">
+        <span class="has-mr-6">5</span>
+        <span>参考资料</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="Efficient IO with io_uring" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

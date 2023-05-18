@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX操作系统设计-文件系统的系统调用 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="《UNIX操作系统设计》第五章">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX操作系统设计-文件系统的系统调用">
+<meta property="og:url" content="http://yoursite.com/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="《UNIX操作系统设计》第五章">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-10-20T03:40:39.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.075Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="UNIX">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX操作系统设计-文件系统的系统调用" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-10-20T03:40:39.000Z">2020-10-20</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/UNIX/">UNIX</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    33 分钟 读完 (大约 4910 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX操作系统设计-文件系统的系统调用
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>《UNIX操作系统设计》第五章</p>
+<span id="more"></span>
+
+<p>引入了三种内核数据结构：文件表、用户文件描述秒和安装表</p>
+<ul>
+<li>文件表：系统每个打开的文件在文件表中占有一项</li>
+<li>文件描述分配表：记录进程已知的每个文件描述符</li>
+<li>安装表：记录每个活动的文件系统信息</li>
+</ul>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021102645156.png" alt="image-20201021102645156"></p>
+<h2 id="系统调用open"><a href="#系统调用open" class="headerlink" title="系统调用open"></a>系统调用open</h2><h3 id="算法描述"><a href="#算法描述" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>df = open(pathname,flags,modes)</code></p>
+<p><code>pathname</code>是文件名，<code>flags</code>是打开的类型（读写），<code>modes</code>给出文件的许可权，返回一个称为文件描述符的整数。</p>
+<p>打开清文件是什么？</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021103840619.png" alt="image-20201021103840619"></p>
+<p>内核先根据文件名找到索引节点，检查文件许可权，在文件表中分配表项，文件表表项中的指针指向索引节点，并设置偏移量，表示读写开始的地方。内核还会在进程的<strong>u区的文件描述符表</strong>中分配一个表项指向文件表中的表项，如下例子：</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021104321407.png" alt="image-20201021104321407"></p>
+<p>每个open调用都会在用户文件描述符表和内核文件表中分配一个唯一的表项，但在索引节点表中，每个文件只有一个表项。</p>
+<p>文件表的作用：在若干文件描述符之间能够共享偏移量指针，见下文的dup和fork的实现。</p>
+<p>文件描述符0、1、2分别为：标准输入、标准输出、标准错误文件描述符。</p>
+<h2 id="系统调用read"><a href="#系统调用read" class="headerlink" title="系统调用read"></a>系统调用read</h2><h3 id="算法描述-1"><a href="#算法描述-1" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>number = read(fd,buffer,count)</code></p>
+<p><code>fd</code>是由open返回的文件描述符，<code>buffer</code>是用户进程中的一个数据结构的地址，调用成果结束时在该地址中存放所读的数据，<code>count</code>时要读的字节数，<code>number</code>是实际读的字节数。</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021143620754.png" alt="image-20201021143620754"></p>
+<ul>
+<li>根据文件描述符找到文件表项</li>
+<li>在u区设置参数<ul>
+<li><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021145127438.png" alt="image-20201021145127438"></li>
+</ul>
+</li>
+<li>找到索引节点</li>
+<li>索引节点上锁</li>
+<li>进入循环，直到读完。先读到缓冲区，再拷贝到用户地址空间</li>
+</ul>
+<h2 id="系统调用write"><a href="#系统调用write" class="headerlink" title="系统调用write"></a>系统调用write</h2><h3 id="算法描述-2"><a href="#算法描述-2" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>number = write(fd,buffer,count)</code></p>
+<p>写和读类似，区别：</p>
+<ul>
+<li>若文件中还没有要写的字节偏移量所对应的块，内核要用alloc分配一个块，并将该块号放到索引节点表的正确位置上。</li>
+<li>如果字节偏移量是一个间接块中的偏移量，内核可能需要分配几个块</li>
+</ul>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><ul>
+<li><p>一个进程要写到一个文件的字节号为10240的地方</p>
+</li>
+<li><p>算法bmap访问该字节，内核将找不到对应的字节块，也没有必要的间接块。</p>
+</li>
+<li><p>内核分配磁盘块作间接块，并将块号写到内存的索引节点</p>
+</li>
+<li><p>然后，内核为数据分配磁盘块，并将块号写到新分配的间接块的第一个位置。</p>
+</li>
+</ul>
+<h2 id="文件和记录的上锁"><a href="#文件和记录的上锁" class="headerlink" title="文件和记录的上锁"></a>文件和记录的上锁</h2><p>文件的加锁：指防止其他进程读或写整个文件的任何一部分的能力</p>
+<p>记录的加锁：防止其他进程读或写特定记录的能力</p>
+<p>之后将详细讨论实现</p>
+<h2 id="文件的输入-输出位置的调整——lseek"><a href="#文件的输入-输出位置的调整——lseek" class="headerlink" title="文件的输入/输出位置的调整——lseek"></a>文件的输入/输出位置的调整——lseek</h2><p>read和write提供了对文件的顺序访问，lseek可以指定IO的位置，从而实现文件的随机存取，语法格式如下：</p>
+<p><code>position=lseek(fd,offset,reference)</code></p>
+<p><code>fd</code>是文件描述符，<code>offset</code>是字节偏移量，<code>reference</code>指出字节偏移量从哪开始：0表示文件头、1文件的当前读/写偏移量位置、2文件尾，<code>position</code>下次开始读/写的字节偏移量。</p>
+<p>lseek的实现：系统通过调整文件表中的字节偏移量来实现。</p>
+<h3 id="举例-1"><a href="#举例-1" class="headerlink" title="举例"></a>举例</h3><p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021165338193.png" alt="image-20201021165338193"></p>
+<p>读取每隔1024倍数的那个字节</p>
+<h2 id="系统调用close"><a href="#系统调用close" class="headerlink" title="系统调用close"></a>系统调用close</h2><h3 id="算法描述-3"><a href="#算法描述-3" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>close(fd)</code></p>
+<p>内核对文件描述符、对应的文件表项、索引节点表项进行相应的处理，来完成关闭文件的操作。</p>
+<ul>
+<li>如果因为调用dup或fork使得文件表项的引用数大于1，内核将引用数减1</li>
+<li>如果引用数为1，内核将释放表项，并释放在open中分配的内存索引节点（iput）</li>
+<li>如果其他进程还引用该索引节点，索引节点的引用数减1</li>
+<li>否则索引节点引用数减为0，归还该索引节点</li>
+</ul>
+<p>注意：这里的文件表项和索引节点都有一个引用数</p>
+<p>进程退出时，内核检查其用户文件描述符，并在内部关闭，因此进程终止后，文件也关闭了。</p>
+<h3 id="举例-2"><a href="#举例-2" class="headerlink" title="举例"></a>举例</h3><p>关闭前：</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021104321407.png" alt="image-20201021104321407"></p>
+<p>关闭B进程的两个文件后：</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021172845939.png" alt="image-20201021172845939"></p>
+<h2 id="文件的创建creat"><a href="#文件的创建creat" class="headerlink" title="文件的创建creat"></a>文件的创建creat</h2><h3 id="算法描述-4"><a href="#算法描述-4" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>fd = creat(pathname,modes)</code>  </p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021173202955.png" alt="image-20201021173202955"></p>
+<ul>
+<li>内核首先调用算法namei，作路径名到索引节点的对应</li>
+<li>当namei达到路径名的最后一个分量，内核将要创建文件名时，namei记下目录中的第一个空目录槽的字节偏移量，并保存在u区中。</li>
+<li>如果内核在目录中没有找到该路径名分量，则会将这个文件名写到刚刚的空槽中，这也是保存字节偏移量的原因。</li>
+<li>如果没有空槽，内核记下目录尾的偏移量，并在那里建立一个新槽。</li>
+<li>内核还要在u区记下被查找的目录的索引节点，并锁住该索引节点。</li>
+<li>该节点将称为新文件的父目录，此时内核还不会把新文件写入该目录，这是为了防止以后发生的错误事件</li>
+<li>检查有没有对该目录的写权限</li>
+<li>如果给定名字的文件不存在，内核调用ialloc给新文件分配一个索引节点。<ul>
+<li>内核按照保存在u区中的字节偏移量，把新文件名和新分配的索引节点号写到父目录中。</li>
+<li>释放父目录的索引节点。</li>
+</ul>
+</li>
+<li>如果给定的文件已经存在<ul>
+<li>检查是否有写许可权</li>
+<li>用free算法释放所有的数据块</li>
+</ul>
+</li>
+</ul>
+<h2 id="特殊文件的创建"><a href="#特殊文件的创建" class="headerlink" title="特殊文件的创建"></a>特殊文件的创建</h2><h3 id="算法描述-5"><a href="#算法描述-5" class="headerlink" title="算法描述"></a>算法描述</h3><p><code>mknod(pathname,type and permissions,dev)</code></p>
+<p><code>type and permissions</code>给出节点的类型（如目录）和要被建立的新文件的访问许可权。<code>dev</code>是块特殊文件和字符特殊文件规定主设备号和次设备号（第10章）</p>
+<p>mknod用来建立一些特殊文件，包括有名管道、设备文件和目录，同样内核需要分配一个索引节点</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021201652790.png" alt="image-20201021201652790"></p>
+<h2 id="改变目录及根-chdir、chroot"><a href="#改变目录及根-chdir、chroot" class="headerlink" title="改变目录及根 chdir、chroot"></a>改变目录及根 chdir、chroot</h2><p><code>chdir(pathname)</code></p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201021202325463.png" alt="image-20201021202325463"></p>
+<p><code>chroot(pathname)</code> 把pathname当作进程的根目录</p>
+<p>与chdir基本相同，将新的根索引节点存放在u区中。</p>
+<h2 id="改变所有者及许可权方式-chown、chmod"><a href="#改变所有者及许可权方式-chown、chmod" class="headerlink" title="改变所有者及许可权方式 chown、chmod"></a>改变所有者及许可权方式 chown、chmod</h2><p><code>chown(pathname,owner,group)</code></p>
+<p>内核先用namei将文件的名字转换成一个索引节点，然后赋予文件新的所有者和用户组，清除文件存取权方式中的setuid位和setgid位，并用iput释放该索引节点。</p>
+<p><code>chmod(pathname,mode)</code></p>
+<p>类似，改变的不是所有者号而是索引节点中的方式标志。</p>
+<h2 id="系统调用stat和fstat"><a href="#系统调用stat和fstat" class="headerlink" title="系统调用stat和fstat"></a>系统调用stat和fstat</h2><p>允许查询文件的状态，他们返回诸如文件类型、文件所有者、存取许可权、文件大小等信息。</p>
+<p><code>stat(pathname,statbufer)</code> 文件名</p>
+<p><code>fstat(fd,statbuffer)</code> 文件描述符</p>
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>管道的传统实现方法是采用文件系统作为数据存储。有两种类型的管道：有名管道和无名管道。</p>
+<p>进程调用pipe建立无名管道后，只有他们的后代才能共享这个管道</p>
+<p>而对于有名管道，所有进程能够按照文件许可权存取有名管道</p>
+<h3 id="无名管道pipe"><a href="#无名管道pipe" class="headerlink" title="无名管道pipe"></a>无名管道pipe</h3><p><code>pipe(fdptr)</code></p>
+<p><code>fdptr</code>是一个整型数组的指针，整个数组含有读、写管道用的两个文件描述符</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022091335412.png" alt="image-20201022091335412"></p>
+<h3 id="有名管道"><a href="#有名管道" class="headerlink" title="有名管道"></a>有名管道</h3><p>也是文件，但是这个文件有目录项并且可以通过路径名来存取。有名管道在文件系统树钟永久地存在（可用系统调用unlink来清楚），而无名管道是临时性的，进程结束使用无名管道时，内核会回收索引节点。</p>
+<p>打开有名管道的算法和打开一个正规文件的算法基本相同，根据进程打开管道的目的，读还是写，内核会唤醒等待的睡眠进程。</p>
+<h3 id="管道的读和写"><a href="#管道的读和写" class="headerlink" title="管道的读和写"></a>管道的读和写</h3><p>管道存取数据按先进先出的方式。</p>
+<p>内核存取管道数据的方式和正规文件一样，但是管道只用索引节点的直接块以获得较高的效率。另外，内核将读写偏移量放在索引节点而不是文件表，这样多个进程才能共享偏移量值。</p>
+<p>内核将索引节点直接块作为循环队列来管理，内部修改读写指针来保证先进先出的顺序。</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022093536352.png" alt="image-20201022093536352"></p>
+<h4 id="写管道"><a href="#写管道" class="headerlink" title="写管道"></a>写管道</h4><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">if</span>(管道的空间足够存放要写入的数据){</span><br><span class="line">	写入数据</span><br><span class="line">	增加管道大小</span><br><span class="line">}<span class="hljs-keyword">else</span>{<span class="hljs-comment">//管道不能容纳所有的数据</span></span><br><span class="line">	<span class="hljs-keyword">if</span>(要写的数据量大于管道的总容量)</span><br><span class="line">		写尽可能多的数据</span><br><span class="line">		然后睡眠</span><br><span class="line">	<span class="hljs-keyword">else</span></span><br><span class="line">		进程睡眠，等待数据从管道排出</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="读管道"><a href="#读管道" class="headerlink" title="读管道"></a>读管道</h4><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">if</span>(管道不为空){</span><br><span class="line">    <span class="hljs-keyword">if</span>(要读的数据&gt;管道中的所有数据){</span><br><span class="line">        读出所有数据</span><br><span class="line">        结束</span><br><span class="line">    }<span class="hljs-keyword">else</span>{</span><br><span class="line">        读出数据</span><br><span class="line">    }</span><br><span class="line">}<span class="hljs-keyword">else</span>{<span class="hljs-comment">//管道为空</span></span><br><span class="line">    进程进入睡眠</span><br><span class="line">    直到有进程将数据写入管道</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h3 id="管道的关闭"><a href="#管道的关闭" class="headerlink" title="管道的关闭"></a>管道的关闭</h3><p>与关闭正规文件的过程一样，只是在释放索引节点前要作特殊的处理：减少读者写者的数目，只要读进程或者写进程数目为0，就唤醒睡眠进程，对于有名进程也是一样的。</p>
+<h3 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h3><p>内核并不关系也不知道读写管道的进程是否是同一进程</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022101522348.png" alt="image-20201022101522348"></p>
+<h2 id="dup"><a href="#dup" class="headerlink" title="dup"></a>dup</h2><p>复制文件描述符，将一个文件描述符拷贝到该用户文件描述符表中的第一个空槽钟，给用户返回一个新的文件描述符</p>
+<p><code>newfd =dup(fd)</code> </p>
+<p>因为复制了文件描述符，对应文件表项的引用数+1</p>
+<h3 id="举例-3"><a href="#举例-3" class="headerlink" title="举例"></a>举例</h3><p>先打开文件”/etc/passwd”（文件描述符3），再打开一次（文件描述符4），之后打开文件”local”（文件描述符5），再dup文件描述符3，返回6</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022104959699.png" alt="image-20201022104959699"></p>
+<p>dup可用于由简单的标准构建程序构造复杂的程序，例如构造shell管道线（第7章）</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022105530293.png" alt="image-20201022105530293"></p>
+<p>因为i,j所代表的两个文件描述符指向同一个文件表项，因此使用的是相同的文件偏移量，前两个read读出的数据在buf1和buf2中并不相同。</p>
+<h2 id="文件系统的安装和拆卸"><a href="#文件系统的安装和拆卸" class="headerlink" title="文件系统的安装和拆卸"></a>文件系统的安装和拆卸</h2><p><code>mount</code>将一个磁盘的指定段的文件系统连到一个已存在的文件系统目录树中，<code>umount</code>将一个文件系统从该文件系统目录树中拆卸下来。</p>
+<p><code>mount(special pathname, directory pathname, options)</code></p>
+<p><code>special pathname</code>是磁盘段的设备特殊文件名，磁盘段含有要安装的文件系统</p>
+<p><code>directory pathname</code>是已存在的文件系统目录树中的目录，即要被安装的地方，安装点</p>
+<p><code>options</code>指出文件系统是否被安装成“只读”。</p>
+<p>例如：</p>
+<p><code>mount("/dev/dsk1","/usr",0)</code></p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022142631142.png" alt="image-20201022142631142"></p>
+<p>内核中有个安装表，每个被安装的文件系统都占有一个表项，每个表项含有：</p>
+<ul>
+<li>设备号，表示文件系统，即逻辑文件系统号</li>
+<li>指向被安装的文件系统超级块的缓冲区的指针</li>
+<li>指向被安装的文件系统的根索引节点的指针（如上例，就是“/”）</li>
+<li>指向安装点的目录的索引节点的指针（如上例，就是“usr”）</li>
+</ul>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201023193926082.png" alt="image-20201023193926082"></p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022144457744.png" alt="image-20201022144457744"></p>
+<h3 id="在文件路径名中跨越安装点"><a href="#在文件路径名中跨越安装点" class="headerlink" title="在文件路径名中跨越安装点"></a>在文件路径名中跨越安装点</h3><p>如命令：</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mount /dev/dsk1 /usr</span><br><span class="line">cd /usr/src/uts </span><br><span class="line">cd ../../..</span><br></pre></td></tr></tbody></table></figure>
+
+<p>分别对应从安装点的系统文件跨越到被安装的文件系统的情况</p>
+<p>从被安装的文件系统跨越到安装点的文件系统</p>
+<h3 id="修改iget"><a href="#修改iget" class="headerlink" title="修改iget"></a>修改iget</h3><p>从安装点的文件系统跨越到被安装的文件系统。检查是否是安装点，如果是，需要在安装表中查找对应的安装表表项，并记下安装的设备号，然后利用设备号和根的索引节点，存取被安装设备的根索引节点。</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201024142728708.png" alt="image-20201024142728708"></p>
+<p>例如 cd /usr/src/uts ，内核先找到/usr的索引节点，发现有安装点标志，就在安装表中找到被安装的文件系统的根索引节点。</p>
+<h3 id="修改namei"><a href="#修改namei" class="headerlink" title="修改namei"></a>修改namei</h3><p>从被安装的文件系统跨越到安装点的文件系统。内核要检查路径名分量的索引节点号是否是一个文件系统的根节点，如果是，当前工作的索引节点也是根，路径名分量又是”..”，就能识别出这个节点是安装点。</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201024153910000.png" alt="image-20201024153910000"></p>
+<p>例如：cd ../../..，当前目录在“/usr/src/uts”，分析两个..后，到达usr,然后分析第三个..，内核发现这个..的索引节点号是根索引节点号，工作的索引节点也是根且分量名为..，内核在安装表中找到usr的表项，令工作索引节点为安装点的索引节点。</p>
+<h3 id="文件系统的拆卸"><a href="#文件系统的拆卸" class="headerlink" title="文件系统的拆卸"></a>文件系统的拆卸</h3><p><code>umount(special filename)</code></p>
+<p>内核找到要被拆卸的设备的索引节点，查找特殊文件的设备号，释放对应的索引节点（iput）,并在安装表中查找设备号等于该特殊文件的设备号的表项。同时注意，拆卸之前内核会检查该文件系统中有活动的文件，如果有，拆卸失败。</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022161347513.png" alt="image-20201022161347513"></p>
+<h2 id="创建硬链接link"><a href="#创建硬链接link" class="headerlink" title="创建硬链接link"></a>创建硬链接link</h2><p>在文件系统结构中，将一个文件联结到一个新名字，从而为一个已存在的索引节点创建一个新的目录项。</p>
+<p><code>link(source filename, target filename)</code></p>
+<p><code>source filename</code>是源文件名，已经存在的文件的名字</p>
+<p><code>target filename</code>是完成调用后，源文件所具有的新的名字。</p>
+<p>内核仅允许超级用户联结一个目录</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022163053809.png" alt="image-20201022163053809"></p>
+<p>立刻释放索引节点是为了防止死锁的发生。</p>
+<h3 id="举例-4"><a href="#举例-4" class="headerlink" title="举例"></a>举例</h3><p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022162645877.png" alt="image-20201022162645877"></p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022162654274.png" alt="image-20201022162654274"></p>
+<p>进程可以通过任意一个路径名存取文件，内核并不知道哪个名字是最初的文件名。</p>
+<h2 id="清除一个硬链接-unlink"><a href="#清除一个硬链接-unlink" class="headerlink" title="清除一个硬链接 unlink"></a>清除一个硬链接 unlink</h2><p>清除文件的一个目录表项</p>
+<p><code>unlink(pathname)</code></p>
+<p>如果清除的是文件的最后一个链接，内核会释放他的数据块，如果有多个，通过其他路径，仍能访问文件。</p>
+<p>拆除.见课后习题</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022170956389.png" alt="image-20201022170956389"></p>
+<h3 id="文件系统的一致性"><a href="#文件系统的一致性" class="headerlink" title="文件系统的一致性"></a>文件系统的一致性</h3><p>内核需要按某种次序进行写磁盘操作</p>
+<p>内核也应按特别的次序释放索引节点和磁盘块</p>
+<h3 id="竞争条件"><a href="#竞争条件" class="headerlink" title="竞争条件"></a>竞争条件</h3><p>例如：</p>
+<p>rmdir清除目录前要先证实一个目录不含任何文件。但是证实目录为空和清除目录的操作不是原子的，证实一个目录为空后，另一进程又在目录中创建文件，就需要上锁。</p>
+<p>一个进程利用namei将一个文件的路径名变为一个索引节点，另一个进程正在清除该路径名中的一个目录。</p>
+<p>一个进程使一个文件处于打开状态，另一个进程可能在该文件打开期间拆除该文件，第一个进程仍能用他的文件描述符进行所有正常的文件操作，直到他关闭该文件，索引节点的引用数减为0，内核才清除该文件内容，利用这个特点，进程常创建一些临时文件，并立刻拆除他们。</p>
+<h2 id="文件系统的抽象"><a href="#文件系统的抽象" class="headerlink" title="文件系统的抽象"></a>文件系统的抽象</h2><p>允许UNIX系统支持各种文件系统类型？？不太懂</p>
+<p><img src="/2020/10/20/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/image-20201022220905826.png" alt="image-20201022220905826"></p>
+<h2 id="文件系统维护"><a href="#文件系统维护" class="headerlink" title="文件系统维护"></a>文件系统维护</h2><p>介绍几种由fsck检查的不一致性</p>
+<ul>
+<li>一个磁盘块可能属于一个以上的索引界定啊，或者属于自由块链表的一个索引节点</li>
+<li>一个块号既不存在块的自由链表上，由不在任何文件中，文件系统则是不一致的</li>
+<li>一个索引节点联结数不为0，但是索引节点号却不在文件系统的任何目录</li>
+<li>一个索引节点的格式不正确</li>
+<li>一个索引节点号出现在目录表项中，但同时又是自由可用的</li>
+<li>保存在超级块中的自由块数或自由节点数与磁盘上存在的数目不一致</li>
+</ul>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/UNIX/" rel="tag">UNIX</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/10/27/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E8%BF%9B%E7%A8%8B%E7%BB%93%E6%9E%84/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">UNIX操作系统设计-进程结构</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/10/15/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%85%E9%83%A8%E8%A1%A8%E7%A4%BA/">
+                <span class="level-item">UNIX操作系统设计-文件的内部表示</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#系统调用open">
+        <span class="has-mr-6">1</span>
+        <span>系统调用open</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述">
+        <span class="has-mr-6">1.1</span>
+        <span>算法描述</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#系统调用read">
+        <span class="has-mr-6">2</span>
+        <span>系统调用read</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述-1">
+        <span class="has-mr-6">2.1</span>
+        <span>算法描述</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#系统调用write">
+        <span class="has-mr-6">3</span>
+        <span>系统调用write</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述-2">
+        <span class="has-mr-6">3.1</span>
+        <span>算法描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#举例">
+        <span class="has-mr-6">3.2</span>
+        <span>举例</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件和记录的上锁">
+        <span class="has-mr-6">4</span>
+        <span>文件和记录的上锁</span>
+        </a></li><li>
+        <a class="is-flex" href="#文件的输入-输出位置的调整——lseek">
+        <span class="has-mr-6">5</span>
+        <span>文件的输入/输出位置的调整——lseek</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#举例-1">
+        <span class="has-mr-6">5.1</span>
+        <span>举例</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#系统调用close">
+        <span class="has-mr-6">6</span>
+        <span>系统调用close</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述-3">
+        <span class="has-mr-6">6.1</span>
+        <span>算法描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#举例-2">
+        <span class="has-mr-6">6.2</span>
+        <span>举例</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件的创建creat">
+        <span class="has-mr-6">7</span>
+        <span>文件的创建creat</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述-4">
+        <span class="has-mr-6">7.1</span>
+        <span>算法描述</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#特殊文件的创建">
+        <span class="has-mr-6">8</span>
+        <span>特殊文件的创建</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#算法描述-5">
+        <span class="has-mr-6">8.1</span>
+        <span>算法描述</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#改变目录及根-chdir、chroot">
+        <span class="has-mr-6">9</span>
+        <span>改变目录及根 chdir、chroot</span>
+        </a></li><li>
+        <a class="is-flex" href="#改变所有者及许可权方式-chown、chmod">
+        <span class="has-mr-6">10</span>
+        <span>改变所有者及许可权方式 chown、chmod</span>
+        </a></li><li>
+        <a class="is-flex" href="#系统调用stat和fstat">
+        <span class="has-mr-6">11</span>
+        <span>系统调用stat和fstat</span>
+        </a></li><li>
+        <a class="is-flex" href="#管道">
+        <span class="has-mr-6">12</span>
+        <span>管道</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#无名管道pipe">
+        <span class="has-mr-6">12.1</span>
+        <span>无名管道pipe</span>
+        </a></li><li>
+        <a class="is-flex" href="#有名管道">
+        <span class="has-mr-6">12.2</span>
+        <span>有名管道</span>
+        </a></li><li>
+        <a class="is-flex" href="#管道的读和写">
+        <span class="has-mr-6">12.3</span>
+        <span>管道的读和写</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#写管道">
+        <span class="has-mr-6">12.3.1</span>
+        <span>写管道</span>
+        </a></li><li>
+        <a class="is-flex" href="#读管道">
+        <span class="has-mr-6">12.3.2</span>
+        <span>读管道</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#管道的关闭">
+        <span class="has-mr-6">12.4</span>
+        <span>管道的关闭</span>
+        </a></li><li>
+        <a class="is-flex" href="#例子">
+        <span class="has-mr-6">12.5</span>
+        <span>例子</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#dup">
+        <span class="has-mr-6">13</span>
+        <span>dup</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#举例-3">
+        <span class="has-mr-6">13.1</span>
+        <span>举例</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件系统的安装和拆卸">
+        <span class="has-mr-6">14</span>
+        <span>文件系统的安装和拆卸</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#在文件路径名中跨越安装点">
+        <span class="has-mr-6">14.1</span>
+        <span>在文件路径名中跨越安装点</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改iget">
+        <span class="has-mr-6">14.2</span>
+        <span>修改iget</span>
+        </a></li><li>
+        <a class="is-flex" href="#修改namei">
+        <span class="has-mr-6">14.3</span>
+        <span>修改namei</span>
+        </a></li><li>
+        <a class="is-flex" href="#文件系统的拆卸">
+        <span class="has-mr-6">14.4</span>
+        <span>文件系统的拆卸</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#创建硬链接link">
+        <span class="has-mr-6">15</span>
+        <span>创建硬链接link</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#举例-4">
+        <span class="has-mr-6">15.1</span>
+        <span>举例</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#清除一个硬链接-unlink">
+        <span class="has-mr-6">16</span>
+        <span>清除一个硬链接 unlink</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#文件系统的一致性">
+        <span class="has-mr-6">16.1</span>
+        <span>文件系统的一致性</span>
+        </a></li><li>
+        <a class="is-flex" href="#竞争条件">
+        <span class="has-mr-6">16.2</span>
+        <span>竞争条件</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#文件系统的抽象">
+        <span class="has-mr-6">17</span>
+        <span>文件系统的抽象</span>
+        </a></li><li>
+        <a class="is-flex" href="#文件系统维护">
+        <span class="has-mr-6">18</span>
+        <span>文件系统维护</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX操作系统设计-文件系统的系统调用" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

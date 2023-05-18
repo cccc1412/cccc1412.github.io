@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>Linux内核之进程管理 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="Linux内核之进程管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核之进程管理">
+<meta property="og:url" content="http://yoursite.com/2021/07/26/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="Linux内核之进程管理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-07-26T04:41:21.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.027Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="Linux内核之进程管理" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-07-26T04:41:21.000Z">2021-07-26</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/kernel/">kernel</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    18 分钟 读完 (大约 2625 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                Linux内核之进程管理
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>Linux内核之进程管理</p>
+<span id="more"></span>
+
+<h2 id="进程描述符"><a href="#进程描述符" class="headerlink" title="进程描述符"></a>进程描述符</h2><blockquote>
+<p>进程描述符 task_struct 就是PCB，其结构定义在&lt;include/linux/sched.h&gt;中，包含内核管理一个进程需要的信息</p>
+</blockquote>
+<p>内核中有一个双向循环链表，所有进程也是用双向链表连接的。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">list_head</span> {</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">list_head</span> *next, *prev;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<p>在linux 2.6.11的代码中，list_head是task_struct中的一个字段。</p>
+<p>注意到的一点是，这里的双向链表和以前认识里的带data域的双向链表不同，这种结构实际上是一种侵入式链表，数据是附加到链表的，这样设计的双向链表是通用的，就不用考虑节点的数据类型了。</p>
+<p>但是这样如何根据链表的指针获取外层的结构体？</p>
+<p>Linux实现了一个特殊的宏</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_entry(ptr, type, member) container_of(ptr, type, member) <span class="hljs-comment">//ptr是成员变量指针，type是结构体的类型，member是ptr的变量名</span></span></span><br><span class="line"></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">define</span> list_entry(ptr, type, member) /</span></span><br><span class="line">        ((type *)((<span class="hljs-type">char</span> *)(ptr)-(<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>)(&amp;((type *)<span class="hljs-number">0</span>)-&gt;member)))</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这个宏可以通过结构体某个成员的指针获取整个结构体的指针。</p>
+<p><code>(unsigned long)(&amp;((type *)0)-&gt;member)</code>：得到的就是ptr指向的mebmer相对于结构体基址的偏移量，与ptr结构体成员指针相减就得到了结构体的基址。</p>
+<p>这是因为在C语言中，一个给定结构中的变量偏移在编译时就被ABI固定下来了。</p>
+<p>进程描述符通过slab分配器进行分配，在内核栈底或栈顶创建一个thread_info的结构，这个结构中有指向进程描述符的指针</p>
+<p>thread_info结构定义在&lt;asm/thread_info.h&gt;下</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">thread_info</span> {</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">task_struct</span>	*task;		<span class="hljs-comment">/* mtain task structure */</span></span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">exec_domain</span>	*exec_domain;	<span class="hljs-comment">/* execution domain */</span></span><br><span class="line">	__u32			flags;		<span class="hljs-comment">/* low level flags */</span></span><br><span class="line">	__u32			status;		<span class="hljs-comment">/* thread synchronous flags */</span></span><br><span class="line">	__u32			cpu;		<span class="hljs-comment">/* current CPU */</span></span><br><span class="line">	<span class="hljs-type">int</span> 			preempt_count;</span><br><span class="line"></span><br><span class="line">	<span class="hljs-type">mm_segment_t</span>		addr_limit;	</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">restart_block</span>    restart_block;</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h2><p>Unix用两个函数实现进程的创建：<code>fork()</code>和<code>exec()</code></p>
+<p><code>fork()</code>拷贝当前进程创建一个子进程，子进程和父进程只有pid,ppid和一些统计量不同，其他是一样的。</p>
+<p>然后用<code>exec()</code>读取可执行文件并载入地址空间开始执行。</p>
+<h3 id="写时拷贝的优化"><a href="#写时拷贝的优化" class="headerlink" title="写时拷贝的优化"></a>写时拷贝的优化</h3><p>fork使用写时拷贝实现。fork的时候内核不赋值整个进程的地址空间，而是父子进程暂时共享同一份拷贝。子进程需要写入的时候，数据才会被复制，对于fork后立刻exec的情况下，就不需要复制了。</p>
+<p>因此fork的实际开销：</p>
+<ul>
+<li>复制父进程的页表</li>
+<li>给子进程创建task_struct进程描述符</li>
+</ul>
+<h3 id="fork的实现"><a href="#fork的实现" class="headerlink" title="fork的实现"></a>fork的实现</h3><blockquote>
+<p>实际就是复制父进程的页表，并给子进程创建唯一的进程描述符</p>
+</blockquote>
+<p>linux通过调用clone实现fork，vfork，__clone</p>
+<p><img src="/2021/07/26/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/image-20210726214717977.png" alt="image-20210726133048556"></p>
+<p>pthread_create会调用__clone()，最后会通过不同的flags去调用clone()，flags设置为共享进程的地址空间，共享文件系统信息，共享打开的文件，共享信号处理程序。</p>
+<p>fork调用clone时，四个标志都不设置创建的是进程。反正创建的是线程。</p>
+<h3 id="linux中线程的实现"><a href="#linux中线程的实现" class="headerlink" title="linux中线程的实现"></a>linux中线程的实现</h3><p>从2.6.11内核的角度来说，并没有线程的概念。linux把所有线程都当成进程来对待，也没有特别的调度算法和数据结构来表示线程。</p>
+<p>linux内核把线程看作与其他进程共享某些资源的进程，所以linux里的线程还是进程，也有自己的task_struct。</p>
+<p>linux中的线程是种轻量级进程实现LWP。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">task_struct</span> {</span><br><span class="line">    ...</span><br><span class="line">	<span class="hljs-type">pid_t</span> pid;<span class="hljs-comment">//pid对进程和线程都是独一无二的</span></span><br><span class="line">	<span class="hljs-type">pid_t</span> tgid;<span class="hljs-comment">//linux中线程实现的核心成员，表示线程组id</span></span><br><span class="line">    ...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>当用<code>pthread_create</code>创建一个线程时，会创建一个新的<code>task_struct</code>，这个进程描述符有独一无二的pid，但是这个线程的tgid等于原始进程的pid，这个进程创建的所有线程的tgid都是原始进程的pid，领头进程的进程号。</p>
+<p>命令<code>ps</code>和<code>getpid()</code>查到的pid是task_struct中的<code>tgid</code>成员，LWP号才是真正的pid。</p>
+<p><img src="/2021/07/26/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/image-20210729143149855.png" alt="image-20210729143149855"></p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">tast_struct</span> {</span><br><span class="line">    ...</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">mm_struct</span> *mm, *active_mm;<span class="hljs-comment">//内存区描述符，对于线程是共享的</span></span><br><span class="line">    ...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>多线程出现后，CPU的调度是以线程为单位进行调度，资源分配还是以进程为单位。</p>
+<h4 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h4><p>线程分用户级线程与内核级线程（根据运行环境和调度者的身份）。（区别内核线程，内核线程是没有用户空间的完全工作与内核的线程。）</p>
+<p>用户线程运行在用户空间，由线程库调度，内核根本不知道这些线程的存在。</p>
+<p>内核线程相当与用户线程运行的容器，一个进程可以拥有M个内核线程和N个用户线程，M&lt;=N</p>
+<p>线程实现形式的不同，决定了不同的M和N。</p>
+<p>对于<code>M:N=M:1</code>的实现，也就是M个用户空间线程对应一个内核线程，这种就是完全在用户空间实现的线程，这种实现不占用内核资源，速度相当快，创建和调度也不用内核干预，tcb在用户空间，缺点就是对于多CPU系统，一个进程的不同线程也无法运行在不同的CPU上。协程就是用户级线程，这样设计避免了频繁的上下文切换。</p>
+<p>对于<code>M:N = 1:1</code>的实现，一个用户空间线程被对应为一个内核线程，tcb在内核空间，linux的tcb还是task_struct，这种是内核级的线程，NPTL项目pthread就是这种实现方式。pthread_create会调用clone系统调用，由操作系统创建内核级线程，也就是轻量级进程。</p>
+<p>现代线程都是1：1的，每个线程有两个栈，一个用户空间的一个内核的。</p>
+<h3 id="进程线程区别"><a href="#进程线程区别" class="headerlink" title="进程线程区别"></a>进程线程区别</h3><p>创建进程的话，调用的系统调用是 fork，在 copy_process 函数里面，会将五大结构 files_struct、fs_struct、sighand_struct、signal_struct、mm_struct 都复制一遍，从此父进程和子进程各用各的数据结构。</p>
+<p>而创建线程的话，调用的是系统调用 clone，在 copy_process 函数里面， 五大结构仅仅是引用计数加一，也即线程共享进程的数据结构。</p>
+<p><img src="/2021/07/26/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/14635b1613d04df9f217c3508ae8524b.jpeg" alt="img"></p>
+<h2 id="进程切换"><a href="#进程切换" class="headerlink" title="进程切换"></a>进程切换</h2><blockquote>
+<p>进程切换的关键操作：切换地址空间、切换内核堆栈、切换内核控制流程以及必要寄存器的现场保护与还原。</p>
+</blockquote>
+<h2 id="进程调度"><a href="#进程调度" class="headerlink" title="进程调度"></a>进程调度</h2><blockquote>
+<p>调度需要关注什么时候进行切换和选择哪个进程来运行，这其实是个数学问题，给定一组参数，比如线程的优先级，使用的时间，然后返回下一个要运行的线程是谁。</p>
+</blockquote>
+<p>内核2.6以前使用的是O(n)调度法，2.6版本替换为了O(1)调度法（2003年）。</p>
+<p>O(1)调度法对每个优先级用两个链表管理运行的进程，一个是ready-to-run的就绪链表，一个是耗尽时间片的链表。</p>
+<p>后来，Linux放弃了预定义的时间片的概念，引入了完全公平调度（CFS）到Linux 2.6.23内核中（2007年），直到现在也一直作为Linux的调度器。</p>
+<p>CFS以模块方式组织，也就是实现了多个调度类，不同类型的进程选择不同的调度算法。比如，rt class调度试试进程，fair class才是CFS的实现，idle class处理没有任务运行的情况。</p>
+<h3 id="多核调度"><a href="#多核调度" class="headerlink" title="多核调度"></a>多核调度</h3><blockquote>
+<p>多核调度的重点是load balance，其余的看成是单核调度的复刻</p>
+</blockquote>
+<p>多核调度需要额外考虑的问题：</p>
+<ul>
+<li>一个核的两个超线程不需要平衡：一个核有两个超线程，他们共享相同的执行部件，那么再平衡是没有意义的</li>
+<li>跨核调度：如果轻易的跨核调度可能引发大量的cache失效，因为L1 L2cache是不共享的</li>
+<li>线程NUMA系统的一个Node迁移到另一个</li>
+<li>考虑CPU的休眠和降频的方式降低功耗，比如两个进程是在一个核上，另一个核休眠，或者分配到两个核上一起降频</li>
+</ul>
+<p>CFS定期以软中断的形式周期执行load balance的代码，将任务从最繁忙的核中提取出来转移到空闲的核中来实现平衡，负载均衡的决策以来与缓存和NUMA的位置。CFS将core按层次结构划分为每个硬件级别的调度域（sched_domain），load balance在每个sched_domain执行。一个sched_domain中的cpu核又被划分为不同的调度组（sched_group），不同的组之间可以进行线程的迁移。</p>
+<h4 id="CFS负载均衡"><a href="#CFS负载均衡" class="headerlink" title="CFS负载均衡"></a>CFS负载均衡</h4><h2 id="内核线程"><a href="#内核线程" class="headerlink" title="内核线程"></a>内核线程</h2><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/GO0z646XZko_pUvmMSa9RQ">https://mp.weixin.qq.com/s/GO0z646XZko_pUvmMSa9RQ</a></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li>一个多线程的进程fork出来的进程是多线程的吗？答案不是，fork出来的进程只有一个线程，就是调用fork的那个线程。</li>
+<li>CFS的公平的含义是什么？</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>Linux下调用pthread库创建的线程是属于用户级线程还是内核级线程？求大神指教? - 大河的回答 - 知乎 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/35128513/answer/148038406">https://www.zhihu.com/question/35128513/answer/148038406</a></p>
+<p>linux2.6.11源码</p>
+<p>《linux内核设计与实现》</p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov41157pA?from=search&amp;seid=15110093483709811855">https://www.bilibili.com/video/BV1ov41157pA?from=search&amp;seid=15110093483709811855</a></p>
+<p><a target="_blank" rel="noopener" href="http://home.ustc.edu.cn/~hchunhui/linux_sched.html">http://home.ustc.edu.cn/~hchunhui/linux_sched.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1759921">https://cloud.tencent.com/developer/article/1759921</a></p>
+<p>cgroups:<a target="_blank" rel="noopener" href="https://tech.meituan.com/2015/03/31/cgroups.html">https://tech.meituan.com/2015/03/31/cgroups.html</a></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/kernel/" rel="tag">kernel</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/07/28/git%E5%8E%9F%E7%90%86%E5%8F%8A%E4%BD%BF%E7%94%A8/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">git原理及使用</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/07/26/Linux%E5%86%85%E6%A0%B8%E5%A5%97%E6%8E%A5%E5%AD%97%E5%AE%9E%E7%8E%B0/">
+                <span class="level-item">Linux内核套接字实现</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#进程描述符">
+        <span class="has-mr-6">1</span>
+        <span>进程描述符</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程创建">
+        <span class="has-mr-6">2</span>
+        <span>进程创建</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#写时拷贝的优化">
+        <span class="has-mr-6">2.1</span>
+        <span>写时拷贝的优化</span>
+        </a></li><li>
+        <a class="is-flex" href="#fork的实现">
+        <span class="has-mr-6">2.2</span>
+        <span>fork的实现</span>
+        </a></li><li>
+        <a class="is-flex" href="#linux中线程的实现">
+        <span class="has-mr-6">2.3</span>
+        <span>linux中线程的实现</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#线程模型">
+        <span class="has-mr-6">2.3.1</span>
+        <span>线程模型</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程线程区别">
+        <span class="has-mr-6">2.4</span>
+        <span>进程线程区别</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程切换">
+        <span class="has-mr-6">3</span>
+        <span>进程切换</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程调度">
+        <span class="has-mr-6">4</span>
+        <span>进程调度</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#多核调度">
+        <span class="has-mr-6">4.1</span>
+        <span>多核调度</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#CFS负载均衡">
+        <span class="has-mr-6">4.1.1</span>
+        <span>CFS负载均衡</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#内核线程">
+        <span class="has-mr-6">5</span>
+        <span>内核线程</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题">
+        <span class="has-mr-6">6</span>
+        <span>问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考资料">
+        <span class="has-mr-6">7</span>
+        <span>参考资料</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="Linux内核之进程管理" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>Linux内核之内核数据结构 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="Linux内核中用到的一些数据结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核之内核数据结构">
+<meta property="og:url" content="http://yoursite.com/2021/08/27/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="Linux内核中用到的一些数据结构">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-08-27T04:21:19.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.019Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="Linux内核之内核数据结构" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-08-27T04:21:19.000Z">2021-08-27</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/kernel/">kernel</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    6 分钟 读完 (大约 970 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                Linux内核之内核数据结构
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>Linux内核中用到的一些数据结构</p>
+<span id="more"></span>
+
+<h2 id="kfifo"><a href="#kfifo" class="headerlink" title="kfifo"></a>kfifo</h2><p>内核中循环队列的实现</p>
+<p>对于两个线程一个入队一个出队的并发操作，循环队列不加锁就可以保证线程安全。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kfifo</span> {</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer;	<span class="hljs-comment">/* the buffer holding the data */</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> size;	<span class="hljs-comment">/* the size of the allocated buffer */</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> in;	<span class="hljs-comment">/* data is added at offset (in % size) */</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> out;	<span class="hljs-comment">/* data is extracted from off. (out % size) */</span></span><br><span class="line">	<span class="hljs-type">spinlock_t</span> *lock;	<span class="hljs-comment">/* protects concurrent modifications */</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="循环队列初始化"><a href="#循环队列初始化" class="headerlink" title="循环队列初始化"></a>循环队列初始化</h3><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> kfifo *<span class="title function_">kfifo_alloc</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> size, <span class="hljs-type">int</span> gfp_mask, <span class="hljs-type">spinlock_t</span> *lock)</span></span><br><span class="line">{</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer;</span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kfifo</span> *<span class="hljs-title">ret</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="hljs-comment">/*</span></span><br><span class="line"><span class="hljs-comment">	 * round up to the next power of 2, since our 'let the indices</span></span><br><span class="line"><span class="hljs-comment">	 * wrap' tachnique works only in this case.</span></span><br><span class="line"><span class="hljs-comment">	 */</span></span><br><span class="line">	<span class="hljs-keyword">if</span> (size &amp; (size - <span class="hljs-number">1</span>)) { <span class="hljs-comment">//判断size是否是二的幂</span></span><br><span class="line">		BUG_ON(size &gt; <span class="hljs-number">0x80000000</span>);</span><br><span class="line">		size = roundup_pow_of_two(size);</span><br><span class="line">	}</span><br><span class="line"></span><br><span class="line">	buffer = kmalloc(size, gfp_mask);</span><br><span class="line">	<span class="hljs-keyword">if</span> (!buffer)</span><br><span class="line">		<span class="hljs-keyword">return</span> ERR_PTR(-ENOMEM);</span><br><span class="line"></span><br><span class="line">	ret = kfifo_init(buffer, size, gfp_mask, lock);</span><br><span class="line"></span><br><span class="line">	<span class="hljs-keyword">if</span> (IS_ERR(ret))</span><br><span class="line">		kfree(buffer);</span><br><span class="line"></span><br><span class="line">	<span class="hljs-keyword">return</span> ret;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意到一点是，size需要为2的n次幂，否则就向上取整进行扩展。<strong>这样是为了将模运算转化为与运算，提高效率</strong></p>
+<p><code>kfifo-&gt;in % kfifo-&gt;size</code> 转化为 <code>kfifo-&gt;in &amp; (kfifo-&gt;size – 1)</code>，因为size-1一定是01111…这种形式的，取模就是一个保留低位舍弃高位的过程，刚好是01111..这样的二进制数取与的过程。</p>
+<p>另外判断一个数不是二的幂用了<strong>size &amp; (size - 1)</strong>，例如100000&amp;011111 = 0，也就是只有<strong>二的幂，与自己-1的数取与会得到0。</strong></p>
+<h3 id="入队"><a href="#入队" class="headerlink" title="入队"></a>入队</h3><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> __kfifo_put(<span class="hljs-keyword">struct</span> kfifo *fifo,</span><br><span class="line">			 <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> len)<span class="hljs-comment">//buffer是要加入队列的数据，len是buffer的长度</span></span><br><span class="line">{</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> l;</span><br><span class="line"></span><br><span class="line">	len = min(len, fifo-&gt;size - fifo-&gt;in + fifo-&gt;out);<span class="hljs-comment">//需要长度和空闲长度的最小值</span></span><br><span class="line"></span><br><span class="line">	<span class="hljs-comment">/* first put the data starting from fifo-&gt;in to buffer end */</span></span><br><span class="line">	l = min(len, fifo-&gt;size - (fifo-&gt;in &amp; (fifo-&gt;size - <span class="hljs-number">1</span>)));<span class="hljs-comment">//需要长度和末端长度的最小值</span></span><br><span class="line">	<span class="hljs-built_in">memcpy</span>(fifo-&gt;buffer + (fifo-&gt;in &amp; (fifo-&gt;size - <span class="hljs-number">1</span>)), buffer, l);<span class="hljs-comment">//一部分放到末端</span></span><br><span class="line"></span><br><span class="line">	<span class="hljs-comment">/* then put the rest (if any) at the beginning of the buffer */</span></span><br><span class="line">	<span class="hljs-built_in">memcpy</span>(fifo-&gt;buffer, buffer + l, len - l);<span class="hljs-comment">//一部分放到起端</span></span><br><span class="line"></span><br><span class="line">	fifo-&gt;in += len;<span class="hljs-comment">//in和out始终是线性增大的，但溢出的时候，重新从0开始增长</span></span><br><span class="line"></span><br><span class="line">	<span class="hljs-keyword">return</span> len;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>根据buffer的长度，分成了两部分进行入队</p>
+<p>（在图上，in指针也不一定在out的右边，比如in一直写，是可能在out左边的，这也是出队时候可能会分成两部分memcpy的原因。但是数值上始终满足in&gt;out，in-out&lt;size）</p>
+<p><img src="/2021/08/27/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/image-20210827132022662.png" alt="image-20210827132022662"></p>
+<h3 id="出队"><a href="#出队" class="headerlink" title="出队"></a>出队</h3><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> __kfifo_get(<span class="hljs-keyword">struct</span> kfifo *fifo,</span><br><span class="line">			 <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span> *buffer, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> len)</span><br><span class="line">{</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> l;</span><br><span class="line"></span><br><span class="line">	len = min(len, fifo-&gt;in - fifo-&gt;out);</span><br><span class="line"></span><br><span class="line">	<span class="hljs-comment">/* first get the data from fifo-&gt;out until the end of the buffer */</span></span><br><span class="line">	l = min(len, fifo-&gt;size - (fifo-&gt;out &amp; (fifo-&gt;size - <span class="hljs-number">1</span>)));</span><br><span class="line">	<span class="hljs-built_in">memcpy</span>(buffer, fifo-&gt;buffer + (fifo-&gt;out &amp; (fifo-&gt;size - <span class="hljs-number">1</span>)), l);<span class="hljs-comment">//to,from</span></span><br><span class="line"></span><br><span class="line">	<span class="hljs-comment">/* then get the rest (if any) from the beginning of the buffer */</span></span><br><span class="line">	<span class="hljs-built_in">memcpy</span>(buffer + l, fifo-&gt;buffer, len - l);</span><br><span class="line"></span><br><span class="line">	fifo-&gt;out += len;</span><br><span class="line"></span><br><span class="line">	<span class="hljs-keyword">return</span> len;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>跟入队类似。</p>
+<p>kfifo使用in和out两个指针来描述写入和读取游标，对于写入操作，只更新in指针，而读取操作，只更新out指针<br>为了避免读者看到写者预计写入，但实际没有写入数据的空间，写者必须保证以下的写入顺序：</p>
+<p>1.往[kfifo-&gt;in, kfifo-&gt;in + len]空间写入数据<br>2.更新kfifo-&gt;in指针为 kfifo-&gt;in + len</p>
+<p>在操作1完成时，读者是还没有看到写入的信息的，因为kfifo-&gt;in没有变化，认为读者还没有开始写操作，只有更新kfifo-&gt;in之后，读者才能看到。</p>
+<p>那么如何保证1必须在2之前完成，秘密就是使用内存屏障：smp_mb()，smp_rmb(), smp_wmb()，来保证对方观察到的内存操作顺序。</p>
+<p>关于内存屏障：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_30446197/article/details/96602025?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-1.pc_relevant_antiscanv2&amp;spm=1001.2101.3001.4242.2&amp;utm_relevant_index=4">https://blog.csdn.net/weixin_30446197/article/details/96602025?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-1.pc_relevant_antiscanv2&amp;spm=1001.2101.3001.4242.2&amp;utm_relevant_index=4</a></p>
+<p>memcpy后修改out，修改out之前其实是要加内存屏障的，因为可能memcpy还没完成，out已经被修改了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/blogs-of-lxl/p/10570885.html">https://www.cnblogs.com/blogs-of-lxl/p/10570885.html</a></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/kernel/" rel="tag">kernel</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/09/05/%E9%94%81%E5%92%8C%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">锁和原子操作是怎么实现的</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/08/09/google-c-%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/">
+                <span class="level-item">google c++ 代码规范</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#kfifo">
+        <span class="has-mr-6">1</span>
+        <span>kfifo</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#循环队列初始化">
+        <span class="has-mr-6">1.1</span>
+        <span>循环队列初始化</span>
+        </a></li><li>
+        <a class="is-flex" href="#入队">
+        <span class="has-mr-6">1.2</span>
+        <span>入队</span>
+        </a></li><li>
+        <a class="is-flex" href="#出队">
+        <span class="has-mr-6">1.3</span>
+        <span>出队</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参考资料">
+        <span class="has-mr-6">2</span>
+        <span>参考资料</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="Linux内核之内核数据结构" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

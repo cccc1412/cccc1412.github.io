@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>rpc框架 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="RPC一次RPC调用的流程： 客户端将调用的类名，方法名，参数名，参数值等信息，序列化成二进制流 客户端将二进制流，通过网络发送给服务端 服务端收到二进制流后，进行反序列化，得到要调用的类名，方法名，参数名和参数值，再通过动态代理的方式，调用对应的方法得到返回值 服务端将返回值序列化，再通过网络发送给客户端 客户端反序列化，得到调用结果。 RPC的组成网络通信框架、网络传输协议（序列化）、服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rpc框架">
+<meta property="og:url" content="http://yoursite.com/2022/01/21/rpc%E6%A1%86%E6%9E%B6/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="RPC一次RPC调用的流程： 客户端将调用的类名，方法名，参数名，参数值等信息，序列化成二进制流 客户端将二进制流，通过网络发送给服务端 服务端收到二进制流后，进行反序列化，得到要调用的类名，方法名，参数名和参数值，再通过动态代理的方式，调用对应的方法得到返回值 服务端将返回值序列化，再通过网络发送给客户端 客户端反序列化，得到调用结果。 RPC的组成网络通信框架、网络传输协议（序列化）、服务">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-01-21T08:54:34.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.287Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="rpc框架" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-01-21T08:54:34.000Z">2022-01-21</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    9 分钟 读完 (大约 1334 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                rpc框架
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><span id="more"></span>
+
+<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><p>一次RPC调用的流程：</p>
+<p>客户端将调用的类名，方法名，参数名，参数值等信息，序列化成二进制流</p>
+<p>客户端将二进制流，通过网络发送给服务端</p>
+<p>服务端收到二进制流后，进行反序列化，得到要调用的类名，方法名，参数名和参数值，再通过动态代理的方式，调用对应的方法得到返回值</p>
+<p>服务端将返回值序列化，再通过网络发送给客户端</p>
+<p>客户端反序列化，得到调用结果。</p>
+<h3 id="RPC的组成"><a href="#RPC的组成" class="headerlink" title="RPC的组成"></a>RPC的组成</h3><p>网络通信框架、网络传输协议（序列化）、服务注册和服务发现</p>
+<p><img src="/2022/01/21/rpc%E6%A1%86%E6%9E%B6/image-20220329223338383.png" alt="image-20220329223338383"></p>
+<p>服务启动时，服务提供者向注册中心注册服务，暴露自己的地址和端口号。注册中心会更新服务列表。</p>
+<p>消费者启动时向注册中心请求可用的服务地址，并在本地缓存一份。</p>
+<p>为什么要有服务注册和服务发现：方便业务水平扩展，添加新的业务只需要向注册中心注册即可。</p>
+<p>比如etcd就可以用于服务注册和服务发现。</p>
+<h3 id="RPC的性能"><a href="#RPC的性能" class="headerlink" title="RPC的性能"></a>RPC的性能</h3><p>RPC的性能取决与网络传输和反序列化</p>
+<h4 id="网络传输性能"><a href="#网络传输性能" class="headerlink" title="网络传输性能"></a>网络传输性能</h4><p>选择一个高性能的IO模型，及选择IO多路复用。</p>
+<p>网络参数调优，比如开启tcp_nodelay，及关闭nagle算法。</p>
+<h4 id="序列化方法"><a href="#序列化方法" class="headerlink" title="序列化方法"></a>序列化方法</h4><p>序列化要考虑性能，时间和空间开销</p>
+<p>再考虑跨平台，跨语言。</p>
+<p>对性能要求不高，就json</p>
+<p>有性能要求就protobuf</p>
+<h2 id="brpc文档阅读"><a href="#brpc文档阅读" class="headerlink" title="brpc文档阅读"></a>brpc文档阅读</h2><h3 id="原子指令"><a href="#原子指令" class="headerlink" title="原子指令"></a>原子指令</h3><blockquote>
+<p> c++ 11中引入了原子指令</p>
+</blockquote>
+<h4 id="原子指令的作用"><a href="#原子指令的作用" class="headerlink" title="原子指令的作用"></a>原子指令的作用</h4><p>为了避免锁成为性能瓶颈。</p>
+<p>为了wait-free和lock-free</p>
+<table>
+<thead>
+<tr>
+<th>原子指令 (x均为std::atomic)</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>x.load()</td>
+<td align="left">返回x的值。</td>
+</tr>
+<tr>
+<td>x.store(n)</td>
+<td align="left">把x设为n，什么都不返回。</td>
+</tr>
+<tr>
+<td>x.exchange(n)</td>
+<td align="left">把x设为n，返回设定之前的值。</td>
+</tr>
+<tr>
+<td>x.compare_exchange_strong(expected_ref, desired)</td>
+<td align="left">若x等于expected_ref，则设为desired，返回成功；否则把最新值写入expected_ref，返回失败。</td>
+</tr>
+<tr>
+<td>x.compare_exchange_weak(expected_ref, desired)</td>
+<td align="left">相比compare_exchange_strong可能有<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious wakeup</a>。</td>
+</tr>
+<tr>
+<td>x.fetch_add(n), x.fetch_sub(n)</td>
+<td align="left">原子地做x += n, x-= n，返回修改之前的值。</td>
+</tr>
+</tbody></table>
+<h4 id="原子指令存在的问题"><a href="#原子指令存在的问题" class="headerlink" title="原子指令存在的问题"></a>原子指令存在的问题</h4><h5 id="ABA问题"><a href="#ABA问题" class="headerlink" title="ABA问题"></a>ABA问题</h5><p>一个线程把数据A变为了B，然后又重新变成了A。</p>
+<p>解决方法：加入版本号</p>
+<h5 id="memory-fence"><a href="#memory-fence" class="headerlink" title="memory fence"></a>memory fence</h5><p>指令重排问题。</p>
+<h5 id="cacheline同步"><a href="#cacheline同步" class="headerlink" title="cacheline同步"></a>cacheline同步</h5><p>缓存一致性使得对cache中的更改必须同步到其他cache副本中，且这个过程是原子的，造成原子指令需要等待最新的cacheline。</p>
+<p>解决方法：</p>
+<ul>
+<li>尽量避免共享，MPMC该SPSC</li>
+<li>使用tls，比如所有线程修改一个计数器，性能很慢，因为多核在同步cacheline，因此可以改用tls，需要时再合并</li>
+</ul>
+<h5 id="false-sharing"><a href="#false-sharing" class="headerlink" title="false sharing"></a>false sharing</h5><p>位于同一个cacheline中的变量可能自身不变，而其他变量频繁改变，同样要等待cacheline同步，因此频繁被多线程修改的变量应该放在独立的cacheline中。</p>
+<h3 id="雪崩"><a href="#雪崩" class="headerlink" title="雪崩"></a>雪崩</h3><p>雪崩指流量过大造成请求超时，<strong>且流量减少后仍无法恢复的现象</strong>。</p>
+<p>雪崩式多服务才会发生的。比如请求访问A服务，A服务又访问了B服务，这时B被打满请求，正常情况下还是不会雪崩的，但是有例外：</p>
+<ul>
+<li><p>流量放大，A可能对B发起了过于频繁的基于超时的重试，造成了恶性循环：B无法恢复-&gt;A超时-&gt;A继续重试-&gt;B无法恢复</p>
+<ul>
+<li>解决：重试只在连接出错时发起</li>
+</ul>
+</li>
+<li><p>A或B没限制缓冲队列的长度</p>
+<ul>
+<li>设置最大并发max_concurrency，防止请求积压。</li>
+<li><strong>最大qps * 非拥塞时的延时</strong>来评估最大并发（little’s law）</li>
+</ul>
+</li>
+</ul>
+<h3 id="一致性哈希"><a href="#一致性哈希" class="headerlink" title="一致性哈希"></a>一致性哈希</h3><p>一些场景，我们希望同样的请求落到一台服务器上，这样可以利用缓存，不同的机器也不用缓存所有内容。hash可以满足这个要求：输入x总是会发送到第hash(x) % n的服务器。但是有个缺点，m增加时，之前的发送目的地会变，如果目的地时缓存服务，所有缓存就会失效。</p>
+<p>一致性哈希解决了这个问题，新增加服务器时，发向旧节点的请求只会有一部分转向新节点。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>文档： <a target="_blank" rel="noopener" href="https://brpc.apache.org/zh/docs/">https://brpc.apache.org/zh/docs/</a></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/02/18/%E4%B8%AD%E6%96%AD-%E5%BC%82%E5%B8%B8-%E9%99%B7%E9%98%B1/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">中断 异常 陷阱</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/01/13/KML%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/">
+                <span class="level-item">KML论文阅读</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#RPC">
+        <span class="has-mr-6">1</span>
+        <span>RPC</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#RPC的组成">
+        <span class="has-mr-6">1.1</span>
+        <span>RPC的组成</span>
+        </a></li><li>
+        <a class="is-flex" href="#RPC的性能">
+        <span class="has-mr-6">1.2</span>
+        <span>RPC的性能</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#网络传输性能">
+        <span class="has-mr-6">1.2.1</span>
+        <span>网络传输性能</span>
+        </a></li><li>
+        <a class="is-flex" href="#序列化方法">
+        <span class="has-mr-6">1.2.2</span>
+        <span>序列化方法</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#brpc文档阅读">
+        <span class="has-mr-6">2</span>
+        <span>brpc文档阅读</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#原子指令">
+        <span class="has-mr-6">2.1</span>
+        <span>原子指令</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#原子指令的作用">
+        <span class="has-mr-6">2.1.1</span>
+        <span>原子指令的作用</span>
+        </a></li><li>
+        <a class="is-flex" href="#原子指令存在的问题">
+        <span class="has-mr-6">2.1.2</span>
+        <span>原子指令存在的问题</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#雪崩">
+        <span class="has-mr-6">2.2</span>
+        <span>雪崩</span>
+        </a></li><li>
+        <a class="is-flex" href="#一致性哈希">
+        <span class="has-mr-6">2.3</span>
+        <span>一致性哈希</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">3</span>
+        <span>参考</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="rpc框架" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

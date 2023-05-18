@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>熵值法用于特征剔除 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="熵是对不确定性的一种度量，信息量越大，不确定性越小，熵越小。当用熵值判断某个指标的离散程度，指标的离散程度越大，该指标对综合评价的影响越大。 熵值越小，指标的离散程度越大，该指标对综合评价的影响 (即权重) 越大。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="熵值法用于特征剔除">
+<meta property="og:url" content="http://yoursite.com/2019/08/16/%E7%86%B5%E5%80%BC%E6%B3%95%E7%94%A8%E4%BA%8E%E7%89%B9%E5%BE%81%E5%89%94%E9%99%A4/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="熵是对不确定性的一种度量，信息量越大，不确定性越小，熵越小。当用熵值判断某个指标的离散程度，指标的离散程度越大，该指标对综合评价的影响越大。 熵值越小，指标的离散程度越大，该指标对综合评价的影响 (即权重) 越大。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-08-16T04:35:01.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.499Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="数学建模">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="熵值法用于特征剔除" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-08-16T04:35:01.000Z">2019-08-16</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    7 分钟 读完 (大约 1021 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                熵值法用于特征剔除
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>熵是对不确定性的一种度量，信息量越大，不确定性越小，熵越小。当用熵值判断某个指标的离散程度，指标的离散程度越大，该指标对综合评价的影响越大。</p>
+<p><strong>熵值越小，指标的离散程度越大，该指标对综合评价的影响 (即权重) 越大。</strong></p>
+<span id="more"></span>
+
+<h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>mcm2012A 葡萄酒评价，给出了葡萄酒的大量指标，希望将影响葡萄酒质量的指标数量减小。</p>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><h3 id="step1"><a href="#step1" class="headerlink" title="step1:"></a>step1:</h3><p>初始数据矩阵$x = (x_{ij})<em>{m \times n}$，表示第i号葡萄酒的第j项指标的数值，先将各指标归一化处理，然后计算$x</em>{ij}$在第j项指标的比重$p_{ij}$:</p>
+<p>$$p_{ij} = x_{ij}/\sum_{i=1}^m x_{ij}$$</p>
+<h3 id="step2"><a href="#step2" class="headerlink" title="step2:"></a>step2:</h3><p>计算第j各指标的熵值$e_{j}$:</p>
+<p>$$e_{j} = -k\sum_{i=1}^mp_{ij} \ln p_{ij}$$</p>
+<p>其中 k &gt; 0 , $e_j&gt;=0$,当$x_{ij}$对于给定的$j$全部相等时，$e_{j}$有最大值，此时:</p>
+<p>$$p_{ij} = \frac1 m$$</p>
+<p>$$e_j(x)|<em>{max}=-k\sum</em>{i = 1}^m \frac 1 m \ln \frac 1 m=k\ln m$$</p>
+<p>令 $k = \frac1 {\ln m}$,则有$0&lt;=e_{j}&lt;=1$.</p>
+<h3 id="step3"><a href="#step3" class="headerlink" title="step3:"></a>step3:</h3><p>定义差异性系数：</p>
+<p>$g_{j} = 1-e_{j}$，该值越大，说明该指标越重要。</p>
+<p><strong>熵值越小，指标的离散程度越大，该指标对综合评价的影响 (即权重) 越大。</strong></p>
+<h3 id="step4"><a href="#step4" class="headerlink" title="step4:"></a>step4:</h3><p>定义权重：$a_{j} = g_{j}/\sum_{i = 1}^mg_{j}$</p>
+<p>可用于评价问题的客观赋权。</p>
+<h3 id="step5"><a href="#step5" class="headerlink" title="step5:"></a>step5:</h3><p>对权值排序后，从大到小可以进行累加求和，得到前$m$个成分的累计贡献率$G(m) = \sum_{j=1}^ma_{j}$,取前80%即可反应大部分指标的影响，从而达到指标剔除的效果。</p>
+<h2 id="适用范围"><a href="#适用范围" class="headerlink" title="适用范围"></a>适用范围</h2><p>熵值用于赋权时，一般构建两级评价体系，上层可能需要结合专家经验来构建，而底层的指标分的比较细，权重比较难确定，这种情况下采用熵值法比较合适。</p>
+<p>该方法没有考虑指标与指标间的相关性。</p>
+<p>确定权重前需要确定指标对目标得分的影响方向，对非线性的指标要进行预处理或者剔除。</p>
+<h2 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h2><figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">load shang_datas</span><br><span class="line">Ind=[<span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">1</span> <span class="hljs-number">2</span>]; <span class="hljs-comment">%指定各指标的正向or负向</span></span><br><span class="line">[S,W]=shang(X,Ind)</span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">[s,w]</span>=<span class="hljs-title">shang</span><span class="hljs-params">(x,ind)</span></span></span><br><span class="line"><span class="hljs-comment">%实现用熵值法求各指标(列）的权重及各数据行的得分</span></span><br><span class="line"><span class="hljs-comment">%x为原始数据矩阵, 一行代表一个样本, 每列对应一个指标</span></span><br><span class="line"><span class="hljs-comment">%ind指示向量，指示各列正向指标还是负向指标，1表示正向指标，2表示负向指标</span></span><br><span class="line"><span class="hljs-comment">%s返回各行（样本）得分，w返回各列权重</span></span><br><span class="line">[n,m]=<span class="hljs-built_in">size</span>(x); <span class="hljs-comment">% n个样本, m个指标</span></span><br><span class="line"><span class="hljs-comment">%%数据的归一化处理</span></span><br><span class="line"><span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span>=<span class="hljs-number">1</span>:m</span><br><span class="line">    <span class="hljs-keyword">if</span> ind(<span class="hljs-built_in">i</span>)==<span class="hljs-number">1</span> <span class="hljs-comment">%正向指标归一化</span></span><br><span class="line">        X(:,<span class="hljs-built_in">i</span>)=guiyi(x(:,<span class="hljs-built_in">i</span>),<span class="hljs-number">1</span>,<span class="hljs-number">0.002</span>,<span class="hljs-number">0.996</span>);    <span class="hljs-comment">%若归一化到[0,1], 0会出问题</span></span><br><span class="line">    <span class="hljs-keyword">else</span> <span class="hljs-comment">%负向指标归一化</span></span><br><span class="line">        X(:,<span class="hljs-built_in">i</span>)=guiyi(x(:,<span class="hljs-built_in">i</span>),<span class="hljs-number">2</span>,<span class="hljs-number">0.002</span>,<span class="hljs-number">0.996</span>);</span><br><span class="line">    <span class="hljs-keyword">end</span></span><br><span class="line"><span class="hljs-keyword">end</span></span><br><span class="line"><span class="hljs-comment">%%计算第j个指标下，第i个样本占该指标的比重p(i,j)</span></span><br><span class="line"><span class="hljs-keyword">for</span> <span class="hljs-built_in">i</span>=<span class="hljs-number">1</span>:n</span><br><span class="line">    <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span>=<span class="hljs-number">1</span>:m</span><br><span class="line">        p(<span class="hljs-built_in">i</span>,<span class="hljs-built_in">j</span>)=X(<span class="hljs-built_in">i</span>,<span class="hljs-built_in">j</span>)/sum(X(:,<span class="hljs-built_in">j</span>));</span><br><span class="line">    <span class="hljs-keyword">end</span></span><br><span class="line"><span class="hljs-keyword">end</span></span><br><span class="line"><span class="hljs-comment">%%计算第j个指标的熵值e(j)</span></span><br><span class="line">k=<span class="hljs-number">1</span>/<span class="hljs-built_in">log</span>(n);</span><br><span class="line"><span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span>=<span class="hljs-number">1</span>:m</span><br><span class="line">    e(<span class="hljs-built_in">j</span>)=-k*sum(p(:,<span class="hljs-built_in">j</span>).*<span class="hljs-built_in">log</span>(p(:,<span class="hljs-built_in">j</span>)));</span><br><span class="line"><span class="hljs-keyword">end</span></span><br><span class="line">d=<span class="hljs-built_in">ones</span>(<span class="hljs-number">1</span>,m)-e; <span class="hljs-comment">%计算信息熵冗余度</span></span><br><span class="line">w=d./sum(d); <span class="hljs-comment">%求权值w</span></span><br><span class="line">s=<span class="hljs-number">100</span>*w*p'; <span class="hljs-comment">%求综合得分</span></span><br></pre></td></tr></tbody></table></figure>
+
+<figure class="highlight matlab hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">y</span>=<span class="hljs-title">guiyi</span><span class="hljs-params">(x,type,ymin,ymax)</span></span></span><br><span class="line"><span class="hljs-comment">%实现正向或负向指标归一化，返回归一化后的数据矩阵</span></span><br><span class="line"><span class="hljs-comment">%x为原始数据矩阵, 一行代表一个样本, 每列对应一个指标</span></span><br><span class="line"><span class="hljs-comment">%type设定正向指标1,负向指标2</span></span><br><span class="line"><span class="hljs-comment">%ymin,ymax为归一化的区间端点</span></span><br><span class="line">[n,m]=<span class="hljs-built_in">size</span>(x);</span><br><span class="line">y=<span class="hljs-built_in">zeros</span>(n,m);</span><br><span class="line">xmin=<span class="hljs-built_in">min</span>(x);</span><br><span class="line">xmax=<span class="hljs-built_in">max</span>(x);</span><br><span class="line"><span class="hljs-keyword">switch</span> <span class="hljs-built_in">type</span></span><br><span class="line">    <span class="hljs-keyword">case</span> <span class="hljs-number">1</span></span><br><span class="line">        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span>=<span class="hljs-number">1</span>:m</span><br><span class="line">            y(:,<span class="hljs-built_in">j</span>)=(ymax-ymin)*(x(:,<span class="hljs-built_in">j</span>)-xmin(<span class="hljs-built_in">j</span>))/(xmax(<span class="hljs-built_in">j</span>)-xmin(<span class="hljs-built_in">j</span>))+ymin;</span><br><span class="line">        <span class="hljs-keyword">end</span></span><br><span class="line">    <span class="hljs-keyword">case</span> <span class="hljs-number">2</span></span><br><span class="line">        <span class="hljs-keyword">for</span> <span class="hljs-built_in">j</span>=<span class="hljs-number">1</span>:m</span><br><span class="line">            y(:,<span class="hljs-built_in">j</span>)=(ymax-ymin)*(xmax(<span class="hljs-built_in">j</span>)-x(:,<span class="hljs-built_in">j</span>))/(xmax(<span class="hljs-built_in">j</span>)-xmin(<span class="hljs-built_in">j</span>))+ymin;</span><br><span class="line">        <span class="hljs-keyword">end</span></span><br><span class="line"><span class="hljs-keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>机器学习中的信息论<a target="_blank" rel="noopener" href="http://saili.science/2017/09/15/entropy-method/">http://saili.science/2017/09/15/entropy-method/</a></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/" rel="tag">数学建模</a>, <a class="has-link-grey -link-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/10/21/%E5%89%8D%E7%AB%AF%E4%BC%A0%E5%8F%82%E5%88%B0%E5%90%8E%E5%8F%B0%E4%B8%AD%E6%96%87%E4%B9%B1%E7%A0%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">前端传参到后台中文乱码问题解决</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/">
+                <span class="level-item">mcm离散型题目及思路记录</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#问题背景">
+        <span class="has-mr-6">1</span>
+        <span>问题背景</span>
+        </a></li><li>
+        <a class="is-flex" href="#步骤">
+        <span class="has-mr-6">2</span>
+        <span>步骤</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#step1">
+        <span class="has-mr-6">2.1</span>
+        <span>step1:</span>
+        </a></li><li>
+        <a class="is-flex" href="#step2">
+        <span class="has-mr-6">2.2</span>
+        <span>step2:</span>
+        </a></li><li>
+        <a class="is-flex" href="#step3">
+        <span class="has-mr-6">2.3</span>
+        <span>step3:</span>
+        </a></li><li>
+        <a class="is-flex" href="#step4">
+        <span class="has-mr-6">2.4</span>
+        <span>step4:</span>
+        </a></li><li>
+        <a class="is-flex" href="#step5">
+        <span class="has-mr-6">2.5</span>
+        <span>step5:</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#适用范围">
+        <span class="has-mr-6">3</span>
+        <span>适用范围</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考代码">
+        <span class="has-mr-6">4</span>
+        <span>参考代码</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">5</span>
+        <span>参考</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="熵值法用于特征剔除" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

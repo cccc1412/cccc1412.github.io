@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>mcm离散型题目及思路记录 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="简单记录了题目和思路。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mcm离散型题目及思路记录">
+<meta property="og:url" content="http://yoursite.com/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="简单记录了题目和思路。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2019-08-15T05:21:26.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.271Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="数学建模">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="mcm离散型题目及思路记录" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-08-15T05:21:26.000Z">2019-08-15</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    14 分钟 读完 (大约 2161 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                mcm离散型题目及思路记录
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>简单记录了题目和思路。</p>
+<span id="more"></span>
+
+<h2 id="2017B-”拍照赚钱“的任务定价"><a href="#2017B-”拍照赚钱“的任务定价" class="headerlink" title="2017B ”拍照赚钱“的任务定价"></a>2017B ”拍照赚钱“的任务定价</h2><h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>在拍照赚钱APP中，用户可以领取拍照任务，完成任务后可以获得酬金，不同的任务又不同的定价。</p>
+<ol>
+<li>附件一给了任务的位置（经纬度），定价，完成情况，需要分析任务未完成的原因。</li>
+<li>制定新的定价方案，并和原方案比较。</li>
+<li>考虑任务联合打包发布规则下的定价模型，并分析对最终任务完成情况的影响。</li>
+<li>对附件三种的新项目给出定价方案。</li>
+</ol>
+<h3 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h3><h4 id="问题一："><a href="#问题一：" class="headerlink" title="问题一："></a>问题一：</h4><p>从<strong>定性和定量</strong>角度分析，先使用cftool工具箱绘制定价和经纬度坐标的<strong>三维拟合图</strong>，观察结果定性得出结论。然后利用kmeans聚类，将地图划分为网格区域，每个网格内定义四个指标，然后利用<strong>灰色关联矩阵</strong>定量分析定义的指标和定价的<strong>相关程度</strong>，然后通过对比未完成任务和已完成任务的相关度矩阵得出最显著的影响因素。</p>
+<h4 id="问题二："><a href="#问题二：" class="headerlink" title="问题二："></a>问题二：</h4><p>将定价方案看作<strong>优化问题</strong>，总成本最小化，完成率最大化：$\left{ \begin{array} { l } { \min \sum _ { i = 1 } ^ { 835 } p _ { i } } \ { \max \sum _ { i = 1 } ^ { 835 } C _ { i } } \end{array} \right.$，定义了吸引度矩阵：<img src="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/1565848098038.png" alt=""></p>
+<p>定义阈值，$w _ { i } = \left{ \begin{array} { l } { \min \left{ w _ { i j } \right} , C _ { i } = 1 } \ { \max \left{ w _ { i j } \right} , C _ { i } = 0 } \end{array} \right.$当第<em>i</em> </p>
+<p>个任务被完成时，其阈值至少低于其对一个会员的吸引度；当第<em>i</em> 个任务未被完成时，其阈值不低于任何其对一个会员的吸引度。 </p>
+<h4 id="问题三："><a href="#问题三：" class="headerlink" title="问题三："></a>问题三：</h4><p>修改优化模型，通过聚类分析打包任务，修改吸引力矩阵，重新进行搜索。</p>
+<h4 id="问题四："><a href="#问题四：" class="headerlink" title="问题四："></a>问题四：</h4><p>聚类分析将任务打包，然后用第三问的任务数据和最优定价作为训练数据训练<strong>神经网络</strong>，再带入附件三的数据得到定价。</p>
+<h2 id="2016B-小区开放对道路通行的影响"><a href="#2016B-小区开放对道路通行的影响" class="headerlink" title="2016B 小区开放对道路通行的影响"></a>2016B 小区开放对道路通行的影响</h2><h3 id="问题描述-1"><a href="#问题描述-1" class="headerlink" title="问题描述"></a>问题描述</h3><ol>
+<li>建立评价指标体系，评价小区开放对周边道路通行的影响。</li>
+<li>建立车辆通行的数学模型，用以研究小区开放对周边道路通行的影响。 </li>
+<li>小区开放产生的效果，可能会与小区结构及周边道路结构、车流量有关。请选取或构建不同类型的小区，应用你们建立的模型，定量比较各类型小区开放前后对道路通行的影响。</li>
+</ol>
+<h3 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h3><h4 id="问题一"><a href="#问题一" class="headerlink" title="问题一:"></a>问题一:</h4><p>找指标，<strong>先找了多个指标</strong>，利用<strong>聚类分析</strong>把影响因素进行归类，然后利用<strong>层次分析法构建评价体系</strong>。</p>
+<h4 id="问题二：-1"><a href="#问题二：-1" class="headerlink" title="问题二："></a>问题二：</h4><p>利用<strong>元胞自动机</strong>模拟道路情况，车辆变量更新规则有<strong>NS模型</strong>，</p>
+<p>然后考虑<strong>道路通行能力，安全性，便捷度</strong>，建立<strong>模糊综合评价模型</strong>。通行能力利用层次分析法评定，安全性自己定义公式，便携度求最短路径。</p>
+<h4 id="问题三：-1"><a href="#问题三：-1" class="headerlink" title="问题三："></a>问题三：</h4><p>针对不同小区，确定问题二模型中的参数，相当于模型求解。</p>
+<h2 id="2015B-“互联网-”时代的出租车资源配置"><a href="#2015B-“互联网-”时代的出租车资源配置" class="headerlink" title="2015B “互联网+”时代的出租车资源配置"></a>2015B “互联网+”时代的出租车资源配置</h2><h3 id="问题描述-2"><a href="#问题描述-2" class="headerlink" title="问题描述"></a>问题描述</h3><p>请你们搜集相关数据，建立数学模型研究如下问题：</p>
+<p> (1) 试建立合理的指标，并分析不同时空出租车资源的“供求匹配”程度。</p>
+<p> (2) 分析各公司的出租车补贴方案是否对“缓解打车难”有帮助？</p>
+<p> (3) 如果要创建一个新的打车软件服务平台，你们将设计什么样的补贴方案，并论证其合理性。</p>
+<h3 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h3><h4 id="问题一：-1"><a href="#问题一：-1" class="headerlink" title="问题一："></a>问题一：</h4><p>还是<strong>找指标</strong>，里程利用率，供求比率</p>
+<p>里程利用率 <em>K</em> =载客里程（公里）/行驶里程（公里）*100%</p>
+<p><img src="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/1565851484257.png" alt=""></p>
+<p>然后确定这两个指标在供求平衡下的理想值（不是1）</p>
+<p><img src="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/1565851816412.png" alt=""></p>
+<p>然后再对不同时段（高峰，常规），不同空间（市区，郊区）进行模拟。</p>
+<h4 id="问题二：-2"><a href="#问题二：-2" class="headerlink" title="问题二："></a>问题二：</h4><p><img src="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/1565853584871.png" alt=""></p>
+<p>软件使用比例计算：</p>
+<p><img src="/2019/08/15/mcm%E7%A6%BB%E6%95%A3%E5%9E%8B%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/1565853667701.png" alt=""></p>
+<p>意愿半径计算：即司机为接单愿意行驶的最大距离。也是用函数拟合的思路，定义一个函数形式，带入已知求出参数。</p>
+<p>不同的时间段有不同的补贴金额，缓解率也随时间变化，可以绘制变化曲线。</p>
+<h4 id="第三问："><a href="#第三问：" class="headerlink" title="第三问："></a>第三问：</h4><p>开放问题，示例论文中采用了<strong>分区域动态实时补贴</strong>的方法，自己值定了一些规则，根据规则列出方程，解方程得到的结果。</p>
+<p>也可以采用最优化问题的求解思路，站在平台的角度，补贴最少，效益最高。</p>
+<h2 id="2014B-创意平板折叠桌"><a href="#2014B-创意平板折叠桌" class="headerlink" title="2014B 创意平板折叠桌"></a>2014B 创意平板折叠桌</h2><p>做过，不写了，模拟动态变化的过程就是推导桌子角度变量间的一些关系式，加工参数确定看成最优化问题。</p>
+<h2 id="2013B-碎纸片拼接复原"><a href="#2013B-碎纸片拼接复原" class="headerlink" title="2013B 碎纸片拼接复原"></a>2013B 碎纸片拼接复原</h2><p>做过，不写了，有点难。</p>
+<h2 id="2012B-太阳能小屋的设计"><a href="#2012B-太阳能小屋的设计" class="headerlink" title="2012B 太阳能小屋的设计"></a>2012B 太阳能小屋的设计</h2><h3 id="问题描述："><a href="#问题描述：" class="headerlink" title="问题描述："></a>问题描述：</h3><p><strong>问题1：</strong>请根据山西省大同市的气象数据，<strong>仅考虑贴附安装方式</strong>，选定光伏电池组件，对小屋（见附件2）的部分<strong>外表面进行铺设</strong>，并根据电池组件分组数量和容量，<strong>选配相应的逆变器的容量和数量</strong>。</p>
+<p><strong>问题2：</strong>电池板的朝向与倾角均会影响到光伏电池的工作效率，请选择<strong>架空方式</strong>安装光伏电池，重新考虑问题1。</p>
+<p><strong>问题3：</strong>根据附件7给出的小屋建筑要求，请为大同市<strong>重新设计一个小屋</strong>，要求画出小屋的外形图，并对所设计小屋的外表面优化铺设光伏电池，给出铺设及分组连接方式，选配逆变器，计算相应结果。</p>
+<h3 id="思路-3"><a href="#思路-3" class="headerlink" title="思路"></a>思路</h3><h4 id="第一问："><a href="#第一问：" class="headerlink" title="第一问："></a>第一问：</h4><p>电池板有三种串并联方式，不同的串并联方式还可以连接不同的逆变器，针对每种串并联方式，设置最优化目标:</p>
+<p>全年功率最大化：$\max W_{jmA}$，逆变器和电池总价最小化：$\min p_{jmA}$，j表示墙免编号，m表示逆变器型号，A表示不同的电池连接方式。</p>
+<p>针对该多目标优化问题，分别先做单目标规划下的最优值，求解出$W’<em>{jmA}$和$p’</em>{jmA}$</p>
+<p>然后再构造单目标规划：</p>
+<p>$f = (W_{jmA}-W’<em>{jmA})^2+(p</em>{jmA}-p’_{jmA})^2$</p>
+<p>根据此形式构造出优先级函数，得到不同型号逆变器的最佳组合方式定义优先级：</p>
+<p>$f’ = (\frac{W_{jmA}-W_{max}}{W_{max}})^2+(\frac{p_{jmA}-p_{min}}{p_{min}})^2  $</p>
+<p>采用贪心的方法根据优先级进行安装。</p>
+<h4 id="第二问："><a href="#第二问：" class="headerlink" title="第二问："></a>第二问：</h4><p>最优化，找到全年辐射强度最大的角度。</p>
+<p>然后需要研究电池板的投影情况，阴影情况限制了电池的铺设。</p>
+<h4 id="第三问：-1"><a href="#第三问：-1" class="headerlink" title="第三问："></a>第三问：</h4><p>根据房屋建设的标准制定约束，以全年接受光强之和为优化目标。</p>
+<h2 id="2012A-葡萄酒评价"><a href="#2012A-葡萄酒评价" class="headerlink" title="2012A 葡萄酒评价"></a>2012A 葡萄酒评价</h2><h3 id="问题描述-3"><a href="#问题描述-3" class="headerlink" title="问题描述"></a>问题描述</h3><ol>
+<li><p>分析附件1中两组评酒员的评价结果有无显著性差异，哪一组结果更可信？</p>
+</li>
+<li><p>根据酿酒葡萄的理化指标和葡萄酒的质量对这些酿酒葡萄进行分级。</p>
+</li>
+<li><p>分析酿酒葡萄与葡萄酒的理化指标之间的联系。</p>
+</li>
+<li><p>分析酿酒葡萄和葡萄酒的理化指标对葡萄酒质量的影响，并论证能否用葡萄和葡萄酒的理化指标来评价葡萄酒的质量？</p>
+</li>
+</ol>
+<h3 id="方法记录"><a href="#方法记录" class="headerlink" title="方法记录"></a>方法记录</h3><a href="/2019/08/16/%E7%86%B5%E5%80%BC%E6%B3%95%E7%94%A8%E4%BA%8E%E7%89%B9%E5%BE%81%E5%89%94%E9%99%A4/" title="熵值法用于特征剔除">熵值法用于特征剔除</a>
+
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/" rel="tag">数学建模</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2019/08/16/%E7%86%B5%E5%80%BC%E6%B3%95%E7%94%A8%E4%BA%8E%E7%89%B9%E5%BE%81%E5%89%94%E9%99%A4/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">熵值法用于特征剔除</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/08/11/matlab%E6%A8%A1%E6%8B%9F%E9%80%80%E7%81%AB%E5%B7%A5%E5%85%B7%E7%AE%B1satools/">
+                <span class="level-item">matlab模拟退火工具箱satools</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#2017B-”拍照赚钱“的任务定价">
+        <span class="has-mr-6">1</span>
+        <span>2017B ”拍照赚钱“的任务定价</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题描述">
+        <span class="has-mr-6">1.1</span>
+        <span>问题描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#思路">
+        <span class="has-mr-6">1.2</span>
+        <span>思路</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题一：">
+        <span class="has-mr-6">1.2.1</span>
+        <span>问题一：</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题二：">
+        <span class="has-mr-6">1.2.2</span>
+        <span>问题二：</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题三：">
+        <span class="has-mr-6">1.2.3</span>
+        <span>问题三：</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题四：">
+        <span class="has-mr-6">1.2.4</span>
+        <span>问题四：</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#2016B-小区开放对道路通行的影响">
+        <span class="has-mr-6">2</span>
+        <span>2016B 小区开放对道路通行的影响</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题描述-1">
+        <span class="has-mr-6">2.1</span>
+        <span>问题描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#思路-1">
+        <span class="has-mr-6">2.2</span>
+        <span>思路</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题一">
+        <span class="has-mr-6">2.2.1</span>
+        <span>问题一:</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题二：-1">
+        <span class="has-mr-6">2.2.2</span>
+        <span>问题二：</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题三：-1">
+        <span class="has-mr-6">2.2.3</span>
+        <span>问题三：</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#2015B-“互联网-”时代的出租车资源配置">
+        <span class="has-mr-6">3</span>
+        <span>2015B “互联网+”时代的出租车资源配置</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题描述-2">
+        <span class="has-mr-6">3.1</span>
+        <span>问题描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#思路-2">
+        <span class="has-mr-6">3.2</span>
+        <span>思路</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题一：-1">
+        <span class="has-mr-6">3.2.1</span>
+        <span>问题一：</span>
+        </a></li><li>
+        <a class="is-flex" href="#问题二：-2">
+        <span class="has-mr-6">3.2.2</span>
+        <span>问题二：</span>
+        </a></li><li>
+        <a class="is-flex" href="#第三问：">
+        <span class="has-mr-6">3.2.3</span>
+        <span>第三问：</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#2014B-创意平板折叠桌">
+        <span class="has-mr-6">4</span>
+        <span>2014B 创意平板折叠桌</span>
+        </a></li><li>
+        <a class="is-flex" href="#2013B-碎纸片拼接复原">
+        <span class="has-mr-6">5</span>
+        <span>2013B 碎纸片拼接复原</span>
+        </a></li><li>
+        <a class="is-flex" href="#2012B-太阳能小屋的设计">
+        <span class="has-mr-6">6</span>
+        <span>2012B 太阳能小屋的设计</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题描述：">
+        <span class="has-mr-6">6.1</span>
+        <span>问题描述：</span>
+        </a></li><li>
+        <a class="is-flex" href="#思路-3">
+        <span class="has-mr-6">6.2</span>
+        <span>思路</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#第一问：">
+        <span class="has-mr-6">6.2.1</span>
+        <span>第一问：</span>
+        </a></li><li>
+        <a class="is-flex" href="#第二问：">
+        <span class="has-mr-6">6.2.2</span>
+        <span>第二问：</span>
+        </a></li><li>
+        <a class="is-flex" href="#第三问：-1">
+        <span class="has-mr-6">6.2.3</span>
+        <span>第三问：</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#2012A-葡萄酒评价">
+        <span class="has-mr-6">7</span>
+        <span>2012A 葡萄酒评价</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#问题描述-3">
+        <span class="has-mr-6">7.1</span>
+        <span>问题描述</span>
+        </a></li><li>
+        <a class="is-flex" href="#方法记录">
+        <span class="has-mr-6">7.2</span>
+        <span>方法记录</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="mcm离散型题目及思路记录" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

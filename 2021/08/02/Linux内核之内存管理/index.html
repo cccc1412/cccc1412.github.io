@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>Linux内核之内存管理 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="虚存管理：inux进程可以划分为多个不同的内存区域：代码段、数据段、BSS段、堆、栈。Linux内核把这些区域抽象成vm_area_struct的对象进行管理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux内核之内存管理">
+<meta property="og:url" content="http://yoursite.com/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="虚存管理：inux进程可以划分为多个不同的内存区域：代码段、数据段、BSS段、堆、栈。Linux内核把这些区域抽象成vm_area_struct的对象进行管理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-08-02T05:33:03.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.003Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="kernel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="Linux内核之内存管理" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-08-02T05:33:03.000Z">2021-08-02</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/kernel/">kernel</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    23 分钟 读完 (大约 3380 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                Linux内核之内存管理
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>虚存管理：inux进程可以划分为多个不同的内存区域：代码段、数据段、BSS段、堆、栈。Linux内核把这些区域抽象成<code>vm_area_struct</code>的对象进行管理。</p>
+<span id="more"></span>
+
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="区分逻辑地址、线性地址、物理地址"><a href="#区分逻辑地址、线性地址、物理地址" class="headerlink" title="区分逻辑地址、线性地址、物理地址"></a>区分逻辑地址、线性地址、物理地址</h3><p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220227191446237.png" alt="image-20220227191446237"></p>
+<p>分段和分页都是由CPU提供的。</p>
+<p>虚拟地址包括了逻辑地址和线性地址，程序员用的其实是逻辑地址，分页机制可以绕开，单分段机制绕不开</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">int</span> test;</span><br><span class="line"><span class="hljs-type">int</span> *ptr = &amp;test;<span class="hljs-comment">//ptr放的是逻辑地址的偏移量，段基址放在寄存器里</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>疑问：</p>
+<p><strong>既然指针变量存的是偏移量，那为什么写程序的时候不用考虑段寄存器？</strong></p>
+<p>Linux和windows使用的是平坦内存模型，x64直接忽略了段描述符中的段基址和段界限，cpu直接支持flat模式。（fs,gs例外）</p>
+<p>分段和分页都是由CPU提供的，intel开发手册，查看卷3，第三章保护模式下的内存管理。</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220227193121237.png" alt="image-20220227193121237"></p>
+<ul>
+<li>gdtr寄存器的特殊之处：不能使用mov指令访问gdtr寄存器，必须使用sgdt（访问）和lgdt（写入load）指令访问，这两个指令是特权指令，ring0才能访问。</li>
+</ul>
+<ul>
+<li><p>逻辑地址就是应用程序员能看到的地址，就是机器语言中引用一个操作数或者是指定的地址</p>
+</li>
+<li><p>逻辑地址又叫虚拟地址</p>
+</li>
+<li><p>逻辑地址：段选择符+段内偏移量</p>
+</li>
+<li><p>CPU中有一个MMU，MMU中有一个分段单元的逻辑电路把逻辑地址转换成线性地址。</p>
+<ul>
+<li><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20210812213940226.png" alt="image-20210812213940226"></li>
+</ul>
+</li>
+<li><p><strong>Linux有限度的使用了分段机制，有限制就是说所有的段基址都为0</strong>，所以<strong>在linux系统下，逻辑地址（虚拟地址）就等于线性地址</strong></p>
+<ul>
+<li><strong>段基址</strong>就是根据<strong>段选择符</strong>查到的<strong>段描述符</strong>里的<strong>base字段</strong></li>
+<li>所有进程使用了相同的段寄存器，也就是不同的进程共享了同样的一组线性地址。</li>
+<li>这样设计Linux可以移植到大多数处理器平台，比如一些不支持分段的体系结构。</li>
+</ul>
+</li>
+<li><p>内核的虚拟地址到物理地址只差了一个偏移，而用户空间的虚拟地址到物理地址则用了多久页表进行映射</p>
+</li>
+</ul>
+<p>为什么要分段？比如8086，8088，16位的CPU要访问20位的内存总线</p>
+<p>为什么分页？比如要支持虚拟内存，内存不够要换页</p>
+<h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><blockquote>
+<p>内核使用node、zone、page三级结构描述物理内存</p>
+</blockquote>
+<h3 id="页"><a href="#页" class="headerlink" title="页"></a>页</h3><blockquote>
+<p>页是内核管理内存的基本单位。MMU内存管理单元以页位单位管理系统中的页表。</p>
+</blockquote>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> {</span></span><br><span class="line">	<span class="hljs-type">page_flags_t</span> flags;	<span class="hljs-comment">//页状态，页是不是脏的，有没有锁定在内存中等等</span></span><br><span class="line">	<span class="hljs-type">atomic_t</span> _count;<span class="hljs-comment">//页被引用了多少次，没有引用的时候就可以在新的分配中使用它</span></span><br><span class="line">	<span class="hljs-type">atomic_t</span> _mapcount;</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> private;</span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address_space</span> *<span class="hljs-title">mapping</span>;</span></span><br><span class="line">	<span class="hljs-type">pgoff_t</span> index;<span class="hljs-comment">//包含页的最近最少使用的双向链表的指针。</span></span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">lru</span>;</span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">if</span> defined(WANT_PAGE_VIRTUAL)</span></span><br><span class="line">	<span class="hljs-type">void</span> *virtual;<span class="hljs-comment">//如果进行了内存映射，就是虚拟地址。对存在高端内存的系统来说有意义。</span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">/* WANT_PAGE_VIRTUAL */</span></span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="页表转换"><a href="#页表转换" class="headerlink" title="页表转换"></a>页表转换</h3><p>谁执行page walk？CPU</p>
+<p>页表由谁创建？操作系统，但是CPU规定了页表长什么样，即页表规范</p>
+<p>谁会设置或修改页表？CPU会，OS也会</p>
+<p>Intel CPU提供了多种页表结构：</p>
+<p>二级页表：32位非PAE模式</p>
+<p>三级页表：PAE模式</p>
+<p>四级页表：IA-32e，即64位模式</p>
+<h4 id="32位页表"><a href="#32位页表" class="headerlink" title="32位页表"></a>32位页表</h4><p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408140057157.png" alt="image-20220408140057157"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408140458889.png" alt="image-20220408140458889"></p>
+<p>重点还是64位下的：</p>
+<p>其实只有48位，前面16位是符号位扩展。</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408141157241.png" alt="image-20220408141157241"></p>
+<p>用户空间是0000，内核空间是FFFF。</p>
+<p>page map level-4 table在linux里叫pgd</p>
+<p>page-directory pointer table在linux里叫pud</p>
+<p>page directory在linux里叫pmd</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408141608929.png" alt="image-20220408141608929"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408140610480.png" alt="image-20220408140610480"></p>
+<p>如果PS = 1，后面就是offset，为0表示还有下一级页表</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408141354236.png" alt="image-20220408141354236"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408141436710.png" alt="image-20220408141436710"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408141948371.png" alt="image-20220408141948371"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408142042797.png" alt="image-20220408142042797"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408142056923.png" alt="image-20220408142056923"></p>
+<p>P位代表是否存在（被换到磁盘），RW位就是读写权限</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408143556774.png" alt="image-20220408143556774"></p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20220408144237928.png" alt="image-20220408144237928"></p>
+<h3 id="区"><a href="#区" class="headerlink" title="区"></a>区</h3><p>内核的虚拟地址空间分为三个类型的区，这三个区又线性映射到物理内存上。</p>
+<ul>
+<li>ZONE_DMA：这里的页只能执行DMA操作（0~16MB）</li>
+<li>ZONE_NORMAL：正常映射的页（16~896MB）</li>
+<li>ZONE_HIGHEM：高端内存(动态映射)</li>
+</ul>
+<h4 id="什么是高端内存"><a href="#什么是高端内存" class="headerlink" title="什么是高端内存"></a>什么是高端内存</h4><p>内核态下虚拟地址和物理地址是一个线性关系，就是所谓的内核线性地址空间，两者存在一个固定的offset，物理地址 = 逻辑地址 – 0xC0000000</p>
+<p>x86-32位系统下，linux按照3：1来划分虚拟内存，3GB是用户空间，1GB是内核空间。</p>
+<p>也就是说内核只能用1GB的地址空间来映射物理地址空间，如果内存大于1G的情况下，线性地址就不够用了。因此内核引入了一个高端内存的概念，小于896M的</p>
+<p>叫低端内存，剩下的128M的线性空间用来灵活映射大于896M的物理地址空间，这128M就是我们说的高端内存区。</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20210812220018321.png" alt="image-20210812220018321"></p>
+<p>对于64位系统，地址空间足够用，就不用高端内存区了。</p>
+<p>比如ARM-64的内核地址空间布局：</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20210812221453798.png" alt="image-20210812221453798"></p>
+<h3 id="页管理"><a href="#页管理" class="headerlink" title="页管理"></a>页管理</h3><p><code>struct page * alloc_pages(gfp_t gfp_mask,unsigned order)</code>分配$2^(order)$个连续的物理页，并返回指向第一个页的指针。</p>
+<p><code>void * page_address(struct page *page)</code>返回给定物理页的逻辑地址</p>
+<p><code>unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order)</code>也是分配物理页，当时返回的是分配的第一个页的逻辑地址。</p>
+<p>还有获取填充为0的页，释放页等等</p>
+<h3 id="kmalloc-、kfree（）和vmalloc"><a href="#kmalloc-、kfree（）和vmalloc" class="headerlink" title="kmalloc()、kfree（）和vmalloc()"></a>kmalloc()、kfree（）和vmalloc()</h3><p>这两个是对应的，用于获得以字节为单位的一块内核内存，释放由kmalloc分配出来的内存块。</p>
+<p>kmaclloc确保分配出来的内存页在物理地址上是连续的，虚拟地址自然也是连续的。</p>
+<p>分配的内存在虚拟地址上是连续的，而在物理内存上不一定连续，也是用户空间分配函数的工作方式。</p>
+<p>他分配非连续的物理内存块，再修改页表，把内存映射到逻辑地址空间的连续区域中。</p>
+<p>大多数情况下，只有硬件设备才需要连续的物理内存，因为硬件设备位于MMU之外，尽管如此，内核还是尽量使用kmalloc，因为这样可以提高性能，vmalloc需要对获得的页建立页表项一个个映射，还可能会导致TBL抖动。</p>
+<h3 id="slab分配器"><a href="#slab分配器" class="headerlink" title="slab分配器"></a>slab分配器</h3><h4 id="slab描述符"><a href="#slab描述符" class="headerlink" title="slab描述符"></a>slab描述符</h4><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">slab</span> {</span></span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>	<span class="hljs-title">list</span>;</span><span class="hljs-comment">//slab高速缓存描述符的三个双向循环链表中的一个。</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>		colouroff;<span class="hljs-comment">//slab中第一个对象的偏移。</span></span><br><span class="line">	<span class="hljs-type">void</span>			*s_mem;<span class="hljs-comment">//slab中第一个对象的地址。</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		inuse;<span class="hljs-comment">//当前正在使用的slab中的对象个数。</span></span><br><span class="line">	<span class="hljs-type">kmem_bufctl_t</span>		<span class="hljs-built_in">free</span>;<span class="hljs-comment">//slab中下一个空闲对象的下标</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="高速缓存描述符"><a href="#高速缓存描述符" class="headerlink" title="高速缓存描述符"></a>高速缓存描述符</h4><figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache_s</span> {</span></span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">array_cache</span>	*<span class="hljs-title">array</span>[<span class="hljs-title">NR_CPUS</span>];</span><span class="hljs-comment">//每个CPU都有一个slab空闲对象缓存</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		batchcount;<span class="hljs-comment">//要转移进本地高速缓存或从本地高速缓存中转移出的大批对象的数量。</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		limit;<span class="hljs-comment">//本地高速缓存中空闲对象的最大数目。这个参数可调。</span></span><br><span class="line">	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_list3</span>	<span class="hljs-title">lists</span>;</span></span><br><span class="line">	<span class="hljs-comment">/* NUMA: kmem_3list_t	*nodelists[MAX_NUMNODES] */</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		objsize;<span class="hljs-comment">//高速缓存中包含的对象的大小。</span></span><br><span class="line">	...</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		gfporder;<span class="hljs-comment">//一个单独slab中包含的连续页框数目的对数。</span></span><br><span class="line">	...</span><br><span class="line">	<span class="hljs-type">size_t</span>			colour;	<span class="hljs-comment">//slab使用的颜色个数。用于slab着色。</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>		colour_off;	<span class="hljs-comment">//slab中的基本对齐偏移。</span></span><br><span class="line">	...</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+
+
+<h2 id="虚存管理"><a href="#虚存管理" class="headerlink" title="虚存管理"></a>虚存管理</h2><h3 id="进程的地址空间"><a href="#进程的地址空间" class="headerlink" title="进程的地址空间"></a>进程的地址空间</h3><h4 id="内存描述符"><a href="#内存描述符" class="headerlink" title="内存描述符"></a>内存描述符</h4><blockquote>
+<p>内存描述符mm_struct是进程描述符中的一个字段，包含了进程地址空间有光的全部信息</p>
+</blockquote>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">mm_struct</span> {</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">vm_area_struct</span> * mmap;<span class="hljs-comment">//指向线性区对象的链表头</span></span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">rb_root</span> mm_rb;<span class="hljs-comment">//指向红黑树的根</span></span><br><span class="line">    <span class="hljs-comment">//这是内存区域的两种不同的组织结构，实际包含的内容是一样的，根据不同的需求选用不同的结构。</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="hljs-type">pgd_t</span> * pgd;<span class="hljs-comment">//指向页全局目录，根据多级页表的设计最终找到物理页面</span></span><br><span class="line">    <span class="hljs-type">atomic_t</span> mm_count;<span class="hljs-comment">//引用计数</span></span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">list_head</span> mmlist;</span><br><span class="line">    ...</span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start_code, end_code, start_data, end_data;<span class="hljs-comment">//代码段和数据段的地址</span></span><br><span class="line">	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> start_brk, brk, start_stack;<span class="hljs-comment">//堆和栈的地址</span></span><br><span class="line">    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg_start, arg_end, env_start, env_end;<span class="hljs-comment">//参数和环境变量</span></span><br><span class="line">    ...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>mm_struct是否共享决定了是进程还是线程。</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20210812210246310.png" alt="image-20210812210246310"></p>
+<p>mm_struct是对整个用户空间的描述</p>
+<h4 id="虚拟内存区域VMA"><a href="#虚拟内存区域VMA" class="headerlink" title="虚拟内存区域VMA"></a>虚拟内存区域VMA</h4><blockquote>
+<p>VMA</p>
+</blockquote>
+<p>一个进程有多个不同的段，段用<code>vm_area_struct</code>进行描述，通过mmap创建。另外，堆和栈也是有自己的vma的。</p>
+<p>使用<code>pmap</code>或<code>cat /proc/pid/maps</code>看到的就是进程的不同的区。如果有动态链接的情况，进程的地址空间也会包含链接库的代码段、数据段、bss段。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">vm_area_struct</span> {</span><br><span class="line">    <span class="hljs-keyword">struct</span> <span class="title class_">mm_struct</span>; <span class="hljs-comment">//指向关联的mm</span></span><br><span class="line">    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> vm_start,vm_end;<span class="hljs-comment">//段的首位地址</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> vm_flags;<span class="hljs-comment">//不同标志组合成不同的权限，从而决定不同的段的属性  </span></span><br><span class="line">    ...</span><br><span class="line">    <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> vm_pgoff;<span class="hljs-comment">//在映射文件中的偏移量，以页为单位，处理页错误时候使用。</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="ELF和Linux进程虚拟地址空间的映射关系"><a href="#ELF和Linux进程虚拟地址空间的映射关系" class="headerlink" title="ELF和Linux进程虚拟地址空间的映射关系"></a>ELF和Linux进程虚拟地址空间的映射关系</h3><blockquote>
+<p>ELF文件中有一个程序头，程序头描述了ELF文件该被如何转载到进程的虚拟地址空间。</p>
+</blockquote>
+<p>ELF引入了一个叫Segment的概念，一个Segment包含一个或者多个属性类似的Section，比如<code>.init</code>和<code>.text</code>是两个属性类似的Section，这两个段被看作是一个Segment，在装载的时候对应了一个VMA，这样减少了页面的内部碎片。</p>
+<p>Segment是从装载的角度对Section进行了划分，链接的时候，属性类似的段放在一个空间，这个属性是说权限，比如可读可执行。</p>
+<p>在ELF文件中，描述Section的叫做段表，表示Segment的叫程序头，程序头才描述了ELF文件该被操作系统如何映射到进程的虚拟地址空间。</p>
+<p>使用<code>readelf -l</code>读取程序头，比如：</p>
+<p><img src="/2021/08/02/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/image-20210812163253121.png" alt="image-20210812163253121"></p>
+<p>不一定是每个Segment都要被映射到虚拟地址空间的，类型位LOAD的才需要，别的是装载时起辅助作用。</p>
+<p>实际上程序头里写的各段转载虚拟地址并不一定跟linux装载后完全对应，linux装载时有一些特殊的处理，另外对于PIE地址无关编译的情况，程序头里代码段虚拟地址总是从0开始，实际情况下是随机的，各段共用了一个随机偏移量。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>linux2.6.11源码</p>
+<p>《Linux内核设计与实现》第十二章、十五章</p>
+<p>《程序员的自我修养》</p>
+<p>《深入理解LINUX内核》第二章</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24231428#:~:text=PIE%E4%B8%8E%E7%BC%96%E8%AF%91%E5%99%A8%E9%80%89%E9%A1%B9%20GCC%E7%BC%96%E8%AF%91%E5%99%A8%E7%94%A8%E4%BA%8E%E7%94%9F%E6%88%90%E5%9C%B0%E5%9D%80%E6%97%A0%E5%85%B3%E4%BB%A3%E7%A0%81%E7%9A%84%E5%8F%82%E6%95%B0%E4%B8%BB%E8%A6%81%E6%9C%89-fPIC%2C,-fPIE%2C%20-pie%E3%80%82%E5%85%B6%E4%B8%AD-fPIC%2C%20-fPIE%E5%B1%9E%E4%BA%8E%E7%BC%96%E8%AF%91%E6%97%B6%E9%80%89%E9%A1%B9%EF%BC%8C%E5%88%86%E5%88%AB%E7%94%A8%E4%BA%8E%E7%94%9F%E6%88%90%E5%85%B1%E4%BA%AB%E5%BA%93%E5%92%8C%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E3%80%82%E5%AE%83%E4%BB%AC%E8%83%BD%E5%A4%9F%E4%BD%BF%E7%BC%96%E8%AF%91%E9%98%B6%E6%AE%B5%E7%94%9F%E6%88%90%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E5%85%B7%E6%9C%89%E5%9C%B0%E5%9D%80%E6%97%A0%E5%85%B3%E4%BB%A3%E7%A0%81%E7%9A%84%E7%89%B9%E6%80%A7%E3%80%82%E4%BD%86%E8%BF%99%E5%B9%B6%E4%B8%8D%E4%BB%A3%E8%A1%A8%E6%9C%80%E5%90%8E%E7%94%9F%E6%88%90%E7%9A%84%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6%E6%98%AFPIE">pie编译选项</a></p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/kernel/" rel="tag">kernel</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/08/09/google-c-%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">google c++ 代码规范</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/07/28/git%E5%8E%9F%E7%90%86%E5%8F%8A%E4%BD%BF%E7%94%A8/">
+                <span class="level-item">git原理及使用</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#前置知识">
+        <span class="has-mr-6">1</span>
+        <span>前置知识</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#区分逻辑地址、线性地址、物理地址">
+        <span class="has-mr-6">1.1</span>
+        <span>区分逻辑地址、线性地址、物理地址</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#内存管理">
+        <span class="has-mr-6">2</span>
+        <span>内存管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#页">
+        <span class="has-mr-6">2.1</span>
+        <span>页</span>
+        </a></li><li>
+        <a class="is-flex" href="#页表转换">
+        <span class="has-mr-6">2.2</span>
+        <span>页表转换</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#32位页表">
+        <span class="has-mr-6">2.2.1</span>
+        <span>32位页表</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#区">
+        <span class="has-mr-6">2.3</span>
+        <span>区</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#什么是高端内存">
+        <span class="has-mr-6">2.3.1</span>
+        <span>什么是高端内存</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#页管理">
+        <span class="has-mr-6">2.4</span>
+        <span>页管理</span>
+        </a></li><li>
+        <a class="is-flex" href="#kmalloc-、kfree（）和vmalloc">
+        <span class="has-mr-6">2.5</span>
+        <span>kmalloc()、kfree（）和vmalloc()</span>
+        </a></li><li>
+        <a class="is-flex" href="#slab分配器">
+        <span class="has-mr-6">2.6</span>
+        <span>slab分配器</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#slab描述符">
+        <span class="has-mr-6">2.6.1</span>
+        <span>slab描述符</span>
+        </a></li><li>
+        <a class="is-flex" href="#高速缓存描述符">
+        <span class="has-mr-6">2.6.2</span>
+        <span>高速缓存描述符</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#虚存管理">
+        <span class="has-mr-6">3</span>
+        <span>虚存管理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#进程的地址空间">
+        <span class="has-mr-6">3.1</span>
+        <span>进程的地址空间</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#内存描述符">
+        <span class="has-mr-6">3.1.1</span>
+        <span>内存描述符</span>
+        </a></li><li>
+        <a class="is-flex" href="#虚拟内存区域VMA">
+        <span class="has-mr-6">3.1.2</span>
+        <span>虚拟内存区域VMA</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#ELF和Linux进程虚拟地址空间的映射关系">
+        <span class="has-mr-6">3.2</span>
+        <span>ELF和Linux进程虚拟地址空间的映射关系</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">4</span>
+        <span>参考</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="Linux内核之内存管理" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

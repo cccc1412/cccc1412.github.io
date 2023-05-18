@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>cpp优化 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="Optimizing software in C++：An optimization guide for Windows, Linux, and Mac platforms">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cpp优化">
+<meta property="og:url" content="http://yoursite.com/2021/09/26/cpp%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="Optimizing software in C++：An optimization guide for Windows, Linux, and Mac platforms">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-09-26T12:33:01.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.191Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="cpp优化" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-09-26T12:33:01.000Z">2021-09-26</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    17 分钟 读完 (大约 2586 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                cpp优化
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>Optimizing software in C++：An optimization guide for Windows, Linux, and Mac platforms</p>
+<span id="more"></span>
+
+<h2 id="不同C-结构的效率"><a href="#不同C-结构的效率" class="headerlink" title="不同C++ 结构的效率"></a>不同C++ 结构的效率</h2><h3 id="不同变量类型的存储"><a href="#不同变量类型的存储" class="headerlink" title="不同变量类型的存储"></a>不同变量类型的存储</h3><h4 id="栈存储"><a href="#栈存储" class="headerlink" title="栈存储"></a>栈存储</h4><p>函数在调用过程中在栈上分配内存空间，返回时候再释放。函数调用过程中使用了相近范围的地址，如果没有很大的数组，这一部分的数据基本能缓存在一级cache中。</p>
+<p>因此，变量和对象最好在使用他们的函数中声明</p>
+<h4 id="全局或静态存储"><a href="#全局或静态存储" class="headerlink" title="全局或静态存储"></a>全局或静态存储</h4><p>全局变量存储在静态内存中。</p>
+<p>静态内存还用于static声明的变量，浮点常量（如3.5，整数常量一般包含在指令代码中了），字符串常量，switch跳转表，虚函数表。</p>
+<p>静态数据优点是可以在程序启动前就完成初始化，缺点是内存空间在整个程序执行过程中都占用。</p>
+<p>通常查找表最好声明为static const，比如</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// Example 7.16</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">float</span> <span class="hljs-title">SomeFunction</span> <span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>{</span><br><span class="line">    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">float</span> list[] = {<span class="hljs-number">1.1</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">-2.0</span>, <span class="hljs-number">4.4</span>, <span class="hljs-number">2.5</span>};</span><br><span class="line">    <span class="hljs-keyword">return</span> list[x];</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>static可以让这个表第一次调用就初始化，后面就不需要了。这样多了一个开销是要检查这是第一次调用还是已经被调用，因此引入const让编译器确定这个表永远不会变化，不需要对第一次调用进行检查。</p>
+<h4 id="寄存器存储"><a href="#寄存器存储" class="headerlink" title="寄存器存储"></a>寄存器存储</h4><p>编译器优化时会自动选择函数中常用的变量存储在寄存器。这也是推荐使用局部变量的一个原因（另一个是栈存储的cache命中高）</p>
+<h4 id="易变变量（volatile）"><a href="#易变变量（volatile）" class="headerlink" title="易变变量（volatile）"></a>易变变量（volatile）</h4><p>valatile指明变量可能被其他线程修改，阻止编译器进行用从先前分配的值进行优化。</p>
+<h4 id="线程本地存储（TLS）"><a href="#线程本地存储（TLS）" class="headerlink" title="线程本地存储（TLS）"></a>线程本地存储（TLS）</h4><p>关键字<code>__thread</code>或<code>__declspec(thread)</code>实现静态变量和全局动态变量线程本地存储。tls比较低效，通过存储在线程环境块中的指针进行访问。应该避免，使用栈上的存储，存储在栈上的变量综述属于创建他们的线程。</p>
+<h4 id="Far"><a href="#Far" class="headerlink" title="Far"></a>Far</h4><p>在分段内存的系统中用</p>
+<h4 id="动态内存分配"><a href="#动态内存分配" class="headerlink" title="动态内存分配"></a>动态内存分配</h4><p>当以随机分配释放大小不同的对象，堆容易碎片化。堆碎片化时，顺序分配的对象不一定顺序分配在其中，造成cache效率低下。</p>
+<h4 id="类中声明的变量"><a href="#类中声明的变量" class="headerlink" title="类中声明的变量"></a>类中声明的变量</h4><p>类中声明的变量按照声明的顺序存储。static修饰的类成员变量存储在静态内存中，只有一个实例。</p>
+<h3 id="整型变量和运算符"><a href="#整型变量和运算符" class="headerlink" title="整型变量和运算符"></a>整型变量和运算符</h3><h4 id="整数大小"><a href="#整数大小" class="headerlink" title="整数大小"></a>整数大小</h4><p>建议使用stdint.h中的整数类型，如int8_t定义特定大小的整数类型，可移植性也强。</p>
+<p>但是避免大于寄存器带下的整数，如32位系统中使用64位int。</p>
+<p>size_t在32位系统中是32位，在64位系统中是64位。</p>
+<p>注意检查整数溢出问题</p>
+<h4 id="有符号整数vs无符号整数"><a href="#有符号整数vs无符号整数" class="headerlink" title="有符号整数vs无符号整数"></a>有符号整数vs无符号整数</h4><p>多数情况下，有符号整数和无符号整数在速度上没有区别，但在某些情况下：</p>
+<ul>
+<li><p>除以常数和取模：无符号要快</p>
+</li>
+<li><p>大多数指令集，有符号整数转成浮点数要快</p>
+</li>
+<li><p>两者的溢出行为不同，无符号溢出得到小整数</p>
+</li>
+</ul>
+<p>有符号整数和无符号整数的转化无代价，负整数被阶数为大整数。</p>
+<p>不要比较（如&gt;）有符号整数和无符号整数。</p>
+<h4 id="整数运算符"><a href="#整数运算符" class="headerlink" title="整数运算符"></a>整数运算符</h4><ul>
+<li>简单整数操作，如加减、比较、位操作、移位只要一个时钟周期</li>
+<li>乘法3-4个周期，除法40-80个时钟周期</li>
+</ul>
+<h4 id="自增和自减"><a href="#自增和自减" class="headerlink" title="自增和自减"></a>自增和自减</h4><p>++i和i++是一样快的。</p>
+<p>一些下情况，如x = array[i++]比x = array[++i]快，因为计算数组元素地址不用等待i的新值。</p>
+<p>a = ++b比a=b++快，以为编译器会认为a=b，这样就可以用相同的编译器</p>
+<h3 id="浮点变量和运算符"><a href="#浮点变量和运算符" class="headerlink" title="浮点变量和运算符"></a>浮点变量和运算符</h3><p>x86中有两种不同类型的浮点寄存器</p>
+<h3 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h3><p>enum是一个隐藏的整形，效率跟整数一样</p>
+<h3 id="bool"><a href="#bool" class="headerlink" title="bool"></a>bool</h3><h4 id="布尔操作数的顺序"><a href="#布尔操作数的顺序" class="headerlink" title="布尔操作数的顺序"></a>布尔操作数的顺序</h4><p>如a&amp;&amp;b ,a||b</p>
+<ul>
+<li><p>如果a和b的计算时间相同，分支预测的预测可能性相同，把true多的操作数放到&amp;&amp;最后，||最前</p>
+</li>
+<li><p>计算速度快的操作符放前</p>
+</li>
+<li><p>可预测的操作数放前</p>
+</li>
+</ul>
+<h4 id="布尔变量被过度检查"><a href="#布尔变量被过度检查" class="headerlink" title="布尔变量被过度检查"></a>布尔变量被过度检查</h4><p>bool变量放在8位int中，编译器会检查以bool变量作为运算符输入时是否为0和1，因此布尔变量作为输入可以优化。</p>
+<p>如用char代替bool</p>
+<h4 id="布尔向量操作"><a href="#布尔向量操作" class="headerlink" title="布尔向量操作"></a>布尔向量操作</h4><p>ab都是32位整数，则y=a&amp;b可以在一个时钟周期内完成</p>
+<h3 id="指针和引用"><a href="#指针和引用" class="headerlink" title="指针和引用"></a>指针和引用</h3><h4 id="指针vs引用"><a href="#指针vs引用" class="headerlink" title="指针vs引用"></a>指针vs引用</h4><p>两者效率一样，编译器实现一样，区别在于编程风格</p>
+<p>使用指针的优点：</p>
+<ul>
+<li>指针变量可以被清楚的看到，引用在函数体内跟变量的写法是一样的</li>
+<li>指针的指向位置可以改变</li>
+</ul>
+<p>使用引用的优点：</p>
+<ul>
+<li>语法简单</li>
+<li>更安全，引用一定指向一个有效的地址</li>
+<li>拷贝构造函数和重载运算符中常用</li>
+<li>被声明位const引用的函数参数接受表达式作为参数，而指针和非常量引用需要一个变量</li>
+</ul>
+<h4 id="效率"><a href="#效率" class="headerlink" title="效率"></a>效率</h4><h2 id="编译器中的优化"><a href="#编译器中的优化" class="headerlink" title="编译器中的优化"></a>编译器中的优化</h2><h3 id="编译器如何优化"><a href="#编译器如何优化" class="headerlink" title="编译器如何优化"></a>编译器如何优化</h3><h4 id="函数内联"><a href="#函数内联" class="headerlink" title="函数内联"></a>函数内联</h4><p>编译器可以用被调函数主体替换函数调用，如果函数很小，或者只从较少地方调用这个函数，编译器则可能使用函数内联。</p>
+<ul>
+<li>节约了函数调用返回传参的开销</li>
+<li>代码连续，代码cache效率高</li>
+</ul>
+<h4 id="常量折叠和常数传播"><a href="#常量折叠和常数传播" class="headerlink" title="常量折叠和常数传播"></a>常量折叠和常数传播</h4><p>只包含常量的表达式或子表达的计算结果被替换，常量也可以通过一系列计算进行传播</p>
+<h4 id="消除指针"><a href="#消除指针" class="headerlink" title="消除指针"></a>消除指针</h4><p>指针指向的目标已知，指针或引用可能被消除</p>
+<h4 id="消除公共子表达式"><a href="#消除公共子表达式" class="headerlink" title="消除公共子表达式"></a>消除公共子表达式</h4><p>相同子表达式出现多次，那么编译器可能只计算一次。</p>
+<h4 id="寄存器变量"><a href="#寄存器变量" class="headerlink" title="寄存器变量"></a>寄存器变量</h4><p>编译器把常用的变量作为寄存器变量</p>
+<p>典型的有：临时中间变量、循环计数器、函数参数、指针、引用、this指针、公共子表达式、归纳变量</p>
+<p>有指针指向和引用的变量不能存储在寄存器中，为了利用寄存器变量的优化，应该避免使用对这种变量使用指针或引用。</p>
+<h4 id="活动范围分析"><a href="#活动范围分析" class="headerlink" title="活动范围分析"></a>活动范围分析</h4><p>活动范围：指变量被使用的代码范围。</p>
+<p>对活动范围不重叠的变量，编译器可以优化使用相同的寄存器</p>
+<h4 id="合并相同的分支"><a href="#合并相同的分支" class="headerlink" title="合并相同的分支"></a>合并相同的分支</h4><p>比如两个分支中用了相同的操作，编译器会把相同的操作提到分支外</p>
+<h4 id="消除跳转"><a href="#消除跳转" class="headerlink" title="消除跳转"></a>消除跳转</h4><p>通过复制跳转的代码来避免跳转</p>
+<h4 id="循环展开"><a href="#循环展开" class="headerlink" title="循环展开"></a>循环展开</h4><p>循环展开并不一定就是最优的，因为展开太多代码会占用代码缓存空间</p>
+<h2 id="优化内存访问"><a href="#优化内存访问" class="headerlink" title="优化内存访问"></a>优化内存访问</h2><h3 id="cache结构"><a href="#cache结构" class="headerlink" title="cache结构"></a>cache结构</h3><p>多路组相联形式，cache分为行和组</p>
+<p>(addr/line size) % (set num)得到缓存组</p>
+<p>内存中地址差值为关键步长的变量将争夺相同的缓存线</p>
+<p>critical stride = (total cache size)/(ways num)</p>
+<h3 id="一起使用的函数放在一起"><a href="#一起使用的函数放在一起" class="headerlink" title="一起使用的函数放在一起"></a>一起使用的函数放在一起</h3><p>经常使用的函数和很少使用的函数分开，代码中关键部分中使用的函数集中放在一个源文件中。或者调整模块的连接顺序，调用多的链接在一起（针对静态链接）。</p>
+<h3 id="一起使用的变量放在一起"><a href="#一起使用的变量放在一起" class="headerlink" title="一起使用的变量放在一起"></a>一起使用的变量放在一起</h3><p>从缓存中加载一个变量只需要几个时钟周期，如果cache不命中，就要耗费超过100个时钟周期从ram中加载。</p>
+<p>面向对象编程时将数据存储在一起的有效办法</p>
+<p>在比如以<code>a[0],b[0],a[1],b[1]...</code>访问数组，则可以用结构体数组组织</p>
+<p><code>struct Sab{int a,int b}</code> 然后 用<code>Sab[i]</code>来访问</p>
+<h3 id="数据对齐"><a href="#数据对齐" class="headerlink" title="数据对齐"></a>数据对齐</h3><p>变量存储在可被变量大小整除的内存地址，这样访问效率最高</p>
+<p>对象和数组对其与cache line大小一致，这样可以保证对象或数组的起始位置刚好位于cache line起始位置。</p>
+<h3 id="动态分配内存"><a href="#动态分配内存" class="headerlink" title="动态分配内存"></a>动态分配内存</h3><p>可以用alloc代替new或者malloc</p>
+<p>alloca的优势：</p>
+<ul>
+<li>分配的开销小，cpu有对栈操作的硬件支持。</li>
+<li>栈的先进后出的特性，不会造成内存碎片</li>
+<li>不需要垃圾收集</li>
+<li>跟栈上的其他数据对象连续，cache更高效</li>
+</ul>
+<h3 id="容器类"><a href="#容器类" class="headerlink" title="容器类"></a>容器类</h3><p>STL以通用性和灵活性为准测设计，而在执行速度、内存占用、缓存效率上考虑较低。</p>
+<p>补救措施是使用内存池，参考容器类优化代码</p>
+<h3 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h3><p>string在每次创建和修改字符串时使用new来分配新的内存块，如果程序多次创建修改字符串，这样做是低效的。</p>
+<h2 id="编译优化"><a href="#编译优化" class="headerlink" title="编译优化"></a>编译优化</h2><p>CMAKE配置的编译选项，有很多开关，基本上Release版本会打开以下选项</p>
+<ol>
+<li>Use google tcmalloc代替标准的malloc(开关控制)</li>
+<li>打开编译警告选项，</li>
+</ol>
+<p>-Wall<br>-Wextra<br>-Wlogical-op<br>-Wcast-align<br>-Wdisabled-optimization<br>-Wvector-operation-performance<br>-Wstack-protector<br>-Wno-ignored-qualifiers<br> -Wno-unused-parameter<br>3. 把编译警告当成错误（开关控制， -Werror）<br>4. Enable C++ 20<br>5. -O3 -DNDEBUG<br>6. LTO优化相关选项（开关控制）<br>-flto -fuse-linker-plugin -fdevirtualize-speculatively -Wmaybe-uninitialized<br>7. Fast math<br>-ffast-math<br>8. 其它<br>-pipe -Winvalid-pch -pthread<br>-Wl,–disable-new-dtags<br>9. native或AVX之类的开关<br>一般情况下，因为编译机器和生产机器有差异，一般情况下未打开</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>容器类优化：<a target="_blank" rel="noopener" href="https://www.agner.org/optimize/cppexamples.zip">https://www.agner.org/optimize/cppexamples.zip</a></p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/10/08/ptmalloc%E5%88%86%E6%9E%90/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">ptmalloc分析</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/09/15/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/">
+                <span class="level-item">分布式系统</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#不同C-结构的效率">
+        <span class="has-mr-6">1</span>
+        <span>不同C++ 结构的效率</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#不同变量类型的存储">
+        <span class="has-mr-6">1.1</span>
+        <span>不同变量类型的存储</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#栈存储">
+        <span class="has-mr-6">1.1.1</span>
+        <span>栈存储</span>
+        </a></li><li>
+        <a class="is-flex" href="#全局或静态存储">
+        <span class="has-mr-6">1.1.2</span>
+        <span>全局或静态存储</span>
+        </a></li><li>
+        <a class="is-flex" href="#寄存器存储">
+        <span class="has-mr-6">1.1.3</span>
+        <span>寄存器存储</span>
+        </a></li><li>
+        <a class="is-flex" href="#易变变量（volatile）">
+        <span class="has-mr-6">1.1.4</span>
+        <span>易变变量（volatile）</span>
+        </a></li><li>
+        <a class="is-flex" href="#线程本地存储（TLS）">
+        <span class="has-mr-6">1.1.5</span>
+        <span>线程本地存储（TLS）</span>
+        </a></li><li>
+        <a class="is-flex" href="#Far">
+        <span class="has-mr-6">1.1.6</span>
+        <span>Far</span>
+        </a></li><li>
+        <a class="is-flex" href="#动态内存分配">
+        <span class="has-mr-6">1.1.7</span>
+        <span>动态内存分配</span>
+        </a></li><li>
+        <a class="is-flex" href="#类中声明的变量">
+        <span class="has-mr-6">1.1.8</span>
+        <span>类中声明的变量</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#整型变量和运算符">
+        <span class="has-mr-6">1.2</span>
+        <span>整型变量和运算符</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#整数大小">
+        <span class="has-mr-6">1.2.1</span>
+        <span>整数大小</span>
+        </a></li><li>
+        <a class="is-flex" href="#有符号整数vs无符号整数">
+        <span class="has-mr-6">1.2.2</span>
+        <span>有符号整数vs无符号整数</span>
+        </a></li><li>
+        <a class="is-flex" href="#整数运算符">
+        <span class="has-mr-6">1.2.3</span>
+        <span>整数运算符</span>
+        </a></li><li>
+        <a class="is-flex" href="#自增和自减">
+        <span class="has-mr-6">1.2.4</span>
+        <span>自增和自减</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#浮点变量和运算符">
+        <span class="has-mr-6">1.3</span>
+        <span>浮点变量和运算符</span>
+        </a></li><li>
+        <a class="is-flex" href="#枚举">
+        <span class="has-mr-6">1.4</span>
+        <span>枚举</span>
+        </a></li><li>
+        <a class="is-flex" href="#bool">
+        <span class="has-mr-6">1.5</span>
+        <span>bool</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#布尔操作数的顺序">
+        <span class="has-mr-6">1.5.1</span>
+        <span>布尔操作数的顺序</span>
+        </a></li><li>
+        <a class="is-flex" href="#布尔变量被过度检查">
+        <span class="has-mr-6">1.5.2</span>
+        <span>布尔变量被过度检查</span>
+        </a></li><li>
+        <a class="is-flex" href="#布尔向量操作">
+        <span class="has-mr-6">1.5.3</span>
+        <span>布尔向量操作</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#指针和引用">
+        <span class="has-mr-6">1.6</span>
+        <span>指针和引用</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#指针vs引用">
+        <span class="has-mr-6">1.6.1</span>
+        <span>指针vs引用</span>
+        </a></li><li>
+        <a class="is-flex" href="#效率">
+        <span class="has-mr-6">1.6.2</span>
+        <span>效率</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#编译器中的优化">
+        <span class="has-mr-6">2</span>
+        <span>编译器中的优化</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#编译器如何优化">
+        <span class="has-mr-6">2.1</span>
+        <span>编译器如何优化</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#函数内联">
+        <span class="has-mr-6">2.1.1</span>
+        <span>函数内联</span>
+        </a></li><li>
+        <a class="is-flex" href="#常量折叠和常数传播">
+        <span class="has-mr-6">2.1.2</span>
+        <span>常量折叠和常数传播</span>
+        </a></li><li>
+        <a class="is-flex" href="#消除指针">
+        <span class="has-mr-6">2.1.3</span>
+        <span>消除指针</span>
+        </a></li><li>
+        <a class="is-flex" href="#消除公共子表达式">
+        <span class="has-mr-6">2.1.4</span>
+        <span>消除公共子表达式</span>
+        </a></li><li>
+        <a class="is-flex" href="#寄存器变量">
+        <span class="has-mr-6">2.1.5</span>
+        <span>寄存器变量</span>
+        </a></li><li>
+        <a class="is-flex" href="#活动范围分析">
+        <span class="has-mr-6">2.1.6</span>
+        <span>活动范围分析</span>
+        </a></li><li>
+        <a class="is-flex" href="#合并相同的分支">
+        <span class="has-mr-6">2.1.7</span>
+        <span>合并相同的分支</span>
+        </a></li><li>
+        <a class="is-flex" href="#消除跳转">
+        <span class="has-mr-6">2.1.8</span>
+        <span>消除跳转</span>
+        </a></li><li>
+        <a class="is-flex" href="#循环展开">
+        <span class="has-mr-6">2.1.9</span>
+        <span>循环展开</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#优化内存访问">
+        <span class="has-mr-6">3</span>
+        <span>优化内存访问</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#cache结构">
+        <span class="has-mr-6">3.1</span>
+        <span>cache结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#一起使用的函数放在一起">
+        <span class="has-mr-6">3.2</span>
+        <span>一起使用的函数放在一起</span>
+        </a></li><li>
+        <a class="is-flex" href="#一起使用的变量放在一起">
+        <span class="has-mr-6">3.3</span>
+        <span>一起使用的变量放在一起</span>
+        </a></li><li>
+        <a class="is-flex" href="#数据对齐">
+        <span class="has-mr-6">3.4</span>
+        <span>数据对齐</span>
+        </a></li><li>
+        <a class="is-flex" href="#动态分配内存">
+        <span class="has-mr-6">3.5</span>
+        <span>动态分配内存</span>
+        </a></li><li>
+        <a class="is-flex" href="#容器类">
+        <span class="has-mr-6">3.6</span>
+        <span>容器类</span>
+        </a></li><li>
+        <a class="is-flex" href="#字符串">
+        <span class="has-mr-6">3.7</span>
+        <span>字符串</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#编译优化">
+        <span class="has-mr-6">4</span>
+        <span>编译优化</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考资料">
+        <span class="has-mr-6">5</span>
+        <span>参考资料</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="cpp优化" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>B+树 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="b+树">
+<meta property="og:type" content="article">
+<meta property="og:title" content="B+树">
+<meta property="og:url" content="http://yoursite.com/2020/12/09/B-%E6%A0%91/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="b+树">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-12-09T05:01:28.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:48.959Z">
+<meta property="article:author" content="JUSTME">
+<meta property="article:tag" content="数据结构">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="B+树" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-12-09T05:01:28.000Z">2020-12-09</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    11 分钟 读完 (大约 1722 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                B+树
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>b+树</p>
+<span id="more"></span>
+
+<h2 id="B-树简介"><a href="#B-树简介" class="headerlink" title="B+树简介"></a>B+树简介</h2><p>结构如图：</p>
+<p><img src="/2020/12/09/B-%E6%A0%91/image-20201217142824820.png" alt="image-20201217142824820"></p>
+<p>分为两种类型的节点：内部节点和叶子节点</p>
+<p>内部节点中包含key和指向孩子节点的指针，指针数 = key个数+1</p>
+<p>叶子节点中包含key和指向数据的指针，指针数 = key个数</p>
+<p>节点中的key是有序存放的</p>
+<p>根节点至少有一个key，指向两个孩子节点</p>
+<p>其他节点至少半满，阶数就是最大孩子节点的个数，key_num&gt;=ceil((order-1)/2)</p>
+<p>相邻叶子节点间有指针连接，便于区间查询</p>
+<p>B+树是向上生长的，就是插入节点后，之后叶子节点拆分后，才开始向上拆分节点，直到根。</p>
+<h3 id="插入"><a href="#插入" class="headerlink" title="插入"></a>插入</h3><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">找到要插入的节点</span><br><span class="line">如果节点未满，加入记录（利用插入排序或者二分保证有序）</span><br><span class="line">否则，分裂节点</span><br><span class="line">	分配新节点的空间，把原来节点的一半移动到新节点<span class="hljs-comment">//此时当前节点还是叶子节点</span></span><br><span class="line">	更新父亲节点，把新节点的最小值（或最大值）和地址插入到父亲节点</span><br><span class="line">	如果父亲节点满，分裂父亲节点，第m/<span class="hljs-number">2</span>个key加入到父亲节点的父亲节点，并更新孩子指针。重复该步，直到key个数不满或者分裂到根，树高+<span class="hljs-number">1</span>。</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h3><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">//有相应的key的情况</span></span><br><span class="line">找到要删除的节点</span><br><span class="line">删除key后，key个数大于等于 <span class="hljs-built_in">ceil</span>((m<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>)，删除结束</span><br><span class="line">如果兄弟节点key大于 <span class="hljs-built_in">ceil</span>(m<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>，借用兄弟节点的key，更新父亲节点</span><br><span class="line">如果兄弟节点没有多余的key，则合并成一个新的节点，并删除父亲节点中的key</span><br><span class="line">检查内部节点key个数是否大于等于 <span class="hljs-built_in">ceil</span>((m<span class="hljs-number">-1</span>)/<span class="hljs-number">2</span>),根据兄弟节点是否有剩余合并或者借key</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="序列化反序列化"><a href="#序列化反序列化" class="headerlink" title="序列化反序列化"></a>序列化反序列化</h2><p>内存中的B+树如何保存到磁盘，指针维护的父子节点关系如何转化？</p>
+<p>用文件偏移量代替指针。数据库实现中，B+树存储在一个文件中，访问孩子节点也是通过文件偏移量实现。</p>
+<h3 id="序列化实现"><a href="#序列化实现" class="headerlink" title="序列化实现"></a>序列化实现</h3><p>序列化节点，写入前，先保存当前文件偏移量，这是的偏移量就是这个节点的偏移量，用做返回值。</p>
+<p>然后正常写入节点的信息如键值数，键值。</p>
+<p>如果当前节点有孩子节点，空出一块区域，大小根据孩子个数计算。这块区域等序列化孩子节点完成后，用孩子节点的偏移量填充。回去填充前需要记录当前偏移量，填充完成后再恢复回去，这样文件才能接着往下写。</p>
+<p>该过程就是深搜的过程，往下搜的时候写node本身的数据，偏移量先空出来，递归返回后把偏移量填上。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-title">BPTree::serializeNode</span><span class="hljs-params">(Node * cur_node,<span class="hljs-type">int</span> fd)</span></span>{</span><br><span class="line">    <span class="hljs-type">long</span> cur_offset = <span class="hljs-built_in">lseek</span>(fd, <span class="hljs-number">0</span>, SEEK_CUR);</span><br><span class="line">    <span class="hljs-built_in">write</span>(fd,(<span class="hljs-type">char</span>*)&amp;cur_node-&gt;key_num,<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));</span><br><span class="line">    <span class="hljs-built_in">write</span>(fd,(<span class="hljs-type">char</span>*)&amp;cur_node-&gt;is_leaf,<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">bool</span>));</span><br><span class="line">    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i&lt;cur_node-&gt;key_num;i++){</span><br><span class="line">        <span class="hljs-built_in">write</span>(fd,&amp;cur_node-&gt;key[i],<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">if</span>(cur_node-&gt;child_node[<span class="hljs-number">0</span>]!=<span class="hljs-literal">NULL</span>){</span><br><span class="line">        <span class="hljs-type">long</span> offset_record_start = <span class="hljs-built_in">lseek</span>(fd, <span class="hljs-number">0</span>, SEEK_CUR);</span><br><span class="line">        <span class="hljs-built_in">lseek</span>(fd,(cur_node-&gt;key_num+<span class="hljs-number">1</span>)*<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">long</span>),SEEK_CUR);</span><br><span class="line">        std::vector&lt;<span class="hljs-type">long</span>&gt;<span class="hljs-built_in">child_offset</span>(cur_node-&gt;key_num+<span class="hljs-number">1</span>);</span><br><span class="line">        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i&lt;=cur_node-&gt;key_num;i++){</span><br><span class="line">            child_offset[i] = <span class="hljs-built_in">serializeNode</span>(cur_node-&gt;child_node[i],fd);</span><br><span class="line">        }</span><br><span class="line">        <span class="hljs-type">long</span> recover_point = <span class="hljs-built_in">lseek</span>(fd, <span class="hljs-number">0</span>, SEEK_CUR);</span><br><span class="line">        <span class="hljs-built_in">lseek</span>(fd,offset_record_start,SEEK_SET);</span><br><span class="line">        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i&lt;=cur_node-&gt;key_num;i++){</span><br><span class="line">            <span class="hljs-built_in">write</span>(fd,(<span class="hljs-type">char</span>*)&amp;child_offset[i],<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">long</span>));</span><br><span class="line">        }</span><br><span class="line">        <span class="hljs-built_in">lseek</span>(fd,recover_point,SEEK_SET);</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">return</span> cur_offset;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h3><p>反序列化就是根据序列化时的文件格式，找到孩子节点在文件中存储的位置，实例化到内存。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">Node *<span class="hljs-title">BPTree::deserializeNode</span><span class="hljs-params">(<span class="hljs-type">int</span> fd,Node *parent_Node)</span></span>{</span><br><span class="line">    <span class="hljs-type">int</span> key_num;</span><br><span class="line">    <span class="hljs-type">bool</span> is_leaf;</span><br><span class="line">    <span class="hljs-built_in">read</span>(fd,&amp;key_num,<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));</span><br><span class="line">    <span class="hljs-built_in">read</span>(fd,&amp;is_leaf,<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">bool</span>));</span><br><span class="line">    Node *node = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>();</span><br><span class="line">    node-&gt;key_num = key_num;</span><br><span class="line">    node-&gt;is_leaf = is_leaf;</span><br><span class="line">    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i&lt;key_num;i++){</span><br><span class="line">        <span class="hljs-built_in">read</span>(fd,&amp;node-&gt;key[i],<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>));</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">if</span>(!is_leaf){</span><br><span class="line">        <span class="hljs-type">long</span> offset;</span><br><span class="line">        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i&lt;=key_num;i++){</span><br><span class="line">            <span class="hljs-type">long</span> childOffset;</span><br><span class="line">            <span class="hljs-built_in">read</span>(fd,&amp;childOffset,<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">long</span>));</span><br><span class="line">            <span class="hljs-type">long</span> cur_offset = <span class="hljs-built_in">lseek</span>(fd, <span class="hljs-number">0</span>, SEEK_CUR);</span><br><span class="line">            <span class="hljs-built_in">lseek</span>(fd,childOffset,SEEK_SET);</span><br><span class="line">            node-&gt;child_node[i] = <span class="hljs-built_in">deserializeNode</span>(fd,node);</span><br><span class="line">            <span class="hljs-built_in">lseek</span>(fd,cur_offset,SEEK_SET);<span class="hljs-comment">//为了读下个child_offset</span></span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">return</span> node;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h2 id="B-树并发控制机制"><a href="#B-树并发控制机制" class="headerlink" title="B+树并发控制机制"></a>B+树并发控制机制</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/50112182">https://zhuanlan.zhihu.com/p/50112182</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhenghe.gitbook.io/open-courses/cmu-15-445-645-database-systems/relational-data-model">https://zhenghe.gitbook.io/open-courses/cmu-15-445-645-database-systems/relational-data-model</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html">https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html</a></p>
+<p>Redis是一个单线程引擎</p>
+<p>VoltDB是多线程引擎</p>
+<p>并发协议，强制所有访问数据结构的线程使用这种协议,关注逻辑正确和物理正确</p>
+<h3 id="lock和latches"><a href="#lock和latches" class="headerlink" title="lock和latches"></a>lock和latches</h3><p>lock是高级层面的概念，保护了数据库中的逻辑内容（tuple,table）</p>
+<p>latch是低级层面的概念，关心的是保护数据结构或对象的物理完整性，保护数据库中的关键部分，保护内部数据结构免受其他线程同一时刻读写所带来的问题。 </p>
+<p><img src="/2020/12/09/B-%E6%A0%91/image-20201209144318022.png" alt="image-20201209144318022"></p>
+<p><img src="/2020/12/09/B-%E6%A0%91/image-20201209144621362.png" alt="image-20201209144621362"></p>
+<p>latch只有两种模式，读、写</p>
+<p>读模式允许多条线程在同一时间读取同一个对象。</p>
+<p>写模式是独占的，只有一个进程能操作对象。</p>
+<p>实现方式：</p>
+<ul>
+<li><pre><code>std:mutex m;
+m.lock();
+m.unlock();</code></pre><ul>
+<li>linux是用futex实现的，futex指fast userspace mutex,是在userspace也就是进程的地址空间里占用一点内存地址，通过这个内存来尝试进行一次cas操作，来获取这个latch,如果没有获取到，就会退一步使用速度更慢的mutex。(mutex是OS层面的)</li>
+<li>自旋锁 spin latch,这种做法很快，因为现代CPU里，有一条指令，这条指令可以在一个内存地址上进行CAS操作，c++ 中有std::atomic<t>可以实现，也有atomic_flag 实际就是atomic<bool>。</bool></t></li>
+</ul>
+</li>
+</ul>
+<h3 id="b-树的并发协议"><a href="#b-树的并发协议" class="headerlink" title="b+树的并发协议"></a>b+树的并发协议</h3><p>两个问题：</p>
+<ul>
+<li>多个进程试图修改一个节点的内容</li>
+<li>一个进程在遍历树，而另一个进程在分割或合并节点。</li>
+</ul>
+<p>basic idea:</p>
+<ul>
+<li><p>给parent加latch</p>
+</li>
+<li><p>给child加latch</p>
+</li>
+<li><p>如果parent是安全的，则释放latch</p>
+</li>
+</ul>
+<p>安全节点：在更新的时候不会分裂或者合并</p>
+<ul>
+<li>插入的时候不满</li>
+<li>删除的时候大于half-full</li>
+</ul>
+<p><img src="/2020/12/09/B-%E6%A0%91/image-20201209163103298.png" alt="image-20201209163103298"></p>
+<h4 id="a-better-latching-algorithm"><a href="#a-better-latching-algorithm" class="headerlink" title="a better latching algorithm"></a>a better latching algorithm</h4><ul>
+<li>Insert/Delete:<ul>
+<li>使用与 Search 相同的方式在查询路径上获取、释放read  latch，在 leaf node 上获取 write latch</li>
+<li>如果 leaf node 不安全，可能会引起其它节点的变动，则使用 Latch Crabbing 的策略再执行一遍</li>
+</ul>
+</li>
+</ul>
+<p>该方法乐观地假设整个操作只会引起 leaf node 的变化，若假设错误，则使用 Latch Crabbing 的原始方案。</p>
+<h4 id="Horizontal-Scan"><a href="#Horizontal-Scan" class="headerlink" title="Horizontal Scan"></a>Horizontal Scan</h4><p>之后再看</p>
+</body></html>
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/12/16/%E7%BA%A2%E9%BB%91%E6%A0%91/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">红黑树</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/11/17/UNIX%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5/">
+                <span class="level-item">UNIX操作系统设计-存储管理策略</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#B-树简介">
+        <span class="has-mr-6">1</span>
+        <span>B+树简介</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#插入">
+        <span class="has-mr-6">1.1</span>
+        <span>插入</span>
+        </a></li><li>
+        <a class="is-flex" href="#删除">
+        <span class="has-mr-6">1.2</span>
+        <span>删除</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#序列化反序列化">
+        <span class="has-mr-6">2</span>
+        <span>序列化反序列化</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#序列化实现">
+        <span class="has-mr-6">2.1</span>
+        <span>序列化实现</span>
+        </a></li><li>
+        <a class="is-flex" href="#反序列化">
+        <span class="has-mr-6">2.2</span>
+        <span>反序列化</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#B-树并发控制机制">
+        <span class="has-mr-6">3</span>
+        <span>B+树并发控制机制</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#lock和latches">
+        <span class="has-mr-6">3.1</span>
+        <span>lock和latches</span>
+        </a></li><li>
+        <a class="is-flex" href="#b-树的并发协议">
+        <span class="has-mr-6">3.2</span>
+        <span>b+树的并发协议</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#a-better-latching-algorithm">
+        <span class="has-mr-6">3.2.1</span>
+        <span>a better latching algorithm</span>
+        </a></li><li>
+        <a class="is-flex" href="#Horizontal-Scan">
+        <span class="has-mr-6">3.2.2</span>
+        <span>Horizontal Scan</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="B+树" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

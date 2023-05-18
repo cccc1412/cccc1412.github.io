@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>UNIX环境高级编程-第三章文件IO - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="本章讨论的是不带缓存的IO。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UNIX环境高级编程-第三章文件IO">
+<meta property="og:url" content="http://yoursite.com/2021/01/21/UNIX%E7%8E%AF%E5%A2%83%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B-%E7%AC%AC%E4%B8%89%E7%AB%A0%E6%96%87%E4%BB%B6IO/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="本章讨论的是不带缓存的IO。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2021-01-21T04:25:41.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.183Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="UNIX环境高级编程-第三章文件IO" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2021-01-21T04:25:41.000Z">2021-01-21</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    11 分钟 读完 (大约 1631 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                UNIX环境高级编程-第三章文件IO
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p>本章讨论的是不带缓存的IO。</p>
+<span id="more"></span>
+
+<h2 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h2><p>对于内核，打开的文件都由文件描述符引用。</p>
+<p>按照惯例，文件描述符0对应标准输入，文件描述符1对应标准输出，文件描述符2对应标准错误。这是UNIX shell 和很对应用程序的惯例。</p>
+<p>文件描述符数量有上限范围，在其UNIX上限是19，能打开20个，现在很多系统增加到了63，有的没限制。</p>
+<h2 id="open函数"><a href="#open函数" class="headerlink" title="open函数"></a>open函数</h2><p>O_APPEND选项，文件表中的偏移量被设置成索引节点表中的文件长度。</p>
+<p>open返回的文件描述符一定是<strong>最小的未使用的</strong>数字。可以用这个特性在标准输入、标准输出或者标准错误上打开一个新的文件。如先关闭标准输出，然后打开一个文件，这个文件一定会在描述符1上打开。</p>
+<p><code>dup2</code>函数可以正好的保证在给定的描述符上打开一个文件。</p>
+<h2 id="creat函数"><a href="#creat函数" class="headerlink" title="creat函数"></a>creat函数</h2><p>创建新文件</p>
+<h2 id="close函数"><a href="#close函数" class="headerlink" title="close函数"></a>close函数</h2><p>关闭一个打开文件</p>
+<p>关闭一个文件也释放该进程加在这个文件上的所有记录锁。</p>
+<p>进程终止时，内核会自动关闭他打开的文件。</p>
+<h2 id="lseek函数"><a href="#lseek函数" class="headerlink" title="lseek函数"></a>lseek函数</h2><p>设置文件偏移量。只修改文件表项中的文件偏移量，没有进行任何I/O操作。</p>
+<p>读写操作都是从文件偏移量开始的，打开一个文件，除非指定<code>O_APPEND</code>，否则偏移量都被设置为0。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">off_t</span> <span class="hljs-title">lseek</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">off_t</span> offset, <span class="hljs-type">int</span> whence)</span> </span>;</span><br></pre></td></tr></tbody></table></figure>
+
+<p>对于offset相对哪里偏移，通过whence设置，whence可以设置为SEEK_SET,SEEK_CUR,SEEK_END,分别对应文件开始处，当前位置，文件结尾。</p>
+<p>返回值可以用来判断文件是否可以设置偏移量，如果文件描述符引用的是以管道或FIFO，lseek返回-1，errno设置为EPIPE。</p>
+<p>文件偏移量可以大于当前文件长度，形成空洞。</p>
+<h2 id="read函数"><a href="#read函数" class="headerlink" title="read函数"></a>read函数</h2><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">ssize_t</span> <span class="hljs-title">read</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">void</span> *buffer, size_tn bytes)</span></span>;</span><br><span class="line"><span class="hljs-comment">//返回：读到的字节数，若已到文件尾为0，若出错为- 1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>实际读到的字节数少于要求的字节数：</p>
+<ul>
+<li>到达了文件尾还没读够</li>
+<li>从终端设备读，一次之只能读一行</li>
+<li>从网络读，网络缓冲机构原因</li>
+<li>读面向记录的设备，如磁带，一次返回一个记录</li>
+</ul>
+<h2 id="write函数"><a href="#write函数" class="headerlink" title="write函数"></a>write函数</h2><figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">ssize_t</span> <span class="hljs-title">write</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">const</span> <span class="hljs-type">void</span> *buff, <span class="hljs-type">size_t</span> nbytes)</span> </span>;</span><br><span class="line"><span class="hljs-comment">//返回：若成功为已写的字节数，若出错为- 1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>写出错常见原因：磁盘满，超过了一个给定进程的文件长度限制。</p>
+<h2 id="I-O效率"><a href="#I-O效率" class="headerlink" title="I/O效率"></a>I/O效率</h2><h2 id="文件共享"><a href="#文件共享" class="headerlink" title="文件共享"></a>文件共享</h2><p>UNIX支持不同的进程共享打开的文件。</p>
+<p><img src="/2021/01/21/UNIX%E7%8E%AF%E5%A2%83%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B-%E7%AC%AC%E4%B8%89%E7%AB%A0%E6%96%87%E4%BB%B6IO/D:%5Ccode%5CmyBlog%5CBlog%5Csource_posts%5CUNIX%E7%8E%AF%E5%A2%83%E9%AB%98%E7%BA%A7%E7%BC%96%E7%A8%8B-%E7%AC%AC%E4%B8%89%E7%AB%A0%E6%96%87%E4%BB%B6IO%5Cimage-20210121161901854.png" alt="image-20210121161901854"></p>
+<p>每个进程都有自己文件表项：使得每个进程对自己的文件有一个偏移量。</p>
+<p>多个进程读同一个文件都能正确的工作，因为有自己的文件表项，其中有自己的文件偏移量，但是多个进程在写一个文件时，就可能发生问题，所以下面介绍原子操作。</p>
+<h2 id="原子操作"><a href="#原子操作" class="headerlink" title="原子操作"></a>原子操作</h2><p>下面是要实现原子操作的两个例子。</p>
+<h3 id="写数据到文件尾部"><a href="#写数据到文件尾部" class="headerlink" title="写数据到文件尾部"></a>写数据到文件尾部</h3><p>在早期没有O_APPEND的时候，假设两个进程AB都对同一个文件的尾部进行写入，先调用lseek到文件尾部，然后write，这时候第二个写操作可能会覆盖第一个写操作，从而出现问题。</p>
+<p>这种逻辑的问题在于先定位，后写使用了两个分开的函数调用，解决办法是使这两个操作对于其他进程而言成为一个原子操作。也就有了O_APPEND,内核每次对这种文件写之前，都将进程的对该文件的偏移量设置到文件的尾端。</p>
+<h3 id="创建文件"><a href="#创建文件" class="headerlink" title="创建文件"></a>创建文件</h3><p>考虑open函数的O_CREAT和O_EXCL选项。</p>
+<p>O_EXCL选项配合O_CREAT选项使用，若文件存在，则出错。若文件不存在，则创建文件成为一个原子操作。</p>
+<p>情形是要打开一个文件，若不存在则创建，如果打开和创建之间，另一个进程创建了文件，而且写入了数据，则本进程再创建，刚写上的数据就会被擦除。因此要合并在一个原子操作。</p>
+<h2 id="dup和dup2函数"><a href="#dup和dup2函数" class="headerlink" title="dup和dup2函数"></a>dup和dup2函数</h2><p>复制以一个现存的文件描述符。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dup</span><span class="hljs-params">(<span class="hljs-type">int</span> fd)</span> </span>;<span class="hljs-comment">//返回的是可用文件描述符的最小值</span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dup2</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">int</span> fd2)</span> </span>;<span class="hljs-comment">//通过fd2指定新的描述符的值。</span></span><br><span class="line"><span class="hljs-comment">//两函数的返回：若成功为新的文件描述符，若出错为- 1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>dup2中，如果fd2已经打开，则先关闭。fd可以和fd2相等。</p>
+<p>返回的新文件描述符与参数fd共享同一个文件表项（进程表—文件表—索引节点表），fd存在进程表项中，指向的是同一个文件表项，所以共享一个文件的状态标志和偏移量。</p>
+<h2 id="fcntl函数"><a href="#fcntl函数" class="headerlink" title="fcntl函数"></a>fcntl函数</h2><p>改变已经打开文件的性质。</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">fcntl</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">int</span> cmd, <span class="hljs-type">int</span> arg)</span> </span>;</span><br><span class="line">返回：若成功则依赖于<span class="hljs-function">c m <span class="hljs-title">d</span><span class="hljs-params">(见下)</span>，若出错为- 1</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>通过cmd设置五种功能：</p>
+<ul>
+<li>复制一个现存的描述符（cmd＝F_DUPFD）。新的文件描述符取可用的大于等于第三个参数的最小值</li>
+<li>获得/设置文件描述符标记（cmd = F_GETFD或F_SETFD）。</li>
+<li>获得/设置文件状态标志（cmd = F_GETFL或F_SETFL）。</li>
+<li>获得/设置异步I / O有权（cmd = F_GETOWN或F_SETOWN）。</li>
+<li>获得/设置记录锁（cmd = F_GETLK , F_SETLK或F_SETLKW）</li>
+</ul>
+<h2 id="oictl函数"><a href="#oictl函数" class="headerlink" title="oictl函数"></a>oictl函数</h2><p>用于终端IO、磁带IO、套接字IO</p>
+<h2 id="dev-fd"><a href="#dev-fd" class="headerlink" title="/dev/fd"></a>/dev/fd</h2><p>目录里是名为0、1、2等的文件，打开文件/dev/fd/n等效于复制描述符n。</p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2021/01/22/The-google-file-system/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">The google file system</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2021/01/11/Linux%E4%B8%8B%E7%9A%84epoll%E5%92%8CI-O%E5%A4%8D%E7%94%A8/">
+                <span class="level-item">Linux下的epoll和I/O复用</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#文件描述符">
+        <span class="has-mr-6">1</span>
+        <span>文件描述符</span>
+        </a></li><li>
+        <a class="is-flex" href="#open函数">
+        <span class="has-mr-6">2</span>
+        <span>open函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#creat函数">
+        <span class="has-mr-6">3</span>
+        <span>creat函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#close函数">
+        <span class="has-mr-6">4</span>
+        <span>close函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#lseek函数">
+        <span class="has-mr-6">5</span>
+        <span>lseek函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#read函数">
+        <span class="has-mr-6">6</span>
+        <span>read函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#write函数">
+        <span class="has-mr-6">7</span>
+        <span>write函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#I-O效率">
+        <span class="has-mr-6">8</span>
+        <span>I/O效率</span>
+        </a></li><li>
+        <a class="is-flex" href="#文件共享">
+        <span class="has-mr-6">9</span>
+        <span>文件共享</span>
+        </a></li><li>
+        <a class="is-flex" href="#原子操作">
+        <span class="has-mr-6">10</span>
+        <span>原子操作</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#写数据到文件尾部">
+        <span class="has-mr-6">10.1</span>
+        <span>写数据到文件尾部</span>
+        </a></li><li>
+        <a class="is-flex" href="#创建文件">
+        <span class="has-mr-6">10.2</span>
+        <span>创建文件</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#dup和dup2函数">
+        <span class="has-mr-6">11</span>
+        <span>dup和dup2函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#fcntl函数">
+        <span class="has-mr-6">12</span>
+        <span>fcntl函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#oictl函数">
+        <span class="has-mr-6">13</span>
+        <span>oictl函数</span>
+        </a></li><li>
+        <a class="is-flex" href="#dev-fd">
+        <span class="has-mr-6">14</span>
+        <span>/dev/fd</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="UNIX环境高级编程-第三章文件IO" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

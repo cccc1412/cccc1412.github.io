@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>内核开发 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="基本特点Linux是单内核的（也叫宏内核），较少了消息传递的开销（函数调用形式），性能会更好，但是可扩展性就会比较差。为了改善单内核的可维护性，Linux提出了内核模块机制，用户可以在不对内核重新编译的情况下，动态向内核装入和移除模块。 微内核和宏内核的根本区别是，微内核是进程间通信，宏内核走函数调用。 模块的本质是一种目标对象文件，不能独立运行，但是其代码可以在运行时连接到系统中作为内核的一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内核开发">
+<meta property="og:url" content="http://yoursite.com/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="基本特点Linux是单内核的（也叫宏内核），较少了消息传递的开销（函数调用形式），性能会更好，但是可扩展性就会比较差。为了改善单内核的可维护性，Linux提出了内核模块机制，用户可以在不对内核重新编译的情况下，动态向内核装入和移除模块。 微内核和宏内核的根本区别是，微内核是进程间通信，宏内核走函数调用。 模块的本质是一种目标对象文件，不能独立运行，但是其代码可以在运行时连接到系统中作为内核的一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2022-03-01T07:44:57.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.311Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="内核开发" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2022-03-01T07:44:57.000Z">2022-03-01</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    29 分钟 读完 (大约 4424 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                内核开发
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><span id="more"></span>
+
+<h2 id="基本特点"><a href="#基本特点" class="headerlink" title="基本特点"></a>基本特点</h2><p>Linux是单内核的（也叫宏内核），较少了消息传递的开销（函数调用形式），性能会更好，但是可扩展性就会比较差。为了改善单内核的可维护性，Linux提出了内核模块机制，用户可以在不对内核重新编译的情况下，动态向内核装入和移除模块。</p>
+<p>微内核和宏内核的根本区别是，微内核是进程间通信，宏内核走函数调用。</p>
+<p>模块的本质是一种目标对象文件，不能独立运行，但是其代码可以在运行时连接到系统中作为内核的一部分运行，从而动态扩展内核的功能。</p>
+<p>对比应用程序和内核模块</p>
+<table>
+<thead>
+<tr>
+<th>C语言应用程序</th>
+<th>内核模块程序</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>使用函数</td>
+<td>Libc库</td>
+<td>内核函数</td>
+</tr>
+<tr>
+<td>运行空间</td>
+<td>用户空间</td>
+<td>内核空间</td>
+</tr>
+<tr>
+<td>运行权限</td>
+<td>普通用户</td>
+<td>超级用户</td>
+</tr>
+<tr>
+<td>入口函数</td>
+<td>main()</td>
+<td>module_init()</td>
+</tr>
+<tr>
+<td>出口函数</td>
+<td>exit()</td>
+<td>module_exit()</td>
+</tr>
+<tr>
+<td>编译</td>
+<td>Gcc –c</td>
+<td>Makefile</td>
+</tr>
+<tr>
+<td>连接</td>
+<td>Gcc</td>
+<td>insmod</td>
+</tr>
+<tr>
+<td>运行</td>
+<td>直接运行</td>
+<td>insmod</td>
+</tr>
+<tr>
+<td>调试</td>
+<td>Gdb</td>
+<td>kdbug, kdb,kgdb等</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>内核开发中没有libc，标准头文件。考虑大小，内核页禁止患处，常驻内存，不能太大。</p>
+</li>
+<li><p>应使用GNU C，不完全符合ANSI C标准</p>
+</li>
+<li><p>关注的语法特性</p>
+<ul>
+<li>inline c99标准引用</li>
+<li>内联汇编：asm volatile(……)</li>
+<li>分支优化预测，likely、unlikely给编译器提示，这是kernel代码中定义的宏，c++20才作为关键字</li>
+</ul>
+</li>
+<li><p>没有内存保护机制</p>
+</li>
+<li><p>不要轻易在内核中使用浮点数</p>
+<ul>
+<li>内核态进程使用浮点操作时，内核会完成从整数模式到浮点操作模式转换<ul>
+<li>通常时通过捕获陷阱进行转换</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>内核本身不能陷入，需要人工保存、恢复浮点寄存器。</p>
+</li>
+<li><p>函数调用栈很小，所以别用局部大数组</p>
+<ul>
+<li><p>默认情况下，64位栈大小为8kb</p>
+</li>
+<li><p>不要使用局部数组、不要使用递归调用</p>
+<ul>
+<li><p>非要递归，写尾递归</p>
+</li>
+<li><p>尾递归</p>
+</li>
+<li><pre><code class="c">f(<span class="keyword">int</span> n) {
+    <span class="keyword">if</span>(n==<span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">return</span> n*f(n<span class="number">-1</span>);
+}
+
+改写
+f(<span class="keyword">int</span> res, <span class="keyword">int</span> n) {
+    <span class="keyword">if</span>(n==<span class="number">0</span>) <span class="keyword">return</span> res;
+    <span class="keyword">return</span> f(res*n,n<span class="number">-1</span>);
+}<span class="comment">//编译器会自动展开成循环</span>
+&lt;!--code￼<span class="number">0</span>--&gt;
+
+
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disass func1</span><br><span class="line">Dump of assembler code for function func1:</span><br><span class="line">   0x00000000000001e5 &lt;+0&gt;:	callq  0x1ea &lt;func1+5&gt;</span><br><span class="line">   0x00000000000001ea &lt;+5&gt;:	push   %rbp</span><br><span class="line">   0x00000000000001eb &lt;+6&gt;:	mov    %rsp,%rbp</span><br><span class="line">   0x00000000000001ee &lt;+9&gt;:	cmp    $0x8,%edi //8和edi比较</span><br><span class="line">   0x00000000000001f1 &lt;+12&gt;:	jle    0x206 &lt;func1+33&gt; //小于等于（小概率）发生跳转</span><br><span class="line">   0x00000000000001f3 &lt;+14&gt;:	mov    $0xa,%esi</span><br><span class="line">   0x00000000000001f8 &lt;+19&gt;:	mov    $0x0,%rdi</span><br><span class="line">   0x00000000000001ff &lt;+26&gt;:	callq  0x204 &lt;func1+31&gt;</span><br><span class="line">   0x0000000000000204 &lt;+31&gt;:	jmp    0x217 &lt;func1+50&gt;</span><br><span class="line">   0x0000000000000206 &lt;+33&gt;:	mov    $0x2,%esi</span><br><span class="line">   0x000000000000020b &lt;+38&gt;:	mov    $0x0,%rdi</span><br><span class="line">   0x0000000000000212 &lt;+45&gt;:	callq  0x217 &lt;func1+50&gt;</span><br><span class="line">   0x0000000000000217 &lt;+50&gt;:	pop    %rbp</span><br><span class="line">   0x0000000000000218 &lt;+51&gt;:	retq   </span><br><span class="line">End of assembler dump.</span><br><span class="line">(gdb) disass func2</span><br><span class="line">Dump of assembler code for function func2:</span><br><span class="line">   0x0000000000000219 &lt;+0&gt;:	callq  0x21e &lt;func2+5&gt;</span><br><span class="line">   0x000000000000021e &lt;+5&gt;:	push   %rbp</span><br><span class="line">   0x000000000000021f &lt;+6&gt;:	mov    %rsp,%rbp</span><br><span class="line">   0x0000000000000222 &lt;+9&gt;:	cmp    $0x8,%edi //8和edi比较</span><br><span class="line">   0x0000000000000225 &lt;+12&gt;:	jle    0x23a &lt;func2+33&gt;  //编译器问题没起作用，以前的编译器是jg,所以现在编译器大概不支持了。一般默认if里面直接跟的是小概率事件</span><br><span class="line">   0x0000000000000227 &lt;+14&gt;:	mov    $0xa,%esi</span><br><span class="line">   0x000000000000022c &lt;+19&gt;:	mov    $0x0,%rdi</span><br><span class="line">   0x0000000000000233 &lt;+26&gt;:	callq  0x238 &lt;func2+31&gt;</span><br><span class="line">   0x0000000000000238 &lt;+31&gt;:	jmp    0x24b &lt;func2+50&gt;</span><br><span class="line">   0x000000000000023a &lt;+33&gt;:	mov    $0x2,%esi</span><br><span class="line">   0x000000000000023f &lt;+38&gt;:	mov    $0x0,%rdi</span><br><span class="line">   0x0000000000000246 &lt;+45&gt;:	callq  0x24b &lt;func2+50&gt;</span><br><span class="line">   0x000000000000024b &lt;+50&gt;:	pop    %rbp</span><br><span class="line">   0x000000000000024c &lt;+51&gt;:	retq   </span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<p>内核模块机制：</p>
+<p>首先需要了解内核符号表的概念，内核符号表存放了所有模块可以访问的符号及相应的地址，模块声明的任何全局符号都成为内核符号表的一部分。</p>
+<p>内核符号表处于内核代码段的_ksymtab部分，其开始地址和结束地址是由C编译器所产生的两个符号来指定：__start_ksymtab和_stop_ksymtab。</p>
+<p>内核模块没有main函数，通过回调方式运行</p>
+<p>回调：向内核注册函数，然后应用程序触发函数的执行，比如驱动程序在初始化时，向内核注册处理某个设备写操作的函数，当应用程序使用write系统调用写该设备时，内核就会调用注册的回调函数。</p>
+<h2 id="内核模块makefile编写"><a href="#内核模块makefile编写" class="headerlink" title="内核模块makefile编写"></a>内核模块makefile编写</h2><figure class="highlight makefile hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">ifneq</span> (<span class="hljs-variable">$(KERNELRELEASE)</span>,)</span><br><span class="line"><span class="hljs-comment">#检查KERNELRELEASE是否已经被定义</span></span><br><span class="line">        obj-m := PrintModule.o</span><br><span class="line">        <span class="hljs-comment">#说明有一个模块需要从PrintModule.o中构造，而该模块名为PrintModule.ko</span></span><br><span class="line">        PrintModule-objs := DriverMain.o DriverFileOperations.o</span><br><span class="line">        <span class="hljs-comment">#说明PrintModule由多个目标文件构成，一个.o文件就是一个编译单元,一个.c生成一个.o</span></span><br><span class="line">EXTRA_CFLAGS := -DTEST_DEBUG -ggdb -O0</span><br><span class="line"><span class="hljs-comment">#DTEST_DEBUG 是代码中定义的debug宏</span></span><br><span class="line"><span class="hljs-comment">#-ggdb 加入调试信息</span></span><br><span class="line"><span class="hljs-comment">#-O0 优化级别，没有优化</span></span><br><span class="line"><span class="hljs-comment">#-O1 基本优化级别</span></span><br><span class="line"><span class="hljs-comment">#-o2 主要优化时间效率，不考虑生成的目标文件大小</span></span><br><span class="line"><span class="hljs-comment">#-O3 最高优化级别，一般不用</span></span><br><span class="line"><span class="hljs-comment">#-Os 优化生成的目标文件大小，并且激活-O2中不增加代码大小的优化选项</span></span><br><span class="line"><span class="hljs-comment">#-Og gcc4.8中引入的优化级别。编译快，同时合理提供运行效率。</span></span><br><span class="line"><span class="hljs-keyword">else</span></span><br><span class="line">        KERNELDIR ?= /lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build </span><br><span class="line">        <span class="hljs-comment">#?=表示如果KERNELDIR还没赋值，则赋值</span></span><br><span class="line">        <span class="hljs-comment">#$(shell uname -r) 获取当前内核版本号</span></span><br><span class="line">        <span class="hljs-comment">#/lib/modules/$(shell uname -r)存放编译好的内核模块符号信息</span></span><br><span class="line">        <span class="hljs-comment">#build是一个符号连接，指向了/usr/src/linux-headers-xxxxx-generic，里面包含了内核头文件，用于编译内核模块的各个Makefile</span></span><br><span class="line">        PWD := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span></span><br><span class="line">        <span class="hljs-comment"># 保存当前路径</span></span><br><span class="line"><span class="hljs-section">default: #default都会执行</span></span><br><span class="line">        <span class="hljs-variable">$(MAKE)</span> -C <span class="hljs-variable">$(KERNELDIR)</span> M=<span class="hljs-variable">$(PWD)</span> modules</span><br><span class="line">        <span class="hljs-comment">#MAKE：就是执行make</span></span><br><span class="line">        <span class="hljs-comment">#-C:切换目录到$(KERNELDIR)，因为这里有顶层makefile文件，编译内核模块之前需要对这个顶层的内核模块进行处理</span></span><br><span class="line">        <span class="hljs-comment">#在顶层makefile文件中，就定义了KERNELRELEASE</span></span><br><span class="line">        <span class="hljs-comment">#KERNELRELEASE = $(shell cat include/config/kernel.release 2&gt; /dev/null)</span></span><br><span class="line">        <span class="hljs-comment">#M表示在构造内核模块之前，回到目录PWD，再次执行当前目录下的Makefile</span></span><br><span class="line">        rm *.order *.symvers *.mod.c *.o .*.o.cmd .*.cmd .tmp_versions -rf</span><br><span class="line"><span class="hljs-keyword">endif</span></span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="优化和调试级别"><a href="#优化和调试级别" class="headerlink" title="优化和调试级别"></a>优化和调试级别</h3><p>优化</p>
+<ul>
+<li>-O0 优化级别，没有优化</li>
+<li>-O1 基本优化级别</li>
+<li>-O2 主要优化时间效率，不考虑生成的目标文件大小</li>
+<li>-O3 最高优化级别，一般不用</li>
+<li>-Os 优化生成的目标文件大小，并且激活-O2中不增加代码大小的优化选项</li>
+<li>-Og gcc4.8中引入的优化级别。编译快，同时合理提供运行效率。</li>
+</ul>
+<p>调试级别</p>
+<ul>
+<li>-g 利用操作系统native format生成调试信息，调试器可以直接使用，默认是-g2<ul>
+<li>-g2 包含扩展的符号表，行号，局部或外部变量信息</li>
+<li>-g3包含2中的所有调试信息，外加源码中定义的宏</li>
+</ul>
+</li>
+<li>-ggdb 是gcc为gdb专门生成的调试信息，只能用gdb调，默认是-ggdb2<ul>
+<li>-ggdbx，x跟在-gx的解释一样</li>
+</ul>
+</li>
+<li>-g0其实是不包含调试信息，等于不使用-g</li>
+<li>-g1不包含局部变量和行号有关的调试信息，因此只能用于回溯跟踪（函数调用历史）和堆栈转储</li>
+</ul>
+<h2 id="内核源码各目录功能"><a href="#内核源码各目录功能" class="headerlink" title="内核源码各目录功能"></a>内核源码各目录功能</h2><p>du -sh 源码大概800mb</p>
+<p>arch是体系结构相关的代码</p>
+<p>arm/boot是启动相关的代码</p>
+<p>mach-xxx开头是不同公司针对硬件平台增加的代码，比如三星的飞思卡尔的，不同的硬件平台配置不同。</p>
+<p>/Documentaion 是内核说明</p>
+<p>/firmware 固件芯片相关</p>
+<p>/init 内核初始化代码，汇编代码会调用start_kernel函数，do_mount挂载文件系统</p>
+<p>/usr是测试代码，不用看了</p>
+<p>/block 块设备相关代码</p>
+<p>/drivers 是驱动代码，占据了内核代码的一半以上。</p>
+<p>/fs文件系统代码</p>
+<p>/ipc 进程通信相关代码</p>
+<p>/kernel 内核核心通用代码，比如进程</p>
+<p>/arch/arm/kernel 是体系结构相关的内核代码，kernel里的代码会调用这里面的</p>
+<p>/net 网络子系统相关代码</p>
+<p>/crypto 加密相关</p>
+<p>/sound 声卡相关</p>
+<p>/include 内核头文件相关</p>
+<p>/lib 通用库，给内核各个模块使用</p>
+<p>/mm 内存管理，页表页表管理等等</p>
+<p>/scripts 编译内核的脚本</p>
+<h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><p>顶根目录下有一个makefile文件，各个子目录下也有makefile文件。</p>
+<p>顶层makefile通过include子目录下的makefile文件。</p>
+<p>顶层makefile首先会include体系结构相关的makefile文件</p>
+<figure class="highlight makefile hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SRCARCH 	:= <span class="hljs-variable">$(ARCH)</span></span><br><span class="line">...</span><br><span class="line"><span class="hljs-keyword">include</span> arch/<span class="hljs-variable">$(SRCARCH)</span>/Makefile</span><br></pre></td></tr></tbody></table></figure>
+
+<p>子目录，顶层makefile会调用这些子目录的makefie：</p>
+<figure class="highlight makefile hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">init-y		:= init/</span><br><span class="line">drivers-y	:= drivers/ sound/ firmware/</span><br><span class="line">net-y		:= net/</span><br><span class="line">libs-y		:= lib/</span><br><span class="line">core-y		:= usr/</span><br><span class="line">virt-y		:= virt/</span><br></pre></td></tr></tbody></table></figure>
+
+<p>比如<code>drivers/tty</code>里的，Kconfig文件是make menuconfigkey看见的配置文件，makefile里面就是那些文件应该编译成ko或者哪些不需要编译。</p>
+<p>里面都是obj打头的变量。-y表示编译到内核里，-m表示编译成驱动的形式</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line">Kconfig支持编译到内核里还是编译成内核模块还是不编译。-y表示编译到内核里，-m表示编译成驱动的形式</span><br><span class="line"></span><br><span class="line">obj-y += 目录 意思是到下级目录继续编译</span><br><span class="line"></span><br><span class="line">build-in.o是这个目录下所有.o文件的链接文件</span><br><span class="line"></span><br><span class="line">然后顶层makefile再把所有build-in.o链接成内核镜像</span><br><span class="line"></span><br><span class="line">定义lds一个链接文件，位于arch/$(SRCARCH)/kernel下。</span><br><span class="line"></span><br></pre></td></tr></tbody></table></figure>
+<p>export KBUILD_LDS          := arch/$(SRCARCH)/kernel/vmlinux.lds</p>
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```makefile</span><br><span class="line">vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \</span><br><span class="line">		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \</span><br><span class="line">		     $(net-y) $(net-m) $(libs-y) $(libs-m) $(virt-y)))</span><br><span class="line"></span><br><span class="line">vmlinux-alldirs	:= $(sort $(vmlinux-dirs) $(patsubst %/,%,$(filter %/, \</span><br><span class="line">		     $(init-) $(core-) $(drivers-) $(net-) $(libs-) $(virt-))))</span><br><span class="line"></span><br><span class="line">init-y		:= $(patsubst %/, %/built-in.a, $(init-y)) #内置函数</span><br><span class="line">core-y		:= $(patsubst %/, %/built-in.a, $(core-y))</span><br><span class="line">drivers-y	:= $(patsubst %/, %/built-in.a, $(drivers-y))</span><br><span class="line">net-y		:= $(patsubst %/, %/built-in.a, $(net-y))</span><br><span class="line">libs-y1		:= $(patsubst %/, %/lib.a, $(libs-y))</span><br><span class="line">libs-y2		:= $(patsubst %/, %/built-in.a, $(filter-out %.a, $(libs-y)))</span><br><span class="line">virt-y		:= $(patsubst %/, %/built-in.a, $(virt-y))</span><br></pre></td></tr></tbody></table></figure>
+
+<p><code>KBUILD_CFLAGS += -I/root/kernel-ml/include</code>这样可以添加头文件</p>
+<p>为了方便，下载与当前系统相同的内核版本进行修改，这样编译不容易出错。然后用当前系统的config文件基础上进行。编译内核的时候为了方便调试尽量不要优化。-02改成-O1。-O0会编不过</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cp /boot/config-xxxx-generic /pwd/.config</span><br><span class="line">make oldconfig</span><br><span class="line">make-kpkg clean</span><br><span class="line">make-kpkg --initrd kernel-headers kernel_image</span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">记得安装apt install kernel-package, libncurses6-dev等</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">然后会生成headers.deb和image.deb,在内核源码的上层目录下。</span></span><br><span class="line">dpkg -i *.deb</span><br><span class="line">reboot</span><br></pre></td></tr></tbody></table></figure>
+
+<p>编译成功后的效果：</p>
+<ul>
+<li><p>安装了linux-headers文件</p>
+<ul>
+<li><pre><code class="shell">ls /usr/src/
+<span class="meta">#</span>里面会有对应版本的headers文件夹
+<span class="meta">#</span>里面存放了用来编译内核模块的内核makefile，包括顶层makefile,用来编译内核模块
+<span class="meta">#</span>include里面就是头文件
+<figure class="highlight plaintext hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* `/lib/modules`新增了对应版本的文件夹，里边的build、source指向了刚刚编译内核的目录</span><br><span class="line"></span><br><span class="line">* `/boot`目录下增加了config-xxxx，inintrd.img，符号表信息System.map-xxx，内核映像vmlinuz-xx（理解成内核的可执行文件）</span><br><span class="line"></span><br><span class="line">* 启动项里也有增加，`vi /boot/grub/grub.cfg`</span><br><span class="line"></span><br><span class="line">什么是initrd</span><br><span class="line"></span><br><span class="line">系统启动的过程中，一个重要的任务就是mount根文件系统，里面存放了大部分系统程序</span><br><span class="line"></span><br><span class="line">而要mount根文件系统，必须有磁盘的驱动程序和文件系统驱动程序</span><br><span class="line"></span><br><span class="line">由于硬件和兼容性的限制。内核影响的大小不能太大</span><br><span class="line"></span><br><span class="line">Linux需要尽可能的支持多的硬件设备，但是由于内核映像大小的的限制，不能随便把硬件设备驱动程序放入内核映像中。</span><br><span class="line"></span><br><span class="line">于是将各种硬件设备、文件系统的驱动程序模块化。发行商提供内核映像、系统安装程序，系统安装过程中，会跟根据当前硬件设备情况，选出系统启动需要的驱动程序，并据此制作成initrd</span><br><span class="line"></span><br><span class="line">initrd相当于一个临时的根文件系统，其中存放了系统启动必须的各种驱动程序</span><br><span class="line"></span><br><span class="line">### 修改grub启动项</span><br><span class="line"></span><br><span class="line">```shell</span><br><span class="line">grep menuentry /boot/grub/grub.cfg</span><br></pre></td></tr></tbody></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220303193927327.png" alt="image-20220303193927327"></p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/default/grub</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220303194017988.png" alt="image-20220303194017988"></p>
+<p>修改<code>GRUB_DEFAULT</code>，<code>submenu</code>之间用<code>&gt;</code>连接</p>
+<h2 id="kgdb"><a href="#kgdb" class="headerlink" title="kgdb"></a>kgdb</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220227151447175.png" alt="image-20220227151447175"></p>
+<ul>
+<li>一台目标机，target、服务器，运行kgdb，需要调试时。目标机启动kgdb，控制权就移交给kgdb。等待连接gdb连接</li>
+<li>一台开发机，host，客户端，运行gdb，调试命令发送给目标机。使用gdb连接目标机的kgdb。发起连接</li>
+</ul>
+<h3 id="调试器基本原理"><a href="#调试器基本原理" class="headerlink" title="调试器基本原理"></a>调试器基本原理</h3><h4 id="断点如何实现"><a href="#断点如何实现" class="headerlink" title="断点如何实现"></a>断点如何实现</h4><p>设置断点，调试器会将断点处的内存修改为0xcc，也就是int3</p>
+<p>运行到断点，相当于执行int3的处理函数，就是调试器的主要工作环境</p>
+<p>然后调试器再把断点处的0xcc修改为原值</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ul>
+<li><p>step1：编译内核</p>
+<ul>
+<li>尽量不要优化编译，去优化。makefile文件里的-O2改成-O1。</li>
+<li>不要设置优化大小CONFIG-CC_OPTIMIZE_FOR_SIZE</li>
+<li>设置CONFIG_DEBUG_SECTION_MISMATCH,相当于-fno-inline-functions-called-once,避免inline优化</li>
+</ul>
+</li>
+<li><p>step2：利用VMWare clone虚拟机</p>
+</li>
+<li><p>step3：为两个系统配置串口</p>
+<ul>
+<li><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220302144440893.png" alt="image-20220302144440893" style="zoom: 50%;"></li>
+<li><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220302144510864.png" alt="image-20220302144510864" style="zoom:50%;"></li>
+<li>目标机：<code>cat /dev/ttyS1</code></li>
+<li>开发机：<code>echo "test" &gt; /dev/ttyS1</code></li>
+</ul>
+</li>
+<li><p>step4：配置grub.cfg，禁止内核地址随机化（nokaslr），不要直接改.cfg</p>
+<ul>
+<li>修改/etc/default/grub文件，增加：GRUB_CMDLINE_LINUX=”nokaslr rootdelay=90quiet splash text kgdboc=ttyS1,115200”<ul>
+<li>坑：增加后实验2.4会死机？，不知道为什么</li>
+</ul>
+</li>
+<li>执行#update-grub</li>
+</ul>
+</li>
+</ul>
+<h3 id="内核源码调试"><a href="#内核源码调试" class="headerlink" title="内核源码调试"></a>内核源码调试</h3><p>目标机：<code>echo g &gt; /proc/sysrq-trigger</code></p>
+<p>开发机：</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">gdb ./vmlinux</span><br><span class="line">set serial baud 115200</span><br><span class="line">target remote /dev/ttyS1</span><br><span class="line">b do_init_module</span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">获取模块段地址</span></span><br><span class="line">p mod-&gt;sect_attrs-&gt;nsections</span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">找到内核模块各个段的名字</span></span><br><span class="line">p mod-&gt;sect_attrs-&gt;attrs[2]-&gt;battr-&gt;attr-&gt;name</span><br><span class="line"><span class="meta prompt_">#</span><span class="hljs-language-bash">找到模块段的地址</span></span><br><span class="line">p mod-&gt;sect_attrs-&gt;attrs[2]-&gt;address</span><br></pre></td></tr></tbody></table></figure>
+
+<p>找出代码段、数据段、bss段地址：</p>
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220303185414477.png" alt="image-20220303185414477"></p>
+<p>然后设置各段地址：</p>
+<p><code>add-symbol-file /mnt/hgfs/lilin-linux/homework/1/driver/AddModule.ko 0xffffffffc0680000 -s .data 0xffffffffc0682000 -s .bss 0xffffffffc06824c0</code></p>
+<p>然后就可以对模块进行打断点调试等等。</p>
+<h2 id="进程的用户栈和内核栈"><a href="#进程的用户栈和内核栈" class="headerlink" title="进程的用户栈和内核栈"></a>进程的用户栈和内核栈</h2><p>用户栈：</p>
+<p>基于进程的虚拟地址空间的管理机制实，以VMA的形式实现</p>
+<p>内核栈：</p>
+<p>每个进程都有自己的内核栈，一般是4k，一个page。作为task_struct的一部分。每个进程可能通过系统调用进入内核，内核会代表进程执行一些代码，会保存一些私有的数据，这时候就要用内核站。</p>
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220414220406178.png" alt="image-20220414220406178"></p>
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220414220520207.png" alt="image-20220414220520207"></p>
+<p>task_struct描述了linux进程的通用部分</p>
+<p>里面的一个结构体thread_info 描述了特定体系结构的汇编代码段需要访问的那部分进程的数据。定义在arch/arm/include/asm/thread_info.h</p>
+<p>是不同体系下进程的描述。</p>
+<p><img src="/2022/03/01/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91/image-20220414220954751.png" alt="image-20220414220954751"></p>
+<h2 id="内核同步场景"><a href="#内核同步场景" class="headerlink" title="内核同步场景"></a>内核同步场景</h2><h2 id="源码相关"><a href="#源码相关" class="headerlink" title="源码相关"></a>源码相关</h2><h3 id="GDT表管理代码"><a href="#GDT表管理代码" class="headerlink" title="GDT表管理代码"></a>GDT表管理代码</h3><p>管理GDTR必须要专门的指令，lgdt和sgdt</p>
+<p>内核一定会使用lgdt指令把GDT表的及地址写入GDTR寄存器</p>
+<p>所以在源码文件中搜索出现了lgdt指令的地方</p>
+<p>方法是利用源码搜索网站结合观察源码一层层找</p>
+<p>最后找到内核用gdt_page管理GDT表</p>
+<figure class="highlight c++ hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">pv_cpu_ops</span> {</span><br><span class="line">	...</span><br><span class="line">	<span class="hljs-built_in">void</span> (*load_gdt)(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> desc_ptr *);</span><br><span class="line">    ...</span><br><span class="line">}<span class="hljs-comment">//间接层，类似于vfs的接口</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">load_gdt</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> desc_ptr *dtr)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">	<span class="hljs-built_in">PVOP_VCALL1</span>(cpu.load_gdt, dtr);</span><br><span class="line">}<span class="hljs-comment">//x86平台的load_gdt实现</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">load_direct_gdt</span><span class="hljs-params">(<span class="hljs-type">int</span> cpu)</span></span></span><br><span class="line"><span class="hljs-function"></span>{</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">desc_ptr</span> gdt_descr;</span><br><span class="line"></span><br><span class="line">	gdt_descr.address = (<span class="hljs-type">long</span>)<span class="hljs-built_in">get_cpu_gdt_rw</span>(cpu);<span class="hljs-comment">//返回了gdt表的地址</span></span><br><span class="line">	gdt_descr.size = GDT_SIZE - <span class="hljs-number">1</span>;</span><br><span class="line">	<span class="hljs-built_in">load_gdt</span>(&amp;gdt_descr);</span><br><span class="line">}<span class="hljs-comment">//调用了load_gdt的地方</span></span><br><span class="line"><span class="hljs-built_in">EXPORT_SYMBOL_GPL</span>(load_direct_gdt);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-keyword">struct</span> <span class="title class_">desc_struct</span> *<span class="hljs-built_in">get_cpu_gdt_rw</span>(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> cpu)</span><br><span class="line">{</span><br><span class="line">	<span class="hljs-keyword">return</span> <span class="hljs-built_in">per_cpu</span>(gdt_page, cpu).gdt;</span><br><span class="line">}<span class="hljs-comment">//get_cpu_gdt_rw做了什么</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">gdt_page</span>{</span><br><span class="line">	<span class="hljs-keyword">struct</span> <span class="title class_">desc_struct</span> gdt[GDT_ENTRIES];</span><br><span class="line">}<span class="hljs-comment">//真正的GDT表</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">struct</span> <span class="title class_">desc_struct</span> {</span><br><span class="line">	u16 limit0;</span><br><span class="line">	u16 base0;</span><br><span class="line">	u16 base1:<span class="hljs-number">8</span>, type: <span class="hljs-number">4</span>, s: <span class="hljs-number">1</span>, dpl: , p:<span class="hljs-number">1</span>;</span><br><span class="line">	...</span><br><span class="line">}<span class="hljs-comment">//这里就是Intel手册中的段描述符，就是GDT表的表项。</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>GDT全局描述符表位于内存中，每个CPU对应一个GDT</p>
+<h2 id="thread和PerCPU"><a href="#thread和PerCPU" class="headerlink" title="__thread和PerCPU"></a>__thread和PerCPU</h2><h2 id="PerCPU"><a href="#PerCPU" class="headerlink" title="PerCPU"></a>PerCPU</h2><p>假设有一个per cpu变量int x, x存在于内核映像文件.data..percpu段内。当系统初始化时，内核会为每个cpu都分配per cpu内存空间，并向其中复制一份.data..percpu段内的所有内容。</p>
+<h4 id="pvops"><a href="#pvops" class="headerlink" title="pvops"></a>pvops</h4><p>pvops接口来源于Xen项目，初衷是建立一个类虚拟化(para-virtualized）内核来适应于不同的hypervisor(虚拟层)，当然也包括适应于非虚拟化平台。</p>
+<p>pvops将类虚拟化操作分成一系列结构：<code>pv_time_ops</code>,<code>pv_cpu_ops</code>,<code>pv_mmu_ops</code>,<code>pv_lock_ops</code>和<code>pv_irq_ops</code>。</p>
+<p>举个例子，x86系统中利用<code>MOV CR3</code>指令来加载页表。pvops将其替换为一个间接跳转到<code>pv_mmu_ops -&gt; write_cr3</code>函数。 每种虚拟化平台，对这些函数都有自己的实现。上面是<code>load_gdt</code>在x86的实现。</p>
+<p><a target="_blank" rel="noopener" href="https://diting0x.github.io/20170101/pvops/">https://diting0x.github.io/20170101/pvops/</a></p>
+<p>问题：gdt表是一个cpu一个吗？</p>
+<p>page fault两个例子：mmap，fork的写时复制</p>
+<p>堆栈地址范围</p>
+<p>内核编了，kgdb调</p>
+<p>kpti</p>
+</body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2022/03/22/Efficient-IO-with-io-uring/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">Efficient IO with io_uring</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2022/02/21/Linux%E5%86%85%E6%A0%B8%E4%B9%8B%E5%9D%97IO%E5%B1%82/">
+                <span class="level-item">Linux内核之块IO层</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#基本特点">
+        <span class="has-mr-6">1</span>
+        <span>基本特点</span>
+        </a></li><li>
+        <a class="is-flex" href="#内核模块makefile编写">
+        <span class="has-mr-6">2</span>
+        <span>内核模块makefile编写</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#优化和调试级别">
+        <span class="has-mr-6">2.1</span>
+        <span>优化和调试级别</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#内核源码各目录功能">
+        <span class="has-mr-6">3</span>
+        <span>内核源码各目录功能</span>
+        </a></li><li>
+        <a class="is-flex" href="#编译内核">
+        <span class="has-mr-6">4</span>
+        <span>编译内核</span>
+        </a></li><li>
+        <a class="is-flex" href="#kgdb">
+        <span class="has-mr-6">5</span>
+        <span>kgdb</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#原理">
+        <span class="has-mr-6">5.1</span>
+        <span>原理</span>
+        </a></li><li>
+        <a class="is-flex" href="#调试器基本原理">
+        <span class="has-mr-6">5.2</span>
+        <span>调试器基本原理</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#断点如何实现">
+        <span class="has-mr-6">5.2.1</span>
+        <span>断点如何实现</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#环境搭建">
+        <span class="has-mr-6">5.3</span>
+        <span>环境搭建</span>
+        </a></li><li>
+        <a class="is-flex" href="#内核源码调试">
+        <span class="has-mr-6">5.4</span>
+        <span>内核源码调试</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#进程的用户栈和内核栈">
+        <span class="has-mr-6">6</span>
+        <span>进程的用户栈和内核栈</span>
+        </a></li><li>
+        <a class="is-flex" href="#内核同步场景">
+        <span class="has-mr-6">7</span>
+        <span>内核同步场景</span>
+        </a></li><li>
+        <a class="is-flex" href="#源码相关">
+        <span class="has-mr-6">8</span>
+        <span>源码相关</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#GDT表管理代码">
+        <span class="has-mr-6">8.1</span>
+        <span>GDT表管理代码</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#thread和PerCPU">
+        <span class="has-mr-6">9</span>
+        <span>__thread和PerCPU</span>
+        </a></li><li>
+        <a class="is-flex" href="#PerCPU">
+        <span class="has-mr-6">10</span>
+        <span>PerCPU</span>
+        </a><ul class="menu-list"><ul class="menu-list"><li>
+        <a class="is-flex" href="#pvops">
+        <span class="has-mr-6">10.1.1</span>
+        <span>pvops</span>
+        </a></li></ul></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="内核开发" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

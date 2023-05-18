@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8">
+<title>内核开发总结 - JUSTME</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+
+
+    <meta name="description" content="https:&#x2F;&#x2F;space.bilibili.com&#x2F;646178510 学习记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内核开发总结">
+<meta property="og:url" content="http://yoursite.com/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="JUSTME">
+<meta property="og:description" content="https:&#x2F;&#x2F;space.bilibili.com&#x2F;646178510 学习记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2023-03-20T07:10:27.000Z">
+<meta property="article:modified_time" content="2023-05-18T08:34:49.327Z">
+<meta property="article:author" content="JUSTME">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/monokai-sublime.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+<meta name="generator" content="Hexo 5.4.2"></head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="内核开发总结" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">主页</a>
+                
+                <a class="navbar-item"
+                href="/archives">归档</a>
+                
+                <a class="navbar-item"
+                href="/categories">分类</a>
+                
+                <a class="navbar-item"
+                href="/tags">标签</a>
+                
+                <a class="navbar-item"
+                href="/about">关于</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main"><div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2023-03-20T07:10:27.000Z">2023-03-20</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    19 分钟 读完 (大约 2843 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-medium">
+            
+                内核开发总结
+            
+        </h1>
+        <div class="content">
+            <html><head></head><body><p><a target="_blank" rel="noopener" href="https://space.bilibili.com/646178510">https://space.bilibili.com/646178510</a> 学习记录</p>
+<span id="more"></span>
+
+<h1 id="开发基础"><a href="#开发基础" class="headerlink" title="开发基础"></a>开发基础</h1><h2 id="7、linux内核编译过程"><a href="#7、linux内核编译过程" class="headerlink" title="7、linux内核编译过程"></a>7、linux内核编译过程</h2><p>顶层根目录有个顶层makefile，各级源代码目录还有一个makefile，顶层makefile去include各子目录的makefile文件，从而把内核源码囊括起来。</p>
+<h2 id="9、内核空间和用户空间以及数据拷贝"><a href="#9、内核空间和用户空间以及数据拷贝" class="headerlink" title="9、内核空间和用户空间以及数据拷贝"></a>9、内核空间和用户空间以及数据拷贝</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324142511108.png" alt="image-20230324142511108"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324143202467.png" alt="image-20230324143202467"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324143236217.png" alt="image-20230324143236217"></p>
+<p><code>copy_from_user(addr_kernel, addr_user, len)</code></p>
+<p><code>copy_to_user(addr_user, addr_kernel, len)</code></p>
+<p>为什么不允许内核直接访问用户空间的数据呢？防止缺页？安全性？</p>
+<h2 id="10、x86页式内存管理和页表映射"><a href="#10、x86页式内存管理和页表映射" class="headerlink" title="10、x86页式内存管理和页表映射"></a>10、x86页式内存管理和页表映射</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324150530121.png" alt="image-20230324150530121"></p>
+<p>逻辑地址-&gt;线性地址-&gt;物理地址</p>
+<p>分为两个阶段：段页式转换-&gt;页表映射，只是linux内核里段基址是0，也就是逻辑地址等于线性地址。</p>
+<h3 id="页表映射"><a href="#页表映射" class="headerlink" title="页表映射"></a>页表映射</h3><p>以二级页表转换为例。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324151515349.png" alt="image-20230324151515349"></p>
+<p>（物理块就是物理页）</p>
+<p>cr3-&gt;页目录表-&gt;二级页表-&gt;物理页地址-&gt;加上偏移就是物理地址。</p>
+<h2 id="11、内核同步场景"><a href="#11、内核同步场景" class="headerlink" title="11、内核同步场景"></a>11、内核同步场景</h2><p>比如设备驱动的open，有的设备可以被多个进程访问，比如磁盘、网卡。</p>
+<p>一个有问题的例子：</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320152225655.png" alt="image-20230320152225655"></p>
+<p>出现问题：</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320151950659.png" alt="image-20230320151950659"></p>
+<p>这个例子中，xxx_count就是一个共享资源，并发执行单元对共享资源的访问会引发竞态问题。需要使用内核同步方法来保护临界区。</p>
+<h2 id="12、semaphore使用"><a href="#12、semaphore使用" class="headerlink" title="12、semaphore使用"></a>12、semaphore使用</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321132044807.png" alt="image-20230321132044807"></p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">semaphore</span> <span class="hljs-title">sema</span>;</span></span><br><span class="line">sema_init(&amp;sema, <span class="hljs-number">1</span>);</span><br><span class="line">down(&amp;sema);</span><br><span class="line">up(&amp;sema);</span><br></pre></td></tr></tbody></table></figure>
+
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320152849524.png" alt="image-20230320152849524"></p>
+<h2 id="13、semaphore内核实现"><a href="#13、semaphore内核实现" class="headerlink" title="13、semaphore内核实现"></a>13、semaphore内核实现</h2><p>本质上是基于进程调度器实现的，UP和SMP实现无差异</p>
+<h3 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h3><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153001796.png" alt="image-20230320153001796"></p>
+<p>list_head是双向链表</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153134335.png" alt="image-20230320153134335"></p>
+<p>初始化一个结构体，然后赋值。</p>
+<h3 id="down"><a href="#down" class="headerlink" title="down"></a>down</h3><p>获取一个锁</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153327793.png" alt="image-20230320153327793"></p>
+<p>如果获取不到，进入down</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153617757.png" alt="image-20230320153617757"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153650943.png" alt="image-20230320153650943"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320153801572.png" alt="image-20230320153801572"></p>
+<p>就是第二个进程进来后，会创建一个waiter，加入到sem的wait_list里。然后进入while 1,把当前这个进程设置为休眠，然后释放down函数里申请的自旋锁，让这个把当前的进程调度出去，等被唤醒后，看下waiter.up，为true就返回。</p>
+<p>传入的state是进程的状态，task_uninterruptable，不可运行且不能被打断的。</p>
+<h3 id="up"><a href="#up" class="headerlink" title="up"></a>up</h3><p>down里检查waiter.up，就是在up里设置的。跟down是对应的</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320154726370.png" alt="image-20230320154726370"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320154801612.png" alt="image-20230320154801612"></p>
+<p>理一下，就是当资源不够，当前进程会休眠，休眠之前，这个task_struct会加入到这个sem的wait_list里面。</p>
+<p>up时候，如果wait_list有进程，就把它拿出来，然后wake_up。</p>
+<h2 id="14、内核原子变量"><a href="#14、内核原子变量" class="headerlink" title="14、内核原子变量"></a>14、内核原子变量</h2><p>为啥要有原子变量，比如刚刚的例子，只是要对一个open_count进行保护，使用信号量的开销太大了，信号量会让进程调度。也就是atomic适合针对int变量进行同步的场景。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320155750926.png" alt="image-20230320155750926"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230320155850515.png" alt="image-20230320155850515"></p>
+<p>atomic_dec_and_test就是原子减一 ,结果为0 返回 true，atomic_inc就是原子加一，不会被调度，不会被cpu打断。</p>
+<h2 id="15、atomic内核实现"><a href="#15、atomic内核实现" class="headerlink" title="15、atomic内核实现"></a>15、atomic内核实现</h2><p>实现跟体系结构相关。视频中讲的是arm下的，这里看x86的</p>
+<h2 id="16、spinlock使用"><a href="#16、spinlock使用" class="headerlink" title="16、spinlock使用"></a>16、spinlock使用</h2><p>信号量不支持进程和中断之间的同步，但是spinlock可以。中断上下文不允许睡眠，适合spinlock。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321132337095.png" alt="image-20230321132337095"></p>
+<p>死等是用特殊的汇编指令实现的。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">spinlock_t</span> count_lock;</span><br><span class="line">spin_lock_init(&amp;count_lock);</span><br><span class="line">spin_lock(&amp;count_lock);</span><br><span class="line">spin_unlock(&amp;count_lock);</span><br></pre></td></tr></tbody></table></figure>
+
+<p>使用自旋锁的临界区代码尽可能少，不能调用睡眠或可能引起睡眠的函数。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321132833399.png" alt="image-20230321132833399"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321133403833.png" alt="image-20230321133403833"></p>
+<h2 id="17、spinlock内核实现（UP）"><a href="#17、spinlock内核实现（UP）" class="headerlink" title="17、spinlock内核实现（UP）"></a>17、spinlock内核实现（UP）</h2><p>实现也跟体系结构相关。</p>
+<h3 id="结构体-1"><a href="#结构体-1" class="headerlink" title="结构体"></a>结构体</h3><p>封装了三层：spinlock，raw_spinlock，arch_spinlock_t（具体实现），多一层封装多一层灵活性。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321133546072.png" alt="image-20230321133546072"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321134454452.png" alt="image-20230321134454452"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321134227826.png" alt="image-20230321134227826"></p>
+<p>使用owner和next来保证先到先唤醒。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321134553611.png" alt="image-20230321134553611"></p>
+<h3 id="初始化-1"><a href="#初始化-1" class="headerlink" title="初始化"></a>初始化</h3><p>就是对raw_lock进行初始化，owner和next都等于0</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321140139665.png" alt="image-20230321140139665"></p>
+<p>读内核时候，check函数可以不仔细看，就是辅助函数</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321140436955.png" alt="image-20230321140436955"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321142653602.png" alt="image-20230321142653602"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321142816505.png" alt="image-20230321142816505"></p>
+<h3 id="spin-lock"><a href="#spin-lock" class="headerlink" title="spin_lock"></a>spin_lock</h3><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321142947003.png" alt="image-20230321142947003"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321143004515.png" alt="image-20230321143004515"></p>
+<p>_raw_spin_lock的实现有两种，分别对应UP和SMP的。</p>
+<p>up的实现比较简单，<strong>关闭抢占</strong>，__LOCK就什么都没做了</p>
+<p>在include/linux下</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321143224851.png" alt="image-20230321143224851"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321143243009.png" alt="image-20230321143243009"></p>
+<h2 id="18、spinlock内核实现（SMP）"><a href="#18、spinlock内核实现（SMP）" class="headerlink" title="18、spinlock内核实现（SMP）"></a>18、spinlock内核实现（SMP）</h2><p>接上，区别在_raw_spin_lock的实现，在kernel/locking下</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321143904162.png" alt="image-20230321143904162"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321143915292.png" alt="image-20230321143915292"></p>
+<p>多核也是先关抢占，然后要同步其他cpu，最后是体系结构相关的代码。</p>
+<h2 id="19、spinlock、rw-spinlock、seqlock、rcu机制比较"><a href="#19、spinlock、rw-spinlock、seqlock、rcu机制比较" class="headerlink" title="19、spinlock、rw spinlock、seqlock、rcu机制比较"></a>19、spinlock、rw spinlock、seqlock、rcu机制比较</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321145117991.png" alt="image-20230321145117991"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321145356342.png" alt="image-20230321145356342"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321145604286.png" alt="image-20230321145604286"></p>
+<p>lock更新后，引起其他cpu核的cache失效。性能满足不了需求，就提出了RCU机制。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321150258599.png" alt="image-20230321150258599"></p>
+<h2 id="22、页框和伙伴算法和slab"><a href="#22、页框和伙伴算法和slab" class="headerlink" title="22、页框和伙伴算法和slab"></a>22、页框和伙伴算法和slab</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321150541275.png" alt="image-20230321150541275"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151033466.png" alt="image-20230321151033466"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151053950.png" alt="image-20230321151053950"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151218975.png" alt="image-20230321151218975"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151301903.png" alt="image-20230321151301903"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151617952.png" alt="image-20230321151617952"></p>
+<h2 id="23、内存管理和分配方法"><a href="#23、内存管理和分配方法" class="headerlink" title="23、内存管理和分配方法"></a>23、内存管理和分配方法</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151835475.png" alt="image-20230321151835475"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321151918293.png" alt="image-20230321151918293"></p>
+<p>kmem_cache_alloc会调用slab_aclloc。flags是运行睡眠还是不允许睡眠。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321155035163.png" alt="image-20230321155035163"></p>
+<p>给硬件分配的一般要求连续，用kmalloc</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321155156658.png" alt="image-20230321155156658"></p>
+<h2 id="24、kmalloc实现"><a href="#24、kmalloc实现" class="headerlink" title="24、kmalloc实现"></a>24、kmalloc实现</h2><p><code>kmalloc-&gt;__kmalloc-&gt; __do_kmalloc</code></p>
+<h3 id="主体实现"><a href="#主体实现" class="headerlink" title="主体实现"></a>主体实现</h3><p>kmalloc依赖slab分配器实现，slab又依赖伙伴系统实现。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321155904171.png" alt="image-20230321155904171"></p>
+<p>根据size找到对应的高速缓存，然后调用slab_alloc找到一个空闲的object，然后把它的指针返回。  kasan_kmalloc是内存调试用的，先忽略。</p>
+<h3 id="根据size获取kmem-cache-高速缓存"><a href="#根据size获取kmem-cache-高速缓存" class="headerlink" title="根据size获取kmem_cache(高速缓存)"></a>根据size获取kmem_cache(高速缓存)</h3><p>kmem_cache</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321160244676.png" alt="image-20230321160244676"></p>
+<p>换算成一个index，从kmalloc_caches数组里拿。</p>
+<h2 id="25、高速缓存和size的对应关系"><a href="#25、高速缓存和size的对应关系" class="headerlink" title="25、高速缓存和size的对应关系"></a>25、高速缓存和size的对应关系</h2><p>过</p>
+<h2 id="26、虚拟地址空间管理"><a href="#26、虚拟地址空间管理" class="headerlink" title="26、虚拟地址空间管理"></a>26、虚拟地址空间管理</h2><p>不同的区域用不同的vma管理</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321162757962.png" alt="image-20230321162757962"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321163215100.png" alt="image-20230321163215100"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321163033269.png" alt="image-20230321163033269"></p>
+<h2 id="27、虚拟地址空间管理的内核结构"><a href="#27、虚拟地址空间管理的内核结构" class="headerlink" title="27、虚拟地址空间管理的内核结构"></a>27、虚拟地址空间管理的内核结构</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321163442644.png" alt="image-20230321163442644"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321163905628.png" alt="image-20230321163905628"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321163916165.png" alt="image-20230321163916165"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321164044371.png" alt="image-20230321164044371"></p>
+<p>对于线程来说，多个线程共享一个地址空间，也就是多个 task_struct 使用同一个 mm_struct 结构，所以执行 fork 时只需要把父进程的 mm 赋值给子进程的 mm;</p>
+<h2 id="28、mmap实现"><a href="#28、mmap实现" class="headerlink" title="28、mmap实现"></a>28、mmap实现</h2><p>pass</p>
+<h2 id="29、用户栈和内核栈"><a href="#29、用户栈和内核栈" class="headerlink" title="29、用户栈和内核栈"></a>29、用户栈和内核栈</h2><blockquote>
+<p>用户栈是vma来管理，另一个作为task_struct的一部分。</p>
+</blockquote>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321164913884.png" alt="image-20230321164913884"></p>
+<p>我记得内核栈是8k。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321165143139.png" alt="image-20230321165143139"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321165214904.png" alt="image-20230321165214904"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321165349053.png" alt="image-20230321165349053"></p>
+<p>内核会有其他方式来保证内核栈不溢出。</p>
+<p>thread_info是体系结构相关的，可以看下arm的：</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321165505295.png" alt="image-20230321165505295"></p>
+<h2 id="30、进程上下文和中断上下文"><a href="#30、进程上下文和中断上下文" class="headerlink" title="30、进程上下文和中断上下文"></a>30、进程上下文和中断上下文</h2><h3 id="preempt-count"><a href="#preempt-count" class="headerlink" title="preempt_count"></a>preempt_count</h3><p>这个变量保存在thread_info里面</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230321170132612.png" alt="image-20230321170132612"></p>
+<h2 id="32、软中断特点以及softirq注册和触发"><a href="#32、软中断特点以及softirq注册和触发" class="headerlink" title="32、软中断特点以及softirq注册和触发"></a>32、软中断特点以及softirq注册和触发</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324161544265.png" alt="image-20230324161544265"></p>
+<p>哪个cpu触发软中断，哪个cpu执行这个软中断处理函数</p>
+<p>每个cpu都有一个__softirq_pending变量，所以只能看到本地cpu软中断的状态。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324161747607.png" alt="image-20230324161747607"></p>
+<h2 id="33、do-softirq-的执行时机"><a href="#33、do-softirq-的执行时机" class="headerlink" title="33、do_softirq()的执行时机"></a>33、do_softirq()的执行时机</h2><h3 id="ksoftirqd线程"><a href="#ksoftirqd线程" class="headerlink" title="ksoftirqd线程"></a>ksoftirqd线程</h3><p>每个cpu都会创建这么一个线程，<code>ksoftird/%u</code></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324152618728.png" alt=""></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324152729109.png" alt="image-20230324152729109"></p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324153043345.png" alt="image-20230324153043345"></p>
+<p>这里的代码解释下，local_irq_disable()关闭中断是为了保护数据，__do_softirq()里又把硬中断打开了，所以说在软中断的执行过程中是打开cpu中断的。</p>
+<h3 id="硬件中断返回irq-exit"><a href="#硬件中断返回irq-exit" class="headerlink" title="硬件中断返回irq_exit()"></a>硬件中断返回irq_exit()</h3><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324153208352.png" alt="image-20230324153208352"></p>
+<p>如果本地cpu上有待处理的软中断，只有不处于中断上下文的时就会调用__do_softirq()。</p>
+<p>为什么需要判断 !in_inerrupt() ？那是因为在某些时候，软中断被硬件中断抢占执行，硬中断退出时，尽管退出了硬中断上下文，但是仍处于软中断上下文中，这时候不应该嵌套执行软中断，因为硬中断函数返回之后会继续执行被打断的软中断。</p>
+<figure class="highlight c hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="title function_">invoke_softirq</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="line">{</span><br><span class="line">    <span class="hljs-keyword">if</span> (ksoftirqd_running(local_softirq_pending()))</span><br><span class="line">        <span class="hljs-keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">if</span> (!force_irqthreads) {</span><br><span class="line">        ...</span><br><span class="line">        __do_softirq();</span><br><span class="line"><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span></span><br><span class="line">    } <span class="hljs-keyword">else</span> {</span><br><span class="line">        wakeup_softirqd();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="直接调用"><a href="#直接调用" class="headerlink" title="直接调用"></a>直接调用</h3><p>例如在网络子系统，对实时性要求比较高，所以会直接调用do_softirq进行处理。</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324153614633.png" alt="image-20230324153614633"></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/363225717">https://zhuanlan.zhihu.com/p/363225717</a></p>
+<h2 id="34、软中断的执行过程"><a href="#34、软中断的执行过程" class="headerlink" title="34、软中断的执行过程"></a>34、软中断的执行过程</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324163149398.png" alt="image-20230324163149398"></p>
+<p>得到已经触发的软中断flag，然后一个个调它的软中断处理函数。</p>
+<ul>
+<li>不同软中断优先级如何体现</li>
+</ul>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324162755709.png" alt="image-20230324162755709"></p>
+<ul>
+<li>ksoftirqd优先级高于普通进程</li>
+</ul>
+<p>硬件中断返回时候，就会调用：</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324162853793.png" alt="image-20230324162853793"></p>
+<p>这里几乎没什么条件，就会调用invoke_softirq</p>
+<h2 id="35、free-memory和avaliable-memory"><a href="#35、free-memory和avaliable-memory" class="headerlink" title="35、free memory和avaliable memory"></a>35、free memory和avaliable memory</h2><p><code>free memory</code>是完全没有被用到的内存，而Linux认为内存不用也是浪费，因此会尽量“多”地把内存用来做各种缓存，提高系统的性能。而<code>available memory</code>是应用程序认为可用内存数量，它是<code>free memory</code>，<code>buffer</code>和<code>cache</code>的总和。</p>
+<h1 id="追踪调试基础"><a href="#追踪调试基础" class="headerlink" title="追踪调试基础"></a>追踪调试基础</h1><h2 id="1、linux追踪技术三大件"><a href="#1、linux追踪技术三大件" class="headerlink" title="1、linux追踪技术三大件"></a>1、linux追踪技术三大件</h2><p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324164642462.png" alt="image-20230324164642462"></p>
+<p>前端工具：应用层工具。</p>
+<p>tracing framework：把追踪的事件返回到用户空间</p>
+<p>事件源：比如printk就是一种事件源</p>
+<p><img src="/2023/03/20/%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%80%BB%E7%BB%93/image-20230324165128388.png" alt="image-20230324165128388"></p>
+<h2 id="2、事件源"><a href="#2、事件源" class="headerlink" title="2、事件源"></a>2、事件源</h2></body></html>
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2023/05/08/DPDK-f-stack/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">DPDK &amp; f-stack</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2023/02/27/oceanbase-2022-%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%9B%98/">
+                <span class="level-item">oceanbase 2022 比赛复盘</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                        <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="JUSTME">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        JUSTME
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        UESTC
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>四川 成都</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        102
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        19
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        23
+                    </p>
+                </div>
+            </div>
+        </nav>
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/cccc1412" target="_blank">
+                关注我</a>
+        </div>
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Github" href="https://github.com/cccc1412">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#开发基础">
+        <span class="has-mr-6">1</span>
+        <span>开发基础</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#7、linux内核编译过程">
+        <span class="has-mr-6">1.1</span>
+        <span>7、linux内核编译过程</span>
+        </a></li><li>
+        <a class="is-flex" href="#9、内核空间和用户空间以及数据拷贝">
+        <span class="has-mr-6">1.2</span>
+        <span>9、内核空间和用户空间以及数据拷贝</span>
+        </a></li><li>
+        <a class="is-flex" href="#10、x86页式内存管理和页表映射">
+        <span class="has-mr-6">1.3</span>
+        <span>10、x86页式内存管理和页表映射</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#页表映射">
+        <span class="has-mr-6">1.3.1</span>
+        <span>页表映射</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#11、内核同步场景">
+        <span class="has-mr-6">1.4</span>
+        <span>11、内核同步场景</span>
+        </a></li><li>
+        <a class="is-flex" href="#12、semaphore使用">
+        <span class="has-mr-6">1.5</span>
+        <span>12、semaphore使用</span>
+        </a></li><li>
+        <a class="is-flex" href="#13、semaphore内核实现">
+        <span class="has-mr-6">1.6</span>
+        <span>13、semaphore内核实现</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#结构体">
+        <span class="has-mr-6">1.6.1</span>
+        <span>结构体</span>
+        </a></li><li>
+        <a class="is-flex" href="#初始化">
+        <span class="has-mr-6">1.6.2</span>
+        <span>初始化</span>
+        </a></li><li>
+        <a class="is-flex" href="#down">
+        <span class="has-mr-6">1.6.3</span>
+        <span>down</span>
+        </a></li><li>
+        <a class="is-flex" href="#up">
+        <span class="has-mr-6">1.6.4</span>
+        <span>up</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#14、内核原子变量">
+        <span class="has-mr-6">1.7</span>
+        <span>14、内核原子变量</span>
+        </a></li><li>
+        <a class="is-flex" href="#15、atomic内核实现">
+        <span class="has-mr-6">1.8</span>
+        <span>15、atomic内核实现</span>
+        </a></li><li>
+        <a class="is-flex" href="#16、spinlock使用">
+        <span class="has-mr-6">1.9</span>
+        <span>16、spinlock使用</span>
+        </a></li><li>
+        <a class="is-flex" href="#17、spinlock内核实现（UP）">
+        <span class="has-mr-6">1.10</span>
+        <span>17、spinlock内核实现（UP）</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#结构体-1">
+        <span class="has-mr-6">1.10.1</span>
+        <span>结构体</span>
+        </a></li><li>
+        <a class="is-flex" href="#初始化-1">
+        <span class="has-mr-6">1.10.2</span>
+        <span>初始化</span>
+        </a></li><li>
+        <a class="is-flex" href="#spin-lock">
+        <span class="has-mr-6">1.10.3</span>
+        <span>spin_lock</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#18、spinlock内核实现（SMP）">
+        <span class="has-mr-6">1.11</span>
+        <span>18、spinlock内核实现（SMP）</span>
+        </a></li><li>
+        <a class="is-flex" href="#19、spinlock、rw-spinlock、seqlock、rcu机制比较">
+        <span class="has-mr-6">1.12</span>
+        <span>19、spinlock、rw spinlock、seqlock、rcu机制比较</span>
+        </a></li><li>
+        <a class="is-flex" href="#22、页框和伙伴算法和slab">
+        <span class="has-mr-6">1.13</span>
+        <span>22、页框和伙伴算法和slab</span>
+        </a></li><li>
+        <a class="is-flex" href="#23、内存管理和分配方法">
+        <span class="has-mr-6">1.14</span>
+        <span>23、内存管理和分配方法</span>
+        </a></li><li>
+        <a class="is-flex" href="#24、kmalloc实现">
+        <span class="has-mr-6">1.15</span>
+        <span>24、kmalloc实现</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#主体实现">
+        <span class="has-mr-6">1.15.1</span>
+        <span>主体实现</span>
+        </a></li><li>
+        <a class="is-flex" href="#根据size获取kmem-cache-高速缓存">
+        <span class="has-mr-6">1.15.2</span>
+        <span>根据size获取kmem_cache(高速缓存)</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#25、高速缓存和size的对应关系">
+        <span class="has-mr-6">1.16</span>
+        <span>25、高速缓存和size的对应关系</span>
+        </a></li><li>
+        <a class="is-flex" href="#26、虚拟地址空间管理">
+        <span class="has-mr-6">1.17</span>
+        <span>26、虚拟地址空间管理</span>
+        </a></li><li>
+        <a class="is-flex" href="#27、虚拟地址空间管理的内核结构">
+        <span class="has-mr-6">1.18</span>
+        <span>27、虚拟地址空间管理的内核结构</span>
+        </a></li><li>
+        <a class="is-flex" href="#28、mmap实现">
+        <span class="has-mr-6">1.19</span>
+        <span>28、mmap实现</span>
+        </a></li><li>
+        <a class="is-flex" href="#29、用户栈和内核栈">
+        <span class="has-mr-6">1.20</span>
+        <span>29、用户栈和内核栈</span>
+        </a></li><li>
+        <a class="is-flex" href="#30、进程上下文和中断上下文">
+        <span class="has-mr-6">1.21</span>
+        <span>30、进程上下文和中断上下文</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#preempt-count">
+        <span class="has-mr-6">1.21.1</span>
+        <span>preempt_count</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#32、软中断特点以及softirq注册和触发">
+        <span class="has-mr-6">1.22</span>
+        <span>32、软中断特点以及softirq注册和触发</span>
+        </a></li><li>
+        <a class="is-flex" href="#33、do-softirq-的执行时机">
+        <span class="has-mr-6">1.23</span>
+        <span>33、do_softirq()的执行时机</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#ksoftirqd线程">
+        <span class="has-mr-6">1.23.1</span>
+        <span>ksoftirqd线程</span>
+        </a></li><li>
+        <a class="is-flex" href="#硬件中断返回irq-exit">
+        <span class="has-mr-6">1.23.2</span>
+        <span>硬件中断返回irq_exit()</span>
+        </a></li><li>
+        <a class="is-flex" href="#直接调用">
+        <span class="has-mr-6">1.23.3</span>
+        <span>直接调用</span>
+        </a></li><li>
+        <a class="is-flex" href="#参考">
+        <span class="has-mr-6">1.23.4</span>
+        <span>参考</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#34、软中断的执行过程">
+        <span class="has-mr-6">1.24</span>
+        <span>34、软中断的执行过程</span>
+        </a></li><li>
+        <a class="is-flex" href="#35、free-memory和avaliable-memory">
+        <span class="has-mr-6">1.25</span>
+        <span>35、free memory和avaliable memory</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#追踪调试基础">
+        <span class="has-mr-6">2</span>
+        <span>追踪调试基础</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#1、linux追踪技术三大件">
+        <span class="has-mr-6">2.1</span>
+        <span>1、linux追踪技术三大件</span>
+        </a></li><li>
+        <a class="is-flex" href="#2、事件源">
+        <span class="has-mr-6">2.2</span>
+        <span>2、事件源</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="内核开发总结" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2023 JUSTME&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>
